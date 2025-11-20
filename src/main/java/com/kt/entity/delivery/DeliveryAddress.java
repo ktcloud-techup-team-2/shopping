@@ -45,10 +45,10 @@ public class DeliveryAddress {
 
 	@CreatedDate
 	@Column(updatable = false)
-	private LocalDateTime createAt;
+	private LocalDateTime createdAt;
 
 	@LastModifiedDate
-	private LocalDateTime updateAt;
+	private LocalDateTime updatedAt;
 
 	public void setAsDefault() {
 		this.isDefault = true;
