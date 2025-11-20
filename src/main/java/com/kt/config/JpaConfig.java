@@ -1,4 +1,4 @@
-package com.kt.delivery.config;
+package com.kt.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
