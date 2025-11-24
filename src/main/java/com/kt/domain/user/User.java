@@ -75,16 +75,4 @@ public class User {
                 updatedAt
         );
     }
-
-    public void updatePassword(String password) {
-        this.password = password;
-    }
-
-    public void updateInfo (String name, String email, String phone, LocalDate birthday, LocalDateTime updatedAt) {
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.birthday = birthday;
-        this.updatedAt = updatedAt;
-    }
 }
