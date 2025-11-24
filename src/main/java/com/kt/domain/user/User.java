@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
 
     @NotNull
     private String name;
@@ -32,10 +32,11 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public User(String name, String loginId, String password, String email, String phone, LocalDate birthday, Gender gender, Role role,  LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.name = name;
+    public User( String loginId, String password, String name, String email, String phone, LocalDate birthday, Gender gender, Role role,  LocalDateTime createdAt, LocalDateTime updatedAt) {
+
         this.loginId = loginId;
         this.password = password;
+        this.name = name;
         this.email = email;
         this.phone = phone;
         this.birthday = birthday;
@@ -43,6 +44,36 @@ public class User {
         this.role = role;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    public static User user (String loginId, String password, String name, String email, String phone, LocalDate birthday, Gender gender, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        return new User(
+                loginId,
+                password,
+                name,
+                email,
+                phone,
+                birthday,
+                gender,
+                Role.USER,
+                createdAt,
+                updatedAt
+        );
+    }
+
+    public static User admin (String loginId, String password, String name, String email, String phone, LocalDate birthday, Gender gender, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        return new User(
+                loginId,
+                password,
+                name,
+                email,
+                phone,
+                birthday,
+                gender,
+                Role.ADMIN,
+                createdAt,
+                updatedAt
+        );
     }
 
     public void updatePassword(String password) {
