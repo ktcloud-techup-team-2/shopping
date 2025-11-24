@@ -6,6 +6,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.kt.dto.delivery.DeliveryAddressRequest;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -61,5 +63,29 @@ public class DeliveryAddress {
 	}
 	public boolean isOwnedBy(Long userId) {
 		return this.userId.equals(userId);
+	}
+
+	public static DeliveryAddress from(Long userId, DeliveryAddressRequest.Create request) {
+		DeliveryAddress address = new DeliveryAddress();
+		address.userId = userId;
+		address.addressName = request.addressName();
+		address.receiverName = request.receiverName();
+		address.receiverMobile = request.receiverMobile();
+		address.postalCode = request.postalCode();
+		address.roadAddress = request.roadAddress();
+		address.detailAddress = request.detailAddress();
+		address.isDefault = request.isDefault() != null ? request.isDefault() : false;
+		address.isActive = true;
+		return address;
+	}
+
+	public void update(String addressName, String receiverName, String receiverMobile,
+		String postalCode, String roadAddress, String detailAddress) {
+		this.addressName = addressName;
+		this.receiverName = receiverName;
+		this.receiverMobile = receiverMobile;
+		this.postalCode = postalCode;
+		this.roadAddress = roadAddress;
+		this.detailAddress = detailAddress;
 	}
 }

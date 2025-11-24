@@ -13,4 +13,6 @@ public interface DeliveryAddressRepository extends JpaRepository<DeliveryAddress
 	Optional<DeliveryAddress> findByUserIdAndIsDefaultTrueAndIsActiveTrue(Long userId);
 
 	Optional<DeliveryAddress> findByIdAndUserId(Long id, Long userId);
+
+	int countByUserIdAndIsActiveTrue(Long userId);
 }
