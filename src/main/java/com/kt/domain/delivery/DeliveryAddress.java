@@ -1,19 +1,13 @@
 package com.kt.domain.delivery;
 
-import java.time.LocalDateTime;
-
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.kt.common.jpa.BaseTimeEntity;
 import com.kt.dto.delivery.DeliveryAddressRequest;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -26,11 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class DeliveryAddress {
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+public class DeliveryAddress extends BaseTimeEntity {
 
 	@Column(nullable = false)
 	private Long userId;
@@ -44,13 +34,6 @@ public class DeliveryAddress {
 
 	private Boolean isDefault = false;
 	private Boolean isActive = true;
-
-	@CreatedDate
-	@Column(updatable = false)
-	private LocalDateTime createdAt;
-
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
 
 	public void setAsDefault() {
 		this.isDefault = true;

@@ -6,6 +6,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kt.common.CustomException;
+import com.kt.common.ErrorCode;
+import com.kt.common.Preconditions;
 import com.kt.dto.delivery.DeliveryAddressRequest;
 import com.kt.dto.delivery.DeliveryAddressResponse;
 import com.kt.domain.delivery.DeliveryAddress;
@@ -24,9 +27,10 @@ public class DeliveryAddressService {
 	public DeliveryAddressResponse createAddress(Long userId, DeliveryAddressRequest.Create request) {
 		var currentCount = deliveryAddressRepository.countByUserIdAndIsActiveTrue(userId);
 
-		if (currentCount >= MAX_ADDRESS_COUNT) {
-			throw new IllegalArgumentException("배송지는 최대 " +  MAX_ADDRESS_COUNT + "개까지 등록 가능합니다.");
-		}
+		Preconditions.validate(
+			currentCount < MAX_ADDRESS_COUNT,
+			ErrorCode.DELIVERY_ADDRESS_MAX_COUNT_EXCEEDED
+		);
 
 		if(Boolean.TRUE.equals(request.isDefault())) {
 			deliveryAddressRepository.findByUserIdAndIsDefaultTrueAndIsActiveTrue(userId)
@@ -49,12 +53,9 @@ public class DeliveryAddressService {
 
 	// 배송지 단건 조회
 	public DeliveryAddressResponse getAddress(Long userId, Long addressId) {
-		var address = deliveryAddressRepository.findByIdAndUserId(addressId, userId)
-			.orElseThrow(()-> new IllegalArgumentException("배송지를 찾을 수 없습니다."));
+		var address = findAddressByIdAndUserId(addressId, userId);
 
-		if(!address.getIsActive()) {
-			throw new IllegalArgumentException("삭제된 배송지 입니다.");
-		}
+		Preconditions.validate(address.getIsActive(), ErrorCode.DELIVERY_ADDRESS_ALREADY_DELETED);
 
 		return DeliveryAddressResponse.from(address);
 	}
@@ -62,19 +63,19 @@ public class DeliveryAddressService {
 	// 기본 배송지 조회
 	public DeliveryAddressResponse getDefaultAddress(Long userId) {
 		var address = deliveryAddressRepository.findByUserIdAndIsDefaultTrueAndIsActiveTrue(userId)
-			.orElseThrow(()-> new IllegalArgumentException("기본 배송지가 설정되지 않았습니다."));
+			.orElseThrow(()-> new CustomException(ErrorCode.DEFAULT_DELIVERY_ADDRESS_NOT_SET));
 
 		return DeliveryAddressResponse.from(address);
 	}
 
 	// 배송지 수정
 	public DeliveryAddressResponse updateAddress(Long userId, Long addressId, DeliveryAddressRequest.Update request) {
-		var address = deliveryAddressRepository.findByIdAndUserId(addressId, userId)
-			.orElseThrow(() -> new IllegalArgumentException("배송지를 찾을 수 없습니다."));
+		var address = findAddressByIdAndUserId(addressId, userId);
 
-		if(!address.getIsActive()) {
-			throw new IllegalArgumentException("삭제된 배송지는 수정할 수 없습니다.");
-		}
+		Preconditions.validate(
+			address.getIsActive(),
+			ErrorCode.DELIVERY_ADDRESS_DELETED_CANNOT_UPDATE
+		);
 
 		address.update(
 			request.addressName(),
@@ -93,29 +94,34 @@ public class DeliveryAddressService {
 		deliveryAddressRepository.findByUserIdAndIsDefaultTrueAndIsActiveTrue(userId)
 			.ifPresent(DeliveryAddress::unsetAsDefault);
 
-		var address = deliveryAddressRepository.findByIdAndUserId(addressId, userId)
-			.orElseThrow(() -> new IllegalArgumentException("배송지를 찾을 수 없습니다."));
+		var address = findAddressByIdAndUserId(addressId, userId);
 
-		if(!address.getIsActive()) {
-			throw new IllegalArgumentException("삭제된 배송지는 기본 배송지로 설정할 수 없습니다.");
-		}
+		Preconditions.validate(
+			address.getIsActive(),
+			ErrorCode.DELIVERY_ADDRESS_DELETED_CANNOT_SET_DEFAULT
+		);
 
 		address.setAsDefault();
 	}
 
 	// 배송지 삭제
 	public void deleteAddress(Long userId, Long addressId) {
-		var address = deliveryAddressRepository.findByIdAndUserId(addressId, userId)
-			.orElseThrow(() -> new IllegalArgumentException("배송지를 찾을 수 없습니다."));
+		var address = findAddressByIdAndUserId(addressId, userId);
 
-		if(!address.getIsActive()) {
-			throw new IllegalArgumentException("이미 삭제된 배송지입니다.");
-		}
+		Preconditions.validate(
+			address.getIsActive(),
+			ErrorCode.DELIVERY_ADDRESS_ALREADY_DELETED
+		);
 
 		if(address.getIsDefault()) {
 			address.unsetAsDefault();
 		}
 
 		address.deactivate();
+	}
+
+	private DeliveryAddress findAddressByIdAndUserId(Long addressId, Long userId) {
+		return deliveryAddressRepository.findByIdAndUserId(addressId, userId)
+			.orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_ADDRESS_NOT_FOUND));
 	}
 }
