@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.dto.delivery.DeliveryAddressRequest;
 import com.kt.dto.delivery.DeliveryAddressResponse;
-import com.kt.entity.delivery.DeliveryAddress;
+import com.kt.domain.delivery.DeliveryAddress;
 import com.kt.repository.delivery.DeliveryAddressRepository;
 
 import lombok.RequiredArgsConstructor;

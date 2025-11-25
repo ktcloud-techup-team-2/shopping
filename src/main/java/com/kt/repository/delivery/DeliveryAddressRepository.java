@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.kt.entity.delivery.DeliveryAddress;
+import com.kt.domain.delivery.DeliveryAddress;
 
 public interface DeliveryAddressRepository extends JpaRepository<DeliveryAddress, Long> {
 	List<DeliveryAddress> findByUserIdAndIsActiveTrue(Long userId);

@@ -1,4 +1,4 @@
-package com.kt.entity.delivery;
+package com.kt.domain.delivery;
 
 import java.time.LocalDateTime;
 

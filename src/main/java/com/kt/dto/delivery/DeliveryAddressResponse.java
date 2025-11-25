@@ -2,7 +2,7 @@ package com.kt.dto.delivery;
 
 import java.time.LocalDateTime;
 
-import com.kt.entity.delivery.DeliveryAddress;
+import com.kt.domain.delivery.DeliveryAddress;
 
 public record DeliveryAddressResponse(
 	Long id,
