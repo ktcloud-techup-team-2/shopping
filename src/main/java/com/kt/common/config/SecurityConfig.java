@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/users/signup", "/", "/auth/login", "/swagger-ui.html",
                                 "/swagger-ui/**","/api-docs/**", "/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .logout((logout) -> logout.logoutSuccessUrl("/auth/login")
                         .invalidateHttpSession(true))
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
