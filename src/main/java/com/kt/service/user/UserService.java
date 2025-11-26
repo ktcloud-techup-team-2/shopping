@@ -6,7 +6,7 @@ import com.kt.domain.user.User;
 import com.kt.dto.user.UserSignUpRequest;
 import com.kt.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public void signup(UserSignUpRequest request) {
         Preconditions.validate(request.password().equals(request.passwordConfirm()), ErrorCode.INVALID_PASSWORD_CHECK);
@@ -25,7 +26,7 @@ public class UserService {
 
         var user = User.user(
             request.loginId(),
-            request.password(),
+            passwordEncoder.encode(request.password()),
             request.name(),
             request.email(),
             request.phone(),
