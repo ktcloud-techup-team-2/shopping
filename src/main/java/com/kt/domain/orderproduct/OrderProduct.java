@@ -1,7 +1,5 @@
 package com.kt.domain.orderproduct;
 
-import com.kt.common.CustomException;
-import com.kt.common.ErrorCode;
 import com.kt.common.jpa.BaseTimeEntity;
 import com.kt.domain.order.Order;
 
@@ -32,7 +30,7 @@ public class OrderProduct extends BaseTimeEntity {
 		Order order
 	) {
 		if (quantity < 1) {
-			throw new CustomException(ErrorCode.ORDER_PRODUCT_QUANTITY_MINIMUM);
+			throw new IllegalArgumentException();
 		}
 		this.productName = productName;
 		this.productPrice = productPrice;
