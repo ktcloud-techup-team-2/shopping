@@ -1,5 +1,7 @@
 package com.kt.domain.orderproduct;
 
+import com.kt.common.api.CustomException;
+import com.kt.common.api.ErrorCode;
 import com.kt.common.jpa.BaseTimeEntity;
 import com.kt.domain.order.Order;
 
@@ -30,7 +32,6 @@ public class OrderProduct extends BaseTimeEntity {
 		Order order
 	) {
 		if (quantity < 1) {
-			throw new IllegalArgumentException();
 		}
 		this.productName = productName;
 		this.productPrice = productPrice;
@@ -49,4 +50,3 @@ public class OrderProduct extends BaseTimeEntity {
 	}
 
 }
-
