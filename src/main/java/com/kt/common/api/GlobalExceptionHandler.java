@@ -11,8 +11,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.security.access.AccessDeniedException;
 
-import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,7 +89,7 @@ public class GlobalExceptionHandler {
 	}
 
 	// 권한 예외
-	@ExceptionHandler(AccessDeniedException.class)
+	@ExceptionHandler(AccessDeniedException.class) // ✅ Spring Security 예외 클래스
 	public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
 		log.warn("[FORBIDDEN] msg={}", ex.getMessage());
 

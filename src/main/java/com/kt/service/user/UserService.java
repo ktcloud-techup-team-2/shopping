@@ -1,6 +1,6 @@
 package com.kt.service.user;
 
-import com.kt.common.ErrorCode;
+import com.kt.common.api.ErrorCode;
 import com.kt.common.Preconditions;
 import com.kt.domain.user.User;
 import com.kt.dto.user.UserSignUpRequest;
