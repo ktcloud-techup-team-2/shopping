@@ -1,7 +1,7 @@
 package com.kt.domain.product;
 
 import com.kt.common.jpa.BaseAuditEntity;
-import com.kt.common.ErrorCode;
+import com.kt.common.api.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
