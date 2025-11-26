@@ -32,6 +32,7 @@ public class OrderProduct extends BaseTimeEntity {
 		Order order
 	) {
 		if (quantity < 1) {
+			throw new CustomException(ErrorCode.ORDER_PRODUCT_QUANTITY_MINIMUM);
 		}
 		this.productName = productName;
 		this.productPrice = productPrice;
