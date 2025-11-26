@@ -39,8 +39,10 @@ public enum ErrorCode {
 		PRODUCT_STOCK_NOT_ENOUGH(HttpStatus.CONFLICT, "재고가 부족합니다."),
 		PRODUCT_STATUS_CHANGE_NOT_ALLOWED(HttpStatus.CONFLICT, "현재 상품 상태에서 해당 상태로 변경할 수 없습니다."),
 
-		PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다.");
+		PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
 
+	// ---------------- ORDER_PRODUCT -------------------
+		ORDER_PRODUCT_QUANTITY_MINIMUM(HttpStatus.BAD_REQUEST, "주문 상품 수량은 1 이상이어야 합니다.");
 
 	private final HttpStatus status;
     private final String message;
