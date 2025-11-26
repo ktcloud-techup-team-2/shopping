@@ -1,7 +1,7 @@
 package com.kt.security;
 
-import com.kt.common.CustomException;
-import com.kt.common.ErrorCode;
+import com.kt.common.api.CustomException;
+import com.kt.common.api.ErrorCode;
 import com.kt.security.dto.TokenRequestDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;

@@ -25,9 +25,9 @@ public class GlobalExceptionHandler {
 	public ProblemDetail handleBusiness(CustomException ex) {
 		log.warn("[BUSINESS] code={} msg={}", ex.getErrorCode(), ex.getMessage());
 
-		return problemOf(
+		return ProblemResponse.of(
 			ex.getErrorCode(),
-			ex.getErrorCode().getMessage() // 또는 ex.getMessage()
+			ex.getErrorCode().getMessage()
 		);
 	}
 
@@ -47,12 +47,16 @@ public class GlobalExceptionHandler {
 		log.warn("[VALIDATION] fieldErrors = {}", summary);
 
 		ErrorCode code = ErrorCode.COMMON_VALIDATION_FAILED;
-		ProblemDetail pd = problemOf(code, code.getMessage());
 
 		Map<String, String> errorMap = new HashMap<>();
 		for (FieldError fe : fieldErrors) {
 			errorMap.put(fe.getField(), fe.getDefaultMessage());
 		}
+
+		ProblemDetail pd = ProblemResponse.of(
+			code,
+			code.getMessage()
+		);
 		pd.setProperty("errors", errorMap);
 
 		return pd;
@@ -64,16 +68,18 @@ public class GlobalExceptionHandler {
 		log.warn("[CONSTRAINT] msg={}", ex.getMessage());
 
 		ErrorCode code = ErrorCode.COMMON_VALIDATION_FAILED;
-		ProblemDetail pd = problemOf(
-			code,
-			code.getMessage()
-		);
 
 		Map<String, String> violations = new HashMap<>();
 		for (ConstraintViolation<?> v : ex.getConstraintViolations()) {
 			violations.put(v.getPropertyPath().toString(), v.getMessage());
 		}
+
+		ProblemDetail pd = ProblemResponse.of(
+			code,
+			code.getMessage()
+		);
 		pd.setProperty("errors", violations);
+
 		return pd;
 	}
 
@@ -82,20 +88,20 @@ public class GlobalExceptionHandler {
 	public ProblemDetail handleBadBody(HttpMessageNotReadableException ex) {
 		log.warn("[BAD_BODY] msg={}", ex.getMessage());
 
-		return problemOf(
+		return ProblemResponse.of(
 			ErrorCode.COMMON_INVALID_ARGUMENT,
 			"요청 본문을 읽을 수 없습니다."
 		);
 	}
 
 	// 권한 예외
-	@ExceptionHandler(AccessDeniedException.class) // ✅ Spring Security 예외 클래스
+	@ExceptionHandler(AccessDeniedException.class)
 	public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
 		log.warn("[FORBIDDEN] msg={}", ex.getMessage());
 
-		return problemOf(
-			ErrorCode.AUTH_FORBIDDEN,
-			ErrorCode.AUTH_FORBIDDEN.getMessage()
+		return ProblemResponse.of(
+			ErrorCode.PERMISSION_DENIED,
+			ErrorCode.PERMISSION_DENIED.getMessage()
 		);
 	}
 
@@ -104,16 +110,9 @@ public class GlobalExceptionHandler {
 	public ProblemDetail handleUnexpected(Exception ex) {
 		log.error("[UNEXPECTED] msg={}", ex.getMessage(), ex);
 
-		return problemOf(
+		return ProblemResponse.of(
 			ErrorCode.INTERNAL_ERROR,
 			ErrorCode.INTERNAL_ERROR.getMessage()
 		);
-	}
-
-	private ProblemDetail problemOf(ErrorCode code, String detail) {
-		ProblemDetail pd = ProblemDetail.forStatusAndDetail(code.getStatus(), detail);
-		pd.setTitle(code.name());
-		pd.setType(null);
-		return pd;
 	}
 }

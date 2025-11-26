@@ -1,4 +1,4 @@
-package com.kt.common;
+package com.kt.common.api;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
