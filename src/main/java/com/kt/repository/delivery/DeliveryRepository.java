@@ -11,4 +11,6 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
 	Optional<Delivery> findByOrderId(Long orderId);
 
 	Optional<Delivery> findByTrackingNumber(String trackingNumber);
+
+	Boolean existsByOrderId(Long orderId);
 }
