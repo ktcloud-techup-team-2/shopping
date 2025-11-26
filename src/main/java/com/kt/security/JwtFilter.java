@@ -1,6 +1,6 @@
 package com.kt.security;
 
-import com.kt.common.CustomException;
+import com.kt.common.api.CustomException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
