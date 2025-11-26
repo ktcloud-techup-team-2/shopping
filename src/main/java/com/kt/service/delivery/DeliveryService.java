@@ -3,8 +3,8 @@ package com.kt.service.delivery;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kt.common.CustomException;
-import com.kt.common.ErrorCode;
+import com.kt.common.api.CustomException;
+import com.kt.common.api.ErrorCode;
 import com.kt.common.Preconditions;
 import com.kt.domain.delivery.Delivery;
 import com.kt.dto.delivery.DeliveryRequest;
