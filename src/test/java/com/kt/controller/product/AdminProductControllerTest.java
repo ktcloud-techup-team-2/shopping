@@ -12,11 +12,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@ActiveProfiles("test")
 class AdminProductControllerTest extends AbstractRestDocsTest {
 
 	private static final String DEFAULT_URL = "/admin/products";
@@ -47,7 +45,7 @@ class AdminProductControllerTest extends AbstractRestDocsTest {
 						request,
 						HttpMethod.POST,
 						objectMapper
-					)
+					).with(jwtUser())
 				)
 				.andExpect(status().isCreated())
 				.andDo(
