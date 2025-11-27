@@ -1,13 +1,10 @@
 package com.kt.domain.delivery;
 
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import com.kt.common.jpa.BaseTimeEntity;
 import com.kt.dto.delivery.DeliveryAddressRequest;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -19,7 +16,6 @@ import lombok.NoArgsConstructor;
 @Table(indexes = @Index(columnList = "userId"))
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 public class DeliveryAddress extends BaseTimeEntity {
 
 	@Column(nullable = false)
