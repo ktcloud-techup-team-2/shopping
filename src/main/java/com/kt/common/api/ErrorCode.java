@@ -34,6 +34,11 @@ public enum ErrorCode {
 	DELIVERY_ADDRESS_DELETED_CANNOT_SET_DEFAULT(HttpStatus.BAD_REQUEST, "삭제된 배송지는 기본 배송지로 설정할 수 없습니다."),
 	DEFAULT_DELIVERY_ADDRESS_NOT_SET(HttpStatus.NOT_FOUND, "기본 배송지가 설정되지 않았습니다."),
 	DELIVERY_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "중복 배송입니다."),
+	DELIVERY_NOT_IN_PENDING(HttpStatus.CONFLICT, "주문접수 상태에서만 준비를 시작할 수 있습니다."),
+	DELIVERY_NOT_IN_PREPARING(HttpStatus.CONFLICT, "상품준비중 상태에서만 출고준비완료로 변경할 수 있습니다."),
+	DELIVERY_NOT_IN_READY(HttpStatus.CONFLICT, "출고준비완료 상태에서만 배송을 시작할 수 있습니다."),
+	DELIVERY_NOT_IN_SHIPPING(HttpStatus.CONFLICT, "배송중 상태에서만 배송완료 처리할 수 있습니다."),
+	DELIVERY_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT, "배송중이거나 완료된 주문은 취소할 수 없습니다."),
 
 	// ---------------- PRODUCT -------------------
 	PRODUCT_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "상품명은 필수 입력 값입니다."),
