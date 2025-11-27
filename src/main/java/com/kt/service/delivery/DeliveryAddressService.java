@@ -3,6 +3,7 @@ package com.kt.service.delivery;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,14 +22,15 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class DeliveryAddressService {
 	private final DeliveryAddressRepository deliveryAddressRepository;
-	private static final int MAX_ADDRESS_COUNT = 10;
+	@Value("${delivery.policy.max-address-count}")
+	private int maxAddressCount;
 
 	// 배송지 생성
 	public DeliveryAddressResponse createAddress(Long userId, DeliveryAddressRequest.Create request) {
 		var currentCount = deliveryAddressRepository.countByUserIdAndIsActiveTrue(userId);
 
 		Preconditions.validate(
-			currentCount < MAX_ADDRESS_COUNT,
+			currentCount < maxAddressCount,
 			ErrorCode.DELIVERY_ADDRESS_MAX_COUNT_EXCEEDED
 		);
 
