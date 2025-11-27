@@ -2,6 +2,8 @@ package com.kt.domain.delivery;
 
 import java.time.LocalDateTime;
 
+import com.kt.common.Preconditions;
+import com.kt.common.api.ErrorCode;
 import com.kt.common.jpa.BaseTimeEntity;
 
 import jakarta.persistence.Column;
@@ -49,40 +51,45 @@ public class Delivery extends BaseTimeEntity {
 	}
 
 	public void startPreparing() {
-		if (this.status != DeliveryStatus.PENDING) {
-			throw new IllegalStateException("주문접수 상태에서만 준비를 시작할 수 있습니다");
-		}
+		Preconditions.validate(
+			this.status != DeliveryStatus.PENDING,
+			ErrorCode.DELIVERY_NOT_IN_PENDING
+		);
 		this.status = DeliveryStatus.PREPARING;
 	}
 
 	public void readyForShipment() {
-		if (this.status != DeliveryStatus.PREPARING) {
-			throw new IllegalStateException("상품준비중 상태에서만 출고준비완료로 변경할 수 있습니다");
-		}
+		Preconditions.validate(
+			this.status != DeliveryStatus.PREPARING,
+			ErrorCode.DELIVERY_NOT_IN_PREPARING
+		);
 		this.status = DeliveryStatus.READY;
 	}
 
 	public void ship() {
-		if (this.status != DeliveryStatus.READY) {
-			throw new IllegalStateException("출고준비완료 상태에서만 배송을 시작할 수 있습니다");
-		}
+		Preconditions.validate(
+			this.status != DeliveryStatus.READY,
+			ErrorCode.DELIVERY_NOT_IN_READY
+		);
 		this.status = DeliveryStatus.SHIPPING;
 		this.shippedAt = LocalDateTime.now();
 	}
 
 	public void complete() {
-		if (this.status != DeliveryStatus.SHIPPING) {
-			throw new IllegalStateException("배송중 상태에서만 배송완료 처리할 수 있습니다");
-		}
+		Preconditions.validate(
+			this.status != DeliveryStatus.SHIPPING,
+			ErrorCode.DELIVERY_NOT_IN_SHIPPING
+		);
 		this.status = DeliveryStatus.DELIVERED;
 		this.deliveredAt = LocalDateTime.now();
 	}
 
 	public void cancel() {
-		if (this.status == DeliveryStatus.SHIPPING ||
-			this.status == DeliveryStatus.DELIVERED) {
-			throw new IllegalStateException("배송중이거나 완료된 주문은 취소할 수 없습니다");
-		}
+		Preconditions.validate(
+			this.status == DeliveryStatus.SHIPPING ||
+				this.status == DeliveryStatus.DELIVERED,
+			ErrorCode.DELIVERY_CANCEL_NOT_ALLOWED
+		);
 		this.status = DeliveryStatus.CANCELLED;
 	}
 }
