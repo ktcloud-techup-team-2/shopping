@@ -1,5 +1,7 @@
 package com.kt.service.delivery;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,5 +47,37 @@ public class DeliveryService {
 
 		var savedDelivery = deliveryRepository.save(delivery);
 		return DeliveryResponse.Detail.from(savedDelivery, address);
+	}
+
+	public DeliveryResponse.Detail getDeliveryByOrderId(Long orderId){
+		var delivery = deliveryRepository.findByOrderId(orderId)
+			.orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUND));
+
+		var address = deliveryAddressRepository.findById(delivery.getDeliveryAddressId())
+			.orElseThrow(() ->  new CustomException(ErrorCode.DELIVERY_ADDRESS_NOT_FOUND));
+
+		return DeliveryResponse.Detail.from(delivery, address);
+	}
+
+	public DeliveryResponse.Tracking trackDelivery(String trackingNumber){
+		var delivery = deliveryRepository.findByTrackingNumber(trackingNumber)
+			.orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUND));
+
+		return DeliveryResponse.Tracking.from(delivery);
+	}
+
+	public Page<DeliveryResponse.Simple> getDeliveryList(Pageable pageable){
+		return deliveryRepository.findAll(pageable)
+			.map(DeliveryResponse.Simple::from);
+	}
+
+	public DeliveryResponse.Detail getDeliveryDetail(Long deliveryId){
+		var delivery = deliveryRepository.findById(deliveryId)
+			.orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUND));
+
+		var address = deliveryAddressRepository.findById(delivery.getDeliveryAddressId())
+			.orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_ADDRESS_NOT_FOUND));
+
+		return DeliveryResponse.Detail.from(delivery, address);
 	}
 }
