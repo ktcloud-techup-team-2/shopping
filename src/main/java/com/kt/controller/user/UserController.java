@@ -1,5 +1,6 @@
 package com.kt.controller.user;
 
+import com.kt.common.api.ApiResponseEntity;
 import com.kt.dto.user.UserSignUpRequest;
 import com.kt.service.user.UserService;
 import jakarta.validation.Valid;
@@ -16,7 +17,8 @@ public class UserController {
 
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
-    public void signUp (@RequestBody @Valid UserSignUpRequest request){
+    public ApiResponseEntity<Void> signUp (@RequestBody @Valid UserSignUpRequest request){
         userService.signup(request);
+        return ApiResponseEntity.created((Void) null);
     }
 }

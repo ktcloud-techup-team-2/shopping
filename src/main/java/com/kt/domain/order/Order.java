@@ -3,16 +3,10 @@ package com.kt.domain.order;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.data.relational.core.mapping.Table;
-
 import com.kt.common.jpa.BaseTimeEntity;
 import com.kt.domain.orderproduct.OrderProduct;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

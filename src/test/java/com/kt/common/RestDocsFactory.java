@@ -11,6 +11,9 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Field;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.http.HttpMethod;
@@ -188,12 +191,27 @@ public class RestDocsFactory {
 		}
 	}
 
-	private boolean isSimpleType(Object dto) {
-		return dto instanceof String
-			|| dto instanceof Number
-			|| dto instanceof Boolean
-			|| dto.getClass().isEnum();
-	}
+    private boolean isSimpleType(Object dto) {
+        if (dto == null) return true;
+
+        Class<?> type = dto.getClass();
+
+        // 원시 타입, enum
+        if (type.isPrimitive() || type.isEnum()) {
+            return true;
+        }
+
+        // JDK 타입들(java.*)은 더 이상 안 파고 든다 (Class, Module, Map, List, LocalDate 등)
+        Package pkg = type.getPackage();
+        if (pkg != null && pkg.getName().startsWith("java.")) {
+            return true;
+        }
+
+        // 기본 wrapper / 문자열
+        return dto instanceof String
+                || dto instanceof Number
+                || dto instanceof Boolean;
+    }
 
 	private JsonFieldType determineFieldType(Class<?> fieldType) {
 		if (fieldType == String.class || fieldType.isEnum()) {
@@ -204,7 +222,11 @@ public class RestDocsFactory {
 			return JsonFieldType.NUMBER;
 		} else if (List.class.isAssignableFrom(fieldType)) {
 			return JsonFieldType.ARRAY;
-		} else {
+		} else if (fieldType == LocalDate.class
+                || fieldType == LocalDateTime.class
+                || fieldType == LocalTime.class) {
+            return JsonFieldType.STRING;
+        } else {
 			return JsonFieldType.OBJECT;
 		}
 	}
