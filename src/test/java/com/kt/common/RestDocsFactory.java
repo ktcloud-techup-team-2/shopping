@@ -222,7 +222,7 @@ public class RestDocsFactory {
 			return JsonFieldType.NUMBER;
 		} else if (List.class.isAssignableFrom(fieldType)) {
 			return JsonFieldType.ARRAY;
-		} if (fieldType == LocalDate.class
+		} else if (fieldType == LocalDate.class
                 || fieldType == LocalDateTime.class
                 || fieldType == LocalTime.class) {
             return JsonFieldType.STRING;
