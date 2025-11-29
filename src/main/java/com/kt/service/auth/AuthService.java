@@ -8,6 +8,8 @@ import com.kt.dto.auth.LoginResponse;
 import com.kt.repository.user.UserRepository;
 import com.kt.security.TokenProvider;
 import com.kt.security.dto.TokenRequestDto;
+import com.kt.security.dto.TokenResponseDto;
+import io.jsonwebtoken.JwtException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -58,5 +60,32 @@ public class AuthService {
                 user.getId(),
                 user.getLoginId()
         );
+    }
+
+    public TokenResponseDto reissue(String refreshToken) {
+        if (!tokenProvider.validateToken(refreshToken)) {
+            throw new JwtException(ErrorCode.JWT_DECODE_FAIL.getMessage());
+        }
+
+        Long userId = tokenProvider.getUserIdFromToken(refreshToken);
+
+        String redisKey = "refreshToken:"+userId;
+        String token = redisTemplate.opsForValue().get(redisKey);
+
+        if (token == null || !token.equals(refreshToken)) {
+            throw new JwtException(ErrorCode.JWT_SIGNATURE_FAIL.getMessage());
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().name()));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null, authorities);
+
+        TokenRequestDto tokenDto = tokenProvider.generateToken(authentication, userId);
+
+        redisTemplate.opsForValue().set(redisKey, tokenDto.accessToken(), Duration.ofDays(7));
+
+        return TokenResponseDto.of(tokenDto.accessToken(), userId);
     }
 }
