@@ -20,7 +20,7 @@ public class DeliveryStatusHistory extends BaseTimeEntity {
 	@Enumerated(EnumType.STRING)
 	private DeliveryStatus status;
 
-	public DeliveryStatusHistory create(Long deliverId, DeliveryStatus status) {
+	public static DeliveryStatusHistory create(Long deliverId, DeliveryStatus status) {
 		var history = new DeliveryStatusHistory();
 		history.deliverId = deliverId;
 		history.status = status;
