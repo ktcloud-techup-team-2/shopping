@@ -9,6 +9,7 @@ import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.common.Preconditions;
 import com.kt.domain.delivery.Delivery;
+import com.kt.domain.delivery.DeliveryStatus;
 import com.kt.domain.delivery.DeliveryStatusHistory;
 import com.kt.dto.delivery.DeliveryRequest;
 import com.kt.dto.delivery.DeliveryResponse;
@@ -49,6 +50,9 @@ public class DeliveryService {
 		);
 
 		var savedDelivery = deliveryRepository.save(delivery);
+
+		saveHistory(savedDelivery.getId(), DeliveryStatus.PENDING);
+
 		return DeliveryResponse.Detail.from(savedDelivery, address);
 	}
 
@@ -103,12 +107,16 @@ public class DeliveryService {
 			default -> throw new CustomException(ErrorCode.COMMON_INVALID_ARGUMENT);
 		}
 
-		var history = DeliveryStatusHistory.create(deliveryId, request.status());
-		deliveryStatusHistoryRepository.save(history);
+		saveHistory(deliveryId, request.status());
 
 		var address =  deliveryAddressRepository.findById(delivery.getDeliveryAddressId())
 			.orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_ADDRESS_NOT_FOUND));
 
 		return DeliveryResponse.Detail.from(delivery, address);
+	}
+
+	private void saveHistory(Long deliveryId, DeliveryStatus status) {
+		var history = DeliveryStatusHistory.create(deliveryId, status);
+		deliveryStatusHistoryRepository.save(history);
 	}
 }
