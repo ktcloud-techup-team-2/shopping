@@ -1,6 +1,5 @@
 package com.kt.dto.delivery;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.kt.domain.delivery.Delivery;
