@@ -63,6 +63,7 @@ public interface DeliveryResponse {
 
 		Integer deliveryFee,
 		DeliveryStatus status,
+		String courierCode,
 		String trackingNumber,
 		LocalDateTime createdAt
 	) {
@@ -77,6 +78,7 @@ public interface DeliveryResponse {
 				address.getDetailAddress(),
 				delivery.getDeliveryFee(),
 				delivery.getStatus(),
+				delivery.getCourierCode(),
 				delivery.getTrackingNumber(),
 				address.getCreatedAt()
 			);
