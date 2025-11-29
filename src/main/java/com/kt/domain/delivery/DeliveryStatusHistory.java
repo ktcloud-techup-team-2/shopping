@@ -14,15 +14,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DeliveryStatusHistory extends BaseTimeEntity {
 	@Column(nullable = false)
-	private Long deliverId;
+	private Long deliveryId;
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private DeliveryStatus status;
 
-	public static DeliveryStatusHistory create(Long deliverId, DeliveryStatus status) {
+	public static DeliveryStatusHistory create(Long deliveryId, DeliveryStatus status) {
 		var history = new DeliveryStatusHistory();
-		history.deliverId = deliverId;
+		history.deliveryId = deliveryId;
 		history.status = status;
 		return history;
 	}
