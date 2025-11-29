@@ -31,9 +31,9 @@ public class UserControllerTest extends AbstractRestDocsTest {
         void 성공 () throws Exception {
             // given
             UserSignUpRequest request = new UserSignUpRequest(
-                    "test1234",
-                    "Test1234!",
-                    "Test1234!",
+                    "idfortest123",
+                    "PasswordTest123!",
+                    "PasswordTest123!",
                     "JNSJ",
                     "example123@example.com",
                     "010-1234-1234",
@@ -61,8 +61,6 @@ public class UserControllerTest extends AbstractRestDocsTest {
                                     null
                             )
                     );
-
-
         }
     }
 }

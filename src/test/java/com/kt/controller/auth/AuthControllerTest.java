@@ -38,9 +38,9 @@ public class AuthControllerTest extends AbstractRestDocsTest {
 
             // 회원가입 데이터 생성
             UserSignUpRequest signUpRequest = new UserSignUpRequest(
-                    "loginfortest123",
-                    "LoginForTest123!",
-                    "LoginForTest123!",
+                    "idfortest123",
+                    "PasswordTest123!",
+                    "PasswordTest123!",
                     "JNSJ",
                     "example123@example.com",
                     "010-1234-1234",
@@ -61,8 +61,8 @@ public class AuthControllerTest extends AbstractRestDocsTest {
 
             //given
             LoginRequest request = new LoginRequest(
-                    "loginfortest123",
-                    "LoginForTest123!"
+                    "idfortest123",
+                    "PasswordTest123!"
             );
 
             //when
@@ -91,7 +91,7 @@ public class AuthControllerTest extends AbstractRestDocsTest {
         void 실패_비밀번호_불일치() throws Exception {
             //given
             LoginRequest request = new LoginRequest(
-                    "loginfortest123",
+                    "idfortest123",
                     "WrongPassword1!"
             );
 
@@ -112,7 +112,7 @@ public class AuthControllerTest extends AbstractRestDocsTest {
             // given
             LoginRequest request = new LoginRequest(
                     "wrongId1234",
-                    "LoginForTest123!"
+                    "PasswordTest123!"
             );
 
             // when & then
