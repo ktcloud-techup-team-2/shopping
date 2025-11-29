@@ -31,9 +31,9 @@ public class UserControllerTest extends AbstractRestDocsTest {
         void 성공 () throws Exception {
             // given
             UserSignUpRequest request = new UserSignUpRequest(
-                    "hihi1234",
-                    "Hihi1234!",
-                    "Hihi1234!",
+                    "test1234",
+                    "Test1234!",
+                    "Test1234!",
                     "JNSJ",
                     "example123@example.com",
                     "010-1234-1234",
