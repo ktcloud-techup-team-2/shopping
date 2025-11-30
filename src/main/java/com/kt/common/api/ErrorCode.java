@@ -43,6 +43,9 @@ public enum ErrorCode {
 	COURIER_NOT_FOUND(HttpStatus.NOT_FOUND, "택배사를 찾을 수 없습니다."),
 	COURIER_CODE_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 택배사 코드입니다."),
 
+	// ---------------- REVIEW ----------------
+	REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."),
+
 	// ---------------- PRODUCT -------------------
 	PRODUCT_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "상품명은 필수 입력 값입니다."),
 	PRODUCT_NAME_TOO_LONG(HttpStatus.BAD_REQUEST, "상품명은 200자를 초과할 수 없습니다."),
