@@ -2,6 +2,8 @@ package com.kt.controller.auth;
 
 import com.kt.dto.auth.LoginRequest;
 import com.kt.dto.auth.LoginResponse;
+import com.kt.security.dto.TokenReissueRequestDto;
+import com.kt.security.dto.TokenResponseDto;
 import com.kt.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         LoginResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<TokenResponseDto> reissue (@RequestBody TokenReissueRequestDto request) {
+        TokenResponseDto response = authService.reissue(request.refreshToken());
         return ResponseEntity.ok(response);
     }
 }

@@ -42,9 +42,10 @@ public class SecurityConfig {
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/users/signup", "/", "/auth/login", "/swagger-ui.html",
+                        .requestMatchers("/users/signup", "/", "/auth/login", "/auth/reissue","/swagger-ui.html",
                                 "/swagger-ui/**","/api-docs/**", "/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .anyRequest().hasAnyRole("USER", "ADMIN"))
                 .logout((logout) -> logout.logoutSuccessUrl("/auth/login")
                         .invalidateHttpSession(true))
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);

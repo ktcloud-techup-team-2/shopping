@@ -28,6 +28,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Gender gender;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -70,7 +71,7 @@ public class User {
                 phone,
                 birthday,
                 gender,
-                Role.ADMIN,
+                Role.USER,
                 createdAt,
                 updatedAt
         );

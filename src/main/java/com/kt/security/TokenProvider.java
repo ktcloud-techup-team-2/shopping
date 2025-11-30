@@ -76,8 +76,9 @@ public class TokenProvider {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        String userId = claims.getSubject();
-        User principal = new User(userId, "",authorities);
+        Long userId = Long.valueOf(claims.getSubject());
+
+        AuthUser principal = new AuthUser(userId, authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
