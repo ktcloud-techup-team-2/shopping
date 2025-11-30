@@ -2,8 +2,10 @@ package com.kt.controller.delivery;
 
 import java.util.List;
 
+import com.kt.security.AuthUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -25,58 +27,57 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/delivery/addresses")
 @RequiredArgsConstructor
 public class DeliveryAddressController {
-	private final DeliveryAddressService deliveryAddressService;
+    private final DeliveryAddressService deliveryAddressService;
 
-	@PostMapping
-	public ResponseEntity<DeliveryAddressResponse> createAddress(
-		// @AuthenticationPrincipal CurrentUser currentUser
-		Long userId,
-		@RequestBody @Valid DeliveryAddressRequest.Create request
-	) {
-		var response = deliveryAddressService.createAddress(userId, request);
-		return ResponseEntity.status(HttpStatus.CREATED).body(response);
-	}
+    @PostMapping
+    public ResponseEntity<DeliveryAddressResponse> createAddress(
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestBody @Valid DeliveryAddressRequest.Create request
+    ) {
+        var response = deliveryAddressService.createAddress(authUser.id(), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
-	@GetMapping
-	public ResponseEntity<List<DeliveryAddressResponse>> getAddressList(Long userId) {
-		var response = deliveryAddressService.getAddressList(userId);
-		return ResponseEntity.ok(response);
-	}
+    @GetMapping
+    public ResponseEntity<List<DeliveryAddressResponse>> getAddressList(@AuthenticationPrincipal AuthUser authUser) {
+        var response = deliveryAddressService.getAddressList(authUser.id());
+        return ResponseEntity.ok(response);
+    }
 
-	@GetMapping("/{addressId}")
-	public ResponseEntity<DeliveryAddressResponse> getAddress(
-		Long userId,
-		@PathVariable Long addressId
-	) {
-		var response = deliveryAddressService.getAddress(userId, addressId);
-		return ResponseEntity.ok(response);
-	}
+    @GetMapping("/{addressId}")
+    public ResponseEntity<DeliveryAddressResponse> getAddress(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long addressId
+    ) {
+        var response = deliveryAddressService.getAddress(authUser.id(), addressId);
+        return ResponseEntity.ok(response);
+    }
 
-	@PutMapping("/{addressId}")
-	public ResponseEntity<DeliveryAddressResponse> updateAddress(
-		Long userId,
-		@PathVariable Long addressId,
-		@RequestBody @Valid DeliveryAddressRequest.Update request
-	) {
-		var response = deliveryAddressService.updateAddress(userId, addressId, request);
-		return ResponseEntity.ok(response);
-	}
+    @PutMapping("/{addressId}")
+    public ResponseEntity<DeliveryAddressResponse> updateAddress(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long addressId,
+            @RequestBody @Valid DeliveryAddressRequest.Update request
+    ) {
+        var response = deliveryAddressService.updateAddress(authUser.id(), addressId, request);
+        return ResponseEntity.ok(response);
+    }
 
-	@PatchMapping("/{addressId}/set-default")
-	public ResponseEntity<Void> setDefaultAddress(
-		Long userId,
-		@PathVariable Long addressId
-	) {
-		deliveryAddressService.setDefaultAddress(userId, addressId);
-		return ResponseEntity.noContent().build();
-	}
+    @PatchMapping("/{addressId}/set-default")
+    public ResponseEntity<Void> setDefaultAddress(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long addressId
+    ) {
+        deliveryAddressService.setDefaultAddress(authUser.id(), addressId);
+        return ResponseEntity.noContent().build();
+    }
 
-	@DeleteMapping("/{addressId}")
-	public ResponseEntity<Void> deleteAddress(
-		Long userId,
-		@PathVariable Long addressId
-	) {
-		deliveryAddressService.deleteAddress(userId, addressId);
-		return ResponseEntity.noContent().build();
-	}
+    @DeleteMapping("/{addressId}")
+    public ResponseEntity<Void> deleteAddress(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long addressId
+    ) {
+        deliveryAddressService.deleteAddress(authUser.id(), addressId);
+        return ResponseEntity.noContent().build();
+    }
 }
