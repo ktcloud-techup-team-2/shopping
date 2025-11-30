@@ -21,8 +21,7 @@ public class AdminProductService {
 		var product = Product.create(
 			request.name(),
 			request.description(),
-			request.price(),
-			request.stockQuantity()
+			request.price()
 		);
 		var saved = productRepository.save(product);
 		return new ProductResponse.Create(saved.getId());
