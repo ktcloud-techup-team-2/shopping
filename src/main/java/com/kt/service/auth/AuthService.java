@@ -73,7 +73,7 @@ public class AuthService {
         String token = redisTemplate.opsForValue().get(redisKey);
 
         if (token == null || !token.equals(refreshToken)) {
-            throw new JwtException(ErrorCode.JWT_SIGNATURE_FAIL.getMessage());
+            throw new CustomException(ErrorCode.JWT_SIGNATURE_FAIL);
         }
 
         User user = userRepository.findById(userId)
@@ -84,7 +84,7 @@ public class AuthService {
 
         TokenRequestDto tokenDto = tokenProvider.generateToken(authentication, userId);
 
-        redisTemplate.opsForValue().set(redisKey, tokenDto.accessToken(), Duration.ofDays(7));
+        redisTemplate.opsForValue().set(redisKey, tokenDto.refreshToken(), Duration.ofDays(7));
 
         return TokenResponseDto.of(tokenDto.accessToken(), userId);
     }
