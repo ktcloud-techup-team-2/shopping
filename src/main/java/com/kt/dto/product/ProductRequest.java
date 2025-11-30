@@ -1,7 +1,10 @@
 package com.kt.dto.product;
 
+import java.util.List;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
 public class ProductRequest {
@@ -14,7 +17,8 @@ public class ProductRequest {
 		String description,
 
 		@Min(value = 0, message = "가격은 0 이상이어야 합니다.")
-		int price
+		int price,
+		boolean activateImmediately
 	) {}
 	public record Update(
 		@NotBlank(message = "상품명은 필수입니다.")
@@ -25,5 +29,9 @@ public class ProductRequest {
 
 		@Min(value = 0, message = "가격은 0 이상이어야 합니다.")
 		int price
+	) {}
+	public record BulkSoldOut(
+			@NotEmpty(message = "품절 처리할 상품을 한 개 이상 선택해주세요.")
+			List<Long> productIds
 	) {}
 }

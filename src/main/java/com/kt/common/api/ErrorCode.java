@@ -56,6 +56,13 @@ public enum ErrorCode {
 
 	PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
 
+	// ---------------- INVENTORY -------------------
+	INVENTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "재고 정보를 찾을 수 없습니다."),
+	INVENTORY_EVENT_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "재고 이벤트 수량은 0보다 커야 합니다."),
+	INVENTORY_NEGATIVE_AVAILABLE(HttpStatus.CONFLICT, "가용 재고가 0 미만이 될 수 없습니다."),
+	INVENTORY_RESERVATION_NOT_FOUND(HttpStatus.CONFLICT, "예약된 재고가 부족합니다."),
+	INVENTORY_OUTBOUND_NOT_RESERVED(HttpStatus.CONFLICT, "출고 처리할 예약 재고가 없습니다."),
+
 	// ---------------- ORDER_PRODUCT -------------------
 	ORDER_PRODUCT_QUANTITY_MINIMUM(HttpStatus.BAD_REQUEST, "주문 상품 수량은 1 이상이어야 합니다.");
 

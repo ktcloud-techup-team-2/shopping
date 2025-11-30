@@ -32,7 +32,7 @@ class AdminProductControllerTest extends AbstractRestDocsTest {
 				"테스트 상품명",
 				"테스트 상품 설명",
 				10_000,
-				10
+				false
 			);
 
 			var responseBody = new ProductResponse.Create(1L);

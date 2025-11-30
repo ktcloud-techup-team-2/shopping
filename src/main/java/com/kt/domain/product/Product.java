@@ -97,7 +97,7 @@ public class Product extends BaseSoftDeleteEntity {
 
 
 	private String validateName(String name) {
-		validate(Strings.isBlank(name), ErrorCode.PRODUCT_NAME_REQUIRED);
+		validate(Strings.isNotBlank(name), ErrorCode.PRODUCT_NAME_REQUIRED);
 		validate(name.length() <= 200, ErrorCode.PRODUCT_NAME_TOO_LONG);
 		return name;
 	}
