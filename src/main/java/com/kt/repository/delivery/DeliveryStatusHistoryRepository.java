@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.kt.domain.delivery.DeliveryStatusHistory;
 
 public interface DeliveryStatusHistoryRepository extends JpaRepository<DeliveryStatusHistory, Long> {
-	List<DeliveryStatusHistory> findAllByDeliverIdOrderByIdDesc(Long deliverId);
+	List<DeliveryStatusHistory> findAllByDeliveryIdOrderByIdDesc(Long deliverId);
 }
