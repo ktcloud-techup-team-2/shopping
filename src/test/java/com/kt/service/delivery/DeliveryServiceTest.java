@@ -22,6 +22,7 @@ import com.kt.domain.delivery.DeliveryAddress;
 import com.kt.domain.delivery.DeliveryStatus;
 import com.kt.domain.delivery.DeliveryStatusHistory;
 import com.kt.dto.delivery.DeliveryRequest;
+import com.kt.repository.delivery.CourierRepository;
 import com.kt.repository.delivery.DeliveryAddressRepository;
 import com.kt.repository.delivery.DeliveryRepository;
 import com.kt.repository.delivery.DeliveryStatusHistoryRepository;
@@ -40,6 +41,9 @@ class DeliveryServiceTest {
 
 	@Mock
 	private DeliveryStatusHistoryRepository deliveryStatusHistoryRepository;
+
+	@Mock
+	private CourierRepository courierRepository;
 
 	// --- Helper Methods ---
 	private DeliveryAddress mockAddress() {
@@ -105,6 +109,8 @@ class DeliveryServiceTest {
 			given(deliveryRepository.findById(deliveryId)).willReturn(Optional.of(delivery));
 			given(deliveryAddressRepository.findById(anyLong())).willReturn(Optional.of(mockAddress()));
 
+			given(courierRepository.existsByCode("CJ")).willReturn(true);
+
 			// when
 			var response = deliveryService.updateDeliveryStatus(deliveryId, request);
 
@@ -117,6 +123,27 @@ class DeliveryServiceTest {
 			verify(deliveryStatusHistoryRepository, times(1)).save(argThat(history ->
 				history.getStatus() == DeliveryStatus.SHIPPING && history.getDeliveryId().equals(deliveryId)
 			));
+		}
+
+		@Test
+		@DisplayName("실패: 존재하지 않는 택배사 코드로 배송 출발 시도 시 예외 발생")
+		void fail_shipping_invalid_courier() {
+			// given
+			Long deliveryId = 500L;
+			Delivery delivery = mockDelivery(deliveryId, DeliveryStatus.READY);
+			var request = new DeliveryRequest.UpdateStatus(DeliveryStatus.SHIPPING, "WRONG_CODE", "123");
+
+			given(deliveryRepository.findById(deliveryId)).willReturn(Optional.of(delivery));
+
+			given(courierRepository.existsByCode("WRONG_CODE")).willReturn(false);
+
+			// when & then
+			assertThatThrownBy(() -> deliveryService.updateDeliveryStatus(deliveryId, request))
+				.isInstanceOf(CustomException.class)
+				.hasFieldOrPropertyWithValue("errorCode", ErrorCode.COURIER_NOT_FOUND);
+
+			// 이력 저장 안 됐는지 확인
+			verify(deliveryStatusHistoryRepository, never()).save(any());
 		}
 
 		@Test
@@ -154,6 +181,8 @@ class DeliveryServiceTest {
 			);
 
 			given(deliveryRepository.findById(deliveryId)).willReturn(Optional.of(delivery));
+
+			given(courierRepository.existsByCode("CJ")).willReturn(true);
 
 			// when & then
 			assertThatThrownBy(() -> deliveryService.updateDeliveryStatus(deliveryId, request))
