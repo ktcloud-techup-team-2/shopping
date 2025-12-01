@@ -22,7 +22,7 @@ import com.kt.service.delivery.CourierService;
 
 class AdminCourierControllerTest extends AbstractRestDocsTest {
 
-	private static final String BASE_URL = "/api/v1/admin/delivery/couriers";
+	private static final String BASE_URL = "/admin/delivery/couriers";
 
 	@Autowired
 	private RestDocsFactory restDocsFactory;

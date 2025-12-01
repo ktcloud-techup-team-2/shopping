@@ -25,7 +25,7 @@ import com.kt.service.review.ReviewService;
 
 class AdminReviewControllerTest extends AbstractRestDocsTest {
 
-	private static final String BASE_URL = "/api/v1/admin/reviews";
+	private static final String BASE_URL = "/admin/reviews";
 
 	@Autowired
 	private RestDocsFactory restDocsFactory;
