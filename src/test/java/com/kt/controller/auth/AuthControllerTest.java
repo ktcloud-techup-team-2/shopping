@@ -29,6 +29,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,6 +39,7 @@ public class AuthControllerTest extends AbstractRestDocsTest {
 
     private static final String LOGIN_URL = "/auth/login";
     private static final String REISSUE_URL = "/auth/reissue";
+    private static final String LOGOUT_URL = "/auth/logout";
 
     @Autowired
     private RestDocsFactory restDocsFactory;
@@ -228,6 +230,72 @@ public class AuthControllerTest extends AbstractRestDocsTest {
                     )
             )
                     .andDo(print())
+                    .andExpect(status().isUnauthorized());
+        }
+    }
+
+    @Nested
+    class 로그아웃_API {
+        @Test
+        void 성공()  throws Exception {
+            SecurityContextHolder.clearContext();
+
+            UserSignUpRequest signUpRequest = new UserSignUpRequest(
+                    "logoutUser123",
+                    "PasswordTest123!",
+                    "PasswordTest123!",
+                    "JNSJ",
+                    "logout@example.com",
+                    "010-1234-5678",
+                    Gender.MALE,
+                    LocalDate.of(1999, 9, 9)
+            );
+
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    "/users/signup",
+                                    signUpRequest,
+                                    HttpMethod.POST,
+                                    objectMapper
+                            )
+                    )
+                    .andExpect(status().isCreated());
+
+            LoginRequest loginRequest = new LoginRequest("logoutUser123", "PasswordTest123!");
+
+            String responseBody = mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    "/auth/login",
+                                    loginRequest,
+                                    HttpMethod.POST,
+                                    objectMapper
+                            )
+                    )
+                    .andExpect(status().isOk())
+                    .andReturn()
+                    .getResponse()
+                    .getContentAsString();
+
+            LoginResponse loginResponse = objectMapper.readValue(responseBody, LoginResponse.class);
+            String accessToken = loginResponse.accessToken();
+
+
+            mockMvc.perform(
+                            post(LOGOUT_URL)
+                                    .header("Authorization", "Bearer " + accessToken)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isNoContent());
+        }
+
+        @Test
+        void 실패_잘못된_토큰()  throws Exception {
+
+            mockMvc.perform(
+                            post(LOGOUT_URL)
+                                    .header("Authorization", "Bearer invalid-access-token")
+
+                    ).andDo(print())
                     .andExpect(status().isUnauthorized());
         }
     }

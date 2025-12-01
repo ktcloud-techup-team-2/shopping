@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
@@ -87,5 +88,26 @@ public class AuthService {
         redisTemplate.opsForValue().set(redisKey, tokenDto.refreshToken(), Duration.ofDays(7));
 
         return TokenResponseDto.of(tokenDto.accessToken(), userId);
+    }
+
+    public void logout(Long userId, String accessToken) {
+        if (!tokenProvider.validateToken(accessToken)) {
+            throw new JwtException(ErrorCode.UNAUTHORIZED_CLIENT.getMessage());
+        }
+
+        String refreshKey = "refreshToken:" + userId;
+        redisTemplate.delete(refreshKey);
+
+        long remainingTime = tokenProvider.getRemainingValidity(accessToken);
+
+        if(remainingTime > 0) {
+            String blacklistKey = "blacklist:" + accessToken;
+            redisTemplate.opsForValue().set(
+                    blacklistKey,
+                    "logout",
+                    remainingTime,
+                    TimeUnit.MILLISECONDS
+            );
+        }
     }
 }
