@@ -27,8 +27,15 @@ public class UserController {
 
     @GetMapping("/me")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseEntity<UserResponse> getUser(@AuthenticationPrincipal AuthUser authUser){
+    public ApiResponseEntity<UserResponse> getInfo(@AuthenticationPrincipal AuthUser authUser){
         UserResponse response = userService.getUser(authUser.id());
+        return ApiResponseEntity.success(response);
+    }
+
+    @PatchMapping("/me")
+    public ApiResponseEntity<UserResponse> updateInfo (@AuthenticationPrincipal AuthUser authUser,
+                                                       @RequestBody @Valid UserRequest.Update request){
+        UserResponse response = userService.updateUser(authUser.id(), request);
         return ApiResponseEntity.success(response);
     }
 }

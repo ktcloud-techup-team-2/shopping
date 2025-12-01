@@ -76,4 +76,12 @@ public class User {
                 updatedAt
         );
     }
+
+    public void updateInfo(String name, String email, String phone, LocalDate birthday) {
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.birthday = birthday;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

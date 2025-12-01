@@ -4,8 +4,8 @@ import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.common.Preconditions;
 import com.kt.domain.user.User;
+import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
-import com.kt.dto.user.UserSignUpRequest;
 import com.kt.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +22,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public void signup(UserSignUpRequest request) {
+    public void signup(UserRequest.Create request) {
         Preconditions.validate(request.password().equals(request.passwordConfirm()), ErrorCode.INVALID_PASSWORD_CHECK);
         Preconditions.validate(!userRepository.existsByloginId(request.loginId()), ErrorCode.INVALID_USER_ID);
 
@@ -49,4 +49,19 @@ public class UserService {
         return UserResponse.from(user);
     }
 
+    public UserResponse updateUser(Long userId, UserRequest.Update userRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateInfo (
+                userRequest.name(),
+                userRequest.email(),
+                userRequest.phone(),
+                userRequest.birthday()
+        );
+
+        userRepository.save(user);
+
+        return UserResponse.from(user);
+    }
 }
