@@ -13,6 +13,7 @@ import com.kt.domain.delivery.DeliveryStatus;
 import com.kt.domain.delivery.DeliveryStatusHistory;
 import com.kt.dto.delivery.DeliveryRequest;
 import com.kt.dto.delivery.DeliveryResponse;
+import com.kt.repository.delivery.CourierRepository;
 import com.kt.repository.delivery.DeliveryAddressRepository;
 import com.kt.repository.delivery.DeliveryRepository;
 import com.kt.repository.delivery.DeliveryStatusHistoryRepository;
@@ -26,6 +27,7 @@ public class DeliveryService {
 	private final DeliveryRepository deliveryRepository;
 	private final DeliveryAddressRepository deliveryAddressRepository;
 	private final DeliveryStatusHistoryRepository deliveryStatusHistoryRepository;
+	private final CourierRepository courierRepository;
 
 	public DeliveryResponse.Detail createDelivery(DeliveryRequest.Create request){
 		var isDeliveryExist = deliveryRepository.existsByOrderId(request.orderId());
@@ -99,6 +101,10 @@ public class DeliveryService {
 				if (request.trackingNumber() == null || request.courierCode() == null) {
 					throw new CustomException(ErrorCode.COMMON_INVALID_ARGUMENT);
 				}
+
+				boolean isValidCourier = courierRepository.existsByCode(request.courierCode());
+				Preconditions.validate(isValidCourier, ErrorCode.COURIER_NOT_FOUND);
+
 				delivery.updateTrackingInfo(request.courierCode(), request.trackingNumber());
 				delivery.ship();
 			}

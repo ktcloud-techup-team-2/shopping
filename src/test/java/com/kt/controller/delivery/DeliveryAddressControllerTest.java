@@ -19,7 +19,7 @@ import com.kt.dto.delivery.DeliveryAddressRequest;
 import com.kt.dto.delivery.DeliveryAddressResponse;
 import com.kt.service.delivery.DeliveryAddressService;
 
-class DeliveryAddressControllerDocsTest extends AbstractRestDocsTest {
+class DeliveryAddressControllerTest extends AbstractRestDocsTest {
 
 	private static final String DEFAULT_URL = "/delivery/addresses";
 

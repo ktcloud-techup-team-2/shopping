@@ -56,7 +56,7 @@ public interface DeliveryResponse {
 		String receiverName,
 		String receiverMobile,
 
-		String PostalCode,
+		String postalCode,
 		String roadAddress,
 		String detailAddress,
 
