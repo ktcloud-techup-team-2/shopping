@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional
@@ -43,12 +44,19 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponse getUser (Long userId){
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         return UserResponse.from(user);
     }
 
+    @Transactional(readOnly = true)
+    public List<UserResponse> getUsers() {
+        return userRepository.findAllByDeletedAtIsNull()
+                .stream()
+                .map(UserResponse::from)
+                .toList();
+    }
     public UserResponse updateUser(Long userId, UserRequest.Update userRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
