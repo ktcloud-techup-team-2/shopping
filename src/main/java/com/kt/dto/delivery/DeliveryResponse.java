@@ -1,6 +1,5 @@
 package com.kt.dto.delivery;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.kt.domain.delivery.Delivery;
@@ -57,12 +56,13 @@ public interface DeliveryResponse {
 		String receiverName,
 		String receiverMobile,
 
-		String PostalCode,
+		String postalCode,
 		String roadAddress,
 		String detailAddress,
 
 		Integer deliveryFee,
 		DeliveryStatus status,
+		String courierCode,
 		String trackingNumber,
 		LocalDateTime createdAt
 	) {
@@ -77,6 +77,7 @@ public interface DeliveryResponse {
 				address.getDetailAddress(),
 				delivery.getDeliveryFee(),
 				delivery.getStatus(),
+				delivery.getCourierCode(),
 				delivery.getTrackingNumber(),
 				address.getCreatedAt()
 			);

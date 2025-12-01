@@ -1,5 +1,7 @@
 package com.kt.dto.delivery;
 
+import com.kt.domain.delivery.DeliveryStatus;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
@@ -13,6 +15,16 @@ public class DeliveryRequest {
 
 		@PositiveOrZero(message = "배송비는 0 이상이어야 합니다. (무료배송 또는 배송비 부과)")
 		Integer deliveryFee
+	) {
+
+	}
+
+	public record UpdateStatus(
+		@NotNull(message = "변경할 상태는 필수입니다.")
+		DeliveryStatus status,
+
+		String courierCode,
+		String trackingNumber
 	) {
 
 	}

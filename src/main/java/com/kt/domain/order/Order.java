@@ -1,12 +1,12 @@
 package com.kt.domain.order;
 
-import java.util.UUID;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Table;
 
+import com.kt.common.api.CustomException;
+import com.kt.common.api.ErrorCode;
 import com.kt.common.jpa.BaseTimeEntity;
 import com.kt.domain.orderproduct.OrderProduct;
 
@@ -26,34 +26,61 @@ public class Order extends BaseTimeEntity {
 	@Column(unique = true, nullable = false)
 	private String orderNumber;
 
-	//주문자가 볼 수 있는 주문번호 추가
-
 	@Embedded
 	private Receiver receiver;
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private OrderStatus orderStatus;
 
 	@Column(nullable = false)
 	private long totalPaymentAmount;
 
 	@OneToMany(mappedBy = "order")
-	private List<OrderProduct> orderProducts = new ArrayList<>();
+	private final List<OrderProduct> orderProducts = new ArrayList<>();
 
-	private Order(Long userId,Receiver receiver, long totalPaymentAmount) {
+	private Order(Long userId, Receiver receiver, long totalPaymentAmount, String orderNumber) {
 		this.userId = userId;
 		this.receiver = receiver;
 		this.totalPaymentAmount = totalPaymentAmount;
 		this.orderStatus = OrderStatus.PENDING;
-		this.orderNumber = UUID.randomUUID().toString();
+		this.orderNumber = orderNumber;
 	}
 
-	public static Order create(Long userId, Receiver receiver, long totalPaymentAmount) {
-		return new Order(userId, receiver, totalPaymentAmount);
+	public static Order create(Long userId, Receiver receiver, long totalPaymentAmount, String orderNumber) {
+		return new Order(userId, receiver, totalPaymentAmount, orderNumber);
 	}
 
 	public void mapToOrder(OrderProduct orderProduct) {
 		orderProducts.add(orderProduct);
+	}
+
+	public void cancel() {
+
+		if (!canCancelUser()) {
+			throw new CustomException(ErrorCode.ORDER_CANCEL_NOT_ALLOWED);
+		}
+		this.orderStatus = OrderStatus.CANCELLED;
+	}
+
+	public void cancelAdmin(){
+		if (this.orderStatus == OrderStatus.CANCELLED) {
+			throw new CustomException(ErrorCode.ORDER_ALREADY_CANCELLED);
+		}
+		this.orderStatus = OrderStatus.CANCELLED;
+	}
+
+	private boolean canCancelUser(){
+		return this.orderStatus == OrderStatus.PENDING || this.orderStatus == OrderStatus.COMPLETED;
+	}
+
+	//주문 수정 = 배송 정보 수정
+	public void updateReceiver(Receiver receiver){
+		this.receiver = receiver;
+	}
+
+	public void changeOrderStatus(OrderStatus status) {
+		this.orderStatus = status;
 	}
 
 }

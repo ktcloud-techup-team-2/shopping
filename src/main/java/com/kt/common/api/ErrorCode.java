@@ -40,6 +40,8 @@ public enum ErrorCode {
 	DELIVERY_NOT_IN_SHIPPING(HttpStatus.CONFLICT, "배송중 상태에서만 배송완료 처리할 수 있습니다."),
 	DELIVERY_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT, "배송중이거나 완료된 주문은 취소할 수 없습니다."),
 	DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 방송 정보를 찾을 수 없습니다."),
+	COURIER_NOT_FOUND(HttpStatus.NOT_FOUND, "택배사를 찾을 수 없습니다."),
+	COURIER_CODE_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 택배사 코드입니다."),
 
 	// ---------------- PRODUCT -------------------
 	PRODUCT_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "상품명은 필수 입력 값입니다."),
@@ -64,6 +66,9 @@ public enum ErrorCode {
 	INVENTORY_OUTBOUND_NOT_RESERVED(HttpStatus.CONFLICT, "출고 처리할 예약 재고가 없습니다."),
 
 	// ---------------- ORDER_PRODUCT -------------------
+	ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),
+	ORDER_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT, "현재 상태에서는 주문을 취소할 수 없습니다."),
+	ORDER_ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소된 주문입니다."),
 	ORDER_PRODUCT_QUANTITY_MINIMUM(HttpStatus.BAD_REQUEST, "주문 상품 수량은 1 이상이어야 합니다.");
 
 	private final HttpStatus status;

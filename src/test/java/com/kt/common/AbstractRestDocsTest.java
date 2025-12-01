@@ -6,10 +6,12 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kt.domain.user.Role;
 import com.kt.security.TokenProvider;
 import com.kt.security.dto.TokenRequestDto;
 
+import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,8 +66,8 @@ public abstract class AbstractRestDocsTest {
 
 	private String createAccessToken(Long userId, String... roles) {
 		var authorities = Arrays.stream(roles)
-			.map(SimpleGrantedAuthority::new)
-			.toList();
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .toList();
 
 		Authentication auth = new UsernamePasswordAuthenticationToken(
 			userId.toString(),
@@ -94,4 +96,9 @@ public abstract class AbstractRestDocsTest {
 			return request;
 		};
 	}
+
+    @PostConstruct
+    public void setUpObjectMapper() {
+        objectMapper.registerModule(new JavaTimeModule());
+    }
 }

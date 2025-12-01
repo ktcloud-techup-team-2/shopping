@@ -52,7 +52,7 @@ public class Delivery extends BaseTimeEntity {
 
 	public void startPreparing() {
 		Preconditions.validate(
-			this.status != DeliveryStatus.PENDING,
+			this.status == DeliveryStatus.PENDING,
 			ErrorCode.DELIVERY_NOT_IN_PENDING
 		);
 		this.status = DeliveryStatus.PREPARING;
@@ -60,7 +60,7 @@ public class Delivery extends BaseTimeEntity {
 
 	public void readyForShipment() {
 		Preconditions.validate(
-			this.status != DeliveryStatus.PREPARING,
+			this.status == DeliveryStatus.PREPARING,
 			ErrorCode.DELIVERY_NOT_IN_PREPARING
 		);
 		this.status = DeliveryStatus.READY;
@@ -68,7 +68,7 @@ public class Delivery extends BaseTimeEntity {
 
 	public void ship() {
 		Preconditions.validate(
-			this.status != DeliveryStatus.READY,
+			this.status == DeliveryStatus.READY,
 			ErrorCode.DELIVERY_NOT_IN_READY
 		);
 		this.status = DeliveryStatus.SHIPPING;
@@ -77,7 +77,7 @@ public class Delivery extends BaseTimeEntity {
 
 	public void complete() {
 		Preconditions.validate(
-			this.status != DeliveryStatus.SHIPPING,
+			this.status == DeliveryStatus.SHIPPING,
 			ErrorCode.DELIVERY_NOT_IN_SHIPPING
 		);
 		this.status = DeliveryStatus.DELIVERED;
@@ -85,9 +85,12 @@ public class Delivery extends BaseTimeEntity {
 	}
 
 	public void cancel() {
+		boolean isCancellable =
+			this.status != DeliveryStatus.SHIPPING &&
+				this.status != DeliveryStatus.DELIVERED;
+
 		Preconditions.validate(
-			this.status == DeliveryStatus.SHIPPING ||
-				this.status == DeliveryStatus.DELIVERED,
+			isCancellable,
 			ErrorCode.DELIVERY_CANCEL_NOT_ALLOWED
 		);
 		this.status = DeliveryStatus.CANCELLED;
