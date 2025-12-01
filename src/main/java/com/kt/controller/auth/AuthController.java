@@ -1,17 +1,17 @@
 package com.kt.controller.auth;
 
+import com.kt.common.api.ApiResponseEntity;
 import com.kt.dto.auth.LoginRequest;
 import com.kt.dto.auth.LoginResponse;
+import com.kt.security.AuthUser;
 import com.kt.security.dto.TokenReissueRequestDto;
 import com.kt.security.dto.TokenResponseDto;
 import com.kt.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -30,5 +30,14 @@ public class AuthController {
     public ResponseEntity<TokenResponseDto> reissue (@RequestBody TokenReissueRequestDto request) {
         TokenResponseDto response = authService.reissue(request.refreshToken());
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    public ApiResponseEntity<Void> logout(@AuthenticationPrincipal AuthUser user,
+                                          @RequestHeader("Authorization") String authorizationHeader) {
+        String accessToken = authorizationHeader.replace("Bearer ", "");
+        authService.logout(user.id(), accessToken);
+
+        return ApiResponseEntity.empty();
     }
 }

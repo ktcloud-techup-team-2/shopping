@@ -3,7 +3,10 @@ package com.kt.security;
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.security.dto.TokenRequestDto;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -110,6 +112,13 @@ public class TokenProvider {
     public Long getUserIdFromToken(String token) {
         Claims claims = parseClaims(token);
         return Long.valueOf(claims.getSubject());
+    }
+
+    public long getRemainingValidity(String token) {
+        Claims claims = parseClaims(token);
+        Date expiration = claims.getExpiration();
+        long now = System.currentTimeMillis();
+        return expiration.getTime() - now;
     }
 
     private Claims parseClaims(String token) {
