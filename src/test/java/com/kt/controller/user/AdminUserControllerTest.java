@@ -2,9 +2,13 @@ package com.kt.controller.user;
 
 import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
+import com.kt.domain.user.Gender;
+import com.kt.domain.user.User;
 import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
+import com.kt.repository.user.UserRepository;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -24,24 +29,49 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
 
     @Autowired
     private RestDocsFactory restDocsFactory;
+    @Autowired
+    private UserRepository userRepository;
+
+    private Long userId;
+
+    @BeforeEach
+    void setUp() {
+        userRepository.deleteAll();
+
+        User user = User.user(
+                "test1234",
+                "encoded-password",
+                "테스트",
+                "example123@gmail.com",
+                "010-1234-5678",
+                LocalDate.of(2002, 8, 9),
+                Gender.FEMALE,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        userId = userRepository.save(user).getId();
+    }
 
     @Nested
     class 관리자_유저_단건_조회_API {
 
         @Test
         void 성공() throws Exception {
-            // when & then
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_USERS_URL + "/1",
+                                    ADMIN_USERS_URL + "/" + userId,
                                     null,
                                     HttpMethod.GET,
                                     objectMapper
                             ).with(jwtAdmin())
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.id").value(1L))
-
+                    .andExpect(jsonPath("$.data.id").value(userId))
+                    .andExpect(jsonPath("$.data.loginId").value("test1234"))
+                    .andExpect(jsonPath("$.data.name").value("테스트"))
+                    .andExpect(jsonPath("$.data.email").value("example123@gmail.com"))
+                    .andExpect(jsonPath("$.data.phone").value("010-1234-5678"))
                     .andDo(
                             restDocsFactory.success(
                                     "admin-users-get-one",
@@ -60,7 +90,6 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
 
         @Test
         void 성공() throws Exception {
-
             mockMvc.perform(
                             restDocsFactory.createRequest(
                                     ADMIN_USERS_URL,
@@ -71,7 +100,7 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
                     )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data").isArray())
-                    .andExpect(jsonPath("$.data[0].id").value(1L))
+                    .andExpect(jsonPath("$.data[0].id").value(userId))
                     .andDo(
                             restDocsFactory.success(
                                     "admin-users-get-list",
@@ -98,17 +127,16 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
                     LocalDate.of(1995, 5, 5)
             );
 
-            // when & then
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_USERS_URL + "/1",   // id=1 유저 수정
+                                    ADMIN_USERS_URL + "/" + userId,
                                     request,
                                     HttpMethod.PATCH,
                                     objectMapper
-                            ).with(jwtAdmin())              // ✅ ADMIN 권한
+                            ).with(jwtAdmin())
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.id").value(1L))
+                    .andExpect(jsonPath("$.data.id").value(userId))
                     .andExpect(jsonPath("$.data.name").value(request.name()))
                     .andExpect(jsonPath("$.data.email").value(request.email()))
                     .andExpect(jsonPath("$.data.phone").value(request.phone()))
@@ -131,14 +159,13 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
 
         @Test
         void 성공() throws Exception {
-            // when & then
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_USERS_URL + "/1",   // id=1 유저 삭제
+                                    ADMIN_USERS_URL + "/" + userId,
                                     null,
                                     HttpMethod.DELETE,
                                     objectMapper
-                            ).with(jwtAdmin())              // ✅ ADMIN 권한
+                            ).with(jwtAdmin())
                     )
                     .andExpect(status().isNoContent())
                     .andDo(
