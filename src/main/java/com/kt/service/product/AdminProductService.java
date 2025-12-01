@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,7 @@ public class AdminProductService {
 
 	private final ProductRepository productRepository;
 	private final InventoryService inventoryService;
-	private final AuditorAware<Long> auditorAware;
+	private final org.springframework.data.domain.AuditorAware<Long> auditorAware;
 
 	public ProductResponse.Create create(ProductRequest.Create request) {
 		var product = Product.create(
@@ -80,8 +79,6 @@ public class AdminProductService {
 
 		if (product.getStatus() == ProductStatus.DRAFT) {
 			product.validateHardDeletable();
-
-			inventoryService.deleteByProductId(product.getId());
 			productRepository.delete(product);
 			return;
 		}
