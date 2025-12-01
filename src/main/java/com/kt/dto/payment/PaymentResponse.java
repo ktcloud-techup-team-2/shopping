@@ -47,4 +47,52 @@ public interface PaymentResponse {
 			);
 		}
 	}
+
+	record AdminList(
+		Long paymentId,
+		Long userId,
+		String orderNumber,
+		Long paymentAmount,
+		PaymentType type,
+		PaymentStatus status,
+		LocalDateTime createdAt
+	){
+		public static AdminList from(Payment payment){
+			return new AdminList(
+				payment.getId(),
+				payment.getUserId(),
+				payment.getOrderNumber(),
+				payment.getPaymentAmount(),
+				payment.getType(),
+				payment.getStatus(),
+				payment.getCreatedAt()
+			);
+		}
+	}
+
+	record AdminDetail(
+		Long paymentId,
+		Long userId,
+		String orderNumber,
+		Long orderAmount,
+		Long deliveryFee,
+		Long paymentAmount,
+		PaymentType type,
+		PaymentStatus status,
+		LocalDateTime createdAt
+	){
+		public static AdminDetail from(Payment payment){
+			return new AdminDetail(
+				payment.getId(),
+				payment.getUserId(),
+				payment.getOrderNumber(),
+				payment.getOrderAmount(),
+				payment.getDeliveryFee(),
+				payment.getPaymentAmount(),
+				payment.getType(),
+				payment.getStatus(),
+				payment.getCreatedAt()
+			);
+		}
+	}
 }

@@ -15,6 +15,9 @@ import lombok.NoArgsConstructor;
 @Table(name = "payments")
 public class Payment extends BaseTimeEntity {
 
+	//PG사 결제키
+	//PG사 주문 ID
+
 	@Column(nullable = false)
 	private Long userId;
 
@@ -25,7 +28,7 @@ public class Payment extends BaseTimeEntity {
 	private Long orderAmount;
 
 	@Column(nullable = false)
-	private Long deliveryFee;
+	private Long deliveryFee; //배송비 정책 로직 추가 (ex. 금액별 무료배송, 지역별 추가요금)
 
 	@Column(nullable = false)
 	private Long paymentAmount;
@@ -80,5 +83,9 @@ public class Payment extends BaseTimeEntity {
 
 	private boolean canCancel() {
 		return this.status == PaymentStatus.READY || this.status == PaymentStatus.DONE;
+	}
+
+	public void changeStatus(PaymentStatus status) {
+		this.status = status;
 	}
 }

@@ -1,5 +1,6 @@
 package com.kt.dto.payment;
 
+import com.kt.domain.payment.PaymentStatus;
 import com.kt.domain.payment.PaymentType;
 
 import jakarta.validation.constraints.Min;
@@ -17,6 +18,11 @@ public class PaymentRequest {
 
 		@NotNull
 		PaymentType type
+	) {}
+
+	public record ChangeStatus(
+		@NotNull
+		PaymentStatus status
 	) {}
 
 }
