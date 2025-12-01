@@ -1,8 +1,10 @@
 package com.kt.service.user;
 
+import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.common.Preconditions;
 import com.kt.domain.user.User;
+import com.kt.dto.user.UserResponse;
 import com.kt.dto.user.UserSignUpRequest;
 import com.kt.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,14 @@ public class UserService {
         );
 
         userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponse getUser (Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return UserResponse.from(user);
     }
 
 }
