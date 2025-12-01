@@ -3,11 +3,9 @@ package com.kt.controller.user;
 import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
 import com.kt.domain.user.Gender;
-import com.kt.domain.user.User;
+import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
-import com.kt.dto.user.UserSignUpRequest;
 import com.kt.repository.user.UserRepository;
-import com.kt.security.TokenProvider;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,7 +14,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -39,7 +36,7 @@ public class UserControllerTest extends AbstractRestDocsTest {
         @Test
         void 성공 () throws Exception {
             // given
-            UserSignUpRequest request = new UserSignUpRequest(
+            UserRequest.Create request = new UserRequest.Create(
                     "idfortest123",
                     "PasswordTest123!",
                     "PasswordTest123!",
@@ -101,6 +98,97 @@ public class UserControllerTest extends AbstractRestDocsTest {
                                     UserResponse.class
                             )
                     );
+        }
+    }
+
+    @Nested
+    class 유저_정보_수정_API {
+        @Test
+        void 성공() throws Exception {
+            // given
+            UserRequest.Update request = new UserRequest.Update(
+                    "수정된이름",
+                    "updated@example.com",
+                    "010-9999-9999",
+                    LocalDate.of(2000, 1, 1)
+            );
+            // when & then
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    ME_URL,
+                                    request,
+                                    HttpMethod.PATCH,
+                                    objectMapper
+                            ).with(jwtUser())
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.id").value(1L))
+                    .andExpect(jsonPath("$.data.loginId").value("test1234"))
+                    .andExpect(jsonPath("$.data.name").value(request.name()))
+                    .andExpect(jsonPath("$.data.email").value(request.email()))
+                    .andExpect(jsonPath("$.data.phone").value(request.phone()))
+                    .andExpect(jsonPath("$.data.birthday").value("2000-01-01"))
+                    .andDo(
+                            restDocsFactory.success(
+                                    "users-me-update",
+                                    "내 정보 수정",
+                                    "현재 로그인한 사용자의 정보를 수정하는 API",
+                                    "User",
+                                    request,
+                                    UserResponse.class
+                            )
+                    );
+        }
+
+        @Test
+        void 실패_인증_없음 () throws Exception {
+            // given
+            UserRequest.Update request = new UserRequest.Update(
+                    "수정된이름",
+                    "updated@example.com",
+                    "010-9999-9999",
+                    LocalDate.of(2000, 1, 1)
+            );
+
+            // when & then (인증 토큰 없이 호출)
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    ME_URL,
+                                    request,
+                                    HttpMethod.PATCH,
+                                    objectMapper
+                            )
+                    )
+                    .andExpect(status().isForbidden());
+        }
+    }
+
+    @Nested
+    class 유저_탈퇴_API {
+
+        @Test
+        void 성공 () throws Exception {
+            // when & then
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    ME_URL,
+                                    null,
+                                    HttpMethod.DELETE,
+                                    objectMapper
+                            ).with(jwtUser())
+                    )
+                    .andExpect(status().isNoContent())
+                    .andDo(
+                            restDocsFactory.success(
+                                    "users-me-delete",
+                                    "내 정보 탈퇴",
+                                    "현재 로그인한 사용자의 계정을 탈퇴(soft delete)하는 API",
+                                    "User",
+                                    null,
+                                    null
+                            )
+                    );
+
         }
     }
 }

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.kt.common.api.CustomException;
@@ -21,6 +22,7 @@ import com.kt.domain.delivery.Delivery;
 import com.kt.domain.delivery.DeliveryAddress;
 import com.kt.domain.delivery.DeliveryStatus;
 import com.kt.domain.delivery.DeliveryStatusHistory;
+import com.kt.domain.delivery.event.DeliveryStatusEvent;
 import com.kt.dto.delivery.DeliveryRequest;
 import com.kt.repository.delivery.CourierRepository;
 import com.kt.repository.delivery.DeliveryAddressRepository;
@@ -44,6 +46,9 @@ class DeliveryServiceTest {
 
 	@Mock
 	private CourierRepository courierRepository;
+
+	@Mock
+	private ApplicationEventPublisher eventPublisher;
 
 	// --- Helper Methods ---
 	private DeliveryAddress mockAddress() {
@@ -122,6 +127,11 @@ class DeliveryServiceTest {
 			// ✅ 핵심 검증: 상태 변경 이력이 저장되었는가?
 			verify(deliveryStatusHistoryRepository, times(1)).save(argThat(history ->
 				history.getStatus() == DeliveryStatus.SHIPPING && history.getDeliveryId().equals(deliveryId)
+			));
+
+			verify(eventPublisher, times(1)).publishEvent(argThat((Object event) ->
+				event instanceof DeliveryStatusEvent &&
+					((DeliveryStatusEvent) event).status() == DeliveryStatus.SHIPPING
 			));
 		}
 

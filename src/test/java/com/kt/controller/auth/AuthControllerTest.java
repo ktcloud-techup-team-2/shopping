@@ -6,7 +6,8 @@ import com.kt.domain.user.Gender;
 import com.kt.domain.user.User;
 import com.kt.dto.auth.LoginRequest;
 import com.kt.dto.auth.LoginResponse;
-import com.kt.dto.user.UserSignUpRequest;
+import com.kt.dto.user.UserRequest;
+import com.kt.dto.user.UserRequest.Create;
 import com.kt.repository.user.UserRepository;
 import com.kt.security.TokenProvider;
 import com.kt.security.dto.TokenReissueRequestDto;
@@ -29,6 +30,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,6 +40,7 @@ public class AuthControllerTest extends AbstractRestDocsTest {
 
     private static final String LOGIN_URL = "/auth/login";
     private static final String REISSUE_URL = "/auth/reissue";
+    private static final String LOGOUT_URL = "/auth/logout";
 
     @Autowired
     private RestDocsFactory restDocsFactory;
@@ -57,7 +60,7 @@ public class AuthControllerTest extends AbstractRestDocsTest {
             SecurityContextHolder.clearContext();
 
             // 회원가입 데이터 생성
-            UserSignUpRequest signUpRequest = new UserSignUpRequest(
+            UserRequest.Create signUpRequest = new UserRequest.Create(
                     "idfortest123",
                     "PasswordTest123!",
                     "PasswordTest123!",
@@ -154,7 +157,7 @@ public class AuthControllerTest extends AbstractRestDocsTest {
         void 성공() throws Exception {
             SecurityContextHolder.clearContext();
 
-            UserSignUpRequest signUpRequest = new UserSignUpRequest(
+            UserRequest.Create signUpRequest = new UserRequest.Create(
                     "reissueUser123",
                     "PasswordTest123!",
                     "PasswordTest123!",
@@ -228,6 +231,72 @@ public class AuthControllerTest extends AbstractRestDocsTest {
                     )
             )
                     .andDo(print())
+                    .andExpect(status().isUnauthorized());
+        }
+    }
+
+    @Nested
+    class 로그아웃_API {
+        @Test
+        void 성공()  throws Exception {
+            SecurityContextHolder.clearContext();
+
+            UserRequest.Create signUpRequest = new UserRequest.Create(
+                    "logoutUser123",
+                    "PasswordTest123!",
+                    "PasswordTest123!",
+                    "JNSJ",
+                    "logout@example.com",
+                    "010-1234-5678",
+                    Gender.MALE,
+                    LocalDate.of(1999, 9, 9)
+            );
+
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    "/users/signup",
+                                    signUpRequest,
+                                    HttpMethod.POST,
+                                    objectMapper
+                            )
+                    )
+                    .andExpect(status().isCreated());
+
+            LoginRequest loginRequest = new LoginRequest("logoutUser123", "PasswordTest123!");
+
+            String responseBody = mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    "/auth/login",
+                                    loginRequest,
+                                    HttpMethod.POST,
+                                    objectMapper
+                            )
+                    )
+                    .andExpect(status().isOk())
+                    .andReturn()
+                    .getResponse()
+                    .getContentAsString();
+
+            LoginResponse loginResponse = objectMapper.readValue(responseBody, LoginResponse.class);
+            String accessToken = loginResponse.accessToken();
+
+
+            mockMvc.perform(
+                            post(LOGOUT_URL)
+                                    .header("Authorization", "Bearer " + accessToken)
+                    )
+                    .andDo(print())
+                    .andExpect(status().isNoContent());
+        }
+
+        @Test
+        void 실패_잘못된_토큰()  throws Exception {
+
+            mockMvc.perform(
+                            post(LOGOUT_URL)
+                                    .header("Authorization", "Bearer invalid-access-token")
+
+                    ).andDo(print())
                     .andExpect(status().isUnauthorized());
         }
     }

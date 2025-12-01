@@ -26,7 +26,12 @@ public class OrderRequest {
 
 		@Min(value=1)
 		@Max(value=999)
-		int quantity
+		int quantity,
+
+		@NotNull
+		Long deliveryAddressId,
+		@NotNull
+		Integer deliveryFee
 
 	){
 

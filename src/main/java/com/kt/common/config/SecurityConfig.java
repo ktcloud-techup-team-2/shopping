@@ -6,6 +6,7 @@ import com.kt.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,6 +25,7 @@ public class SecurityConfig {
 
     private final TokenProvider tokenProvider;
     private final JwtExceptionHandler jwtExceptionHandler;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -33,7 +35,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        JwtFilter filter = new JwtFilter(tokenProvider, jwtExceptionHandler);
+        JwtFilter filter = new JwtFilter(tokenProvider, jwtExceptionHandler, redisTemplate);
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -42,7 +44,7 @@ public class SecurityConfig {
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/users/signup", "/", "/auth/login", "/auth/reissue","/swagger-ui.html",
+                        .requestMatchers("/users/signup", "/admin/signup", "/", "/auth/login", "/auth/reissue","/swagger-ui.html",
                                 "/swagger-ui/**","/api-docs/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().hasAnyRole("USER", "ADMIN"))

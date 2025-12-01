@@ -1,5 +1,6 @@
 package com.kt.service.delivery;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import com.kt.common.Preconditions;
 import com.kt.domain.delivery.Delivery;
 import com.kt.domain.delivery.DeliveryStatus;
 import com.kt.domain.delivery.DeliveryStatusHistory;
+import com.kt.domain.delivery.event.DeliveryStatusEvent;
 import com.kt.dto.delivery.DeliveryRequest;
 import com.kt.dto.delivery.DeliveryResponse;
 import com.kt.repository.delivery.CourierRepository;
@@ -28,6 +30,8 @@ public class DeliveryService {
 	private final DeliveryAddressRepository deliveryAddressRepository;
 	private final DeliveryStatusHistoryRepository deliveryStatusHistoryRepository;
 	private final CourierRepository courierRepository;
+
+	private final ApplicationEventPublisher eventPublisher;
 
 	public DeliveryResponse.Detail createDelivery(DeliveryRequest.Create request){
 		var isDeliveryExist = deliveryRepository.existsByOrderId(request.orderId());
@@ -114,6 +118,14 @@ public class DeliveryService {
 		}
 
 		saveHistory(deliveryId, request.status());
+
+		eventPublisher.publishEvent(DeliveryStatusEvent.of(
+			delivery.getId(),
+			delivery.getOrderId(),
+			delivery.getStatus(),
+			delivery.getTrackingNumber(),
+			delivery.getCourierCode()
+		));
 
 		var address =  deliveryAddressRepository.findById(delivery.getDeliveryAddressId())
 			.orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_ADDRESS_NOT_FOUND));

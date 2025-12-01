@@ -43,18 +43,29 @@ public enum ErrorCode {
 	COURIER_NOT_FOUND(HttpStatus.NOT_FOUND, "택배사를 찾을 수 없습니다."),
 	COURIER_CODE_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 택배사 코드입니다."),
 
+	// ---------------- REVIEW ----------------
+	REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."),
+
 	// ---------------- PRODUCT -------------------
 	PRODUCT_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "상품명은 필수 입력 값입니다."),
 	PRODUCT_NAME_TOO_LONG(HttpStatus.BAD_REQUEST, "상품명은 200자를 초과할 수 없습니다."),
 	PRODUCT_PRICE_BELOW_MINIMUM(HttpStatus.BAD_REQUEST, "상품 가격은 0 이상이어야 합니다."),
-	PRODUCT_STOCK_BELOW_MINIMUM(HttpStatus.BAD_REQUEST, "재고 수량은 0 이상이어야 합니다."),
-	PRODUCT_STOCK_DECREASE_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "재고 감소 수량은 0보다 커야 합니다."),
-	PRODUCT_STOCK_INCREASE_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "재고 증가 수량은 0보다 커야 합니다."),
+	PRODUCT_STOCK_REQUIRED_FOR_ACTIVATION(HttpStatus.BAD_REQUEST, "바로 활성화하려면 재고가 1개 이상이어야 합니다."),
+
+	PRODUCT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 삭제된 상품입니다."),
+	PRODUCT_HARD_DELETE_NOT_ALLOWED(HttpStatus.CONFLICT, "임시 저장 상태가 아닌 상품은 완전 삭제할 수 없습니다."),
 
 	PRODUCT_STOCK_NOT_ENOUGH(HttpStatus.CONFLICT, "재고가 부족합니다."),
 	PRODUCT_STATUS_CHANGE_NOT_ALLOWED(HttpStatus.CONFLICT, "현재 상품 상태에서 해당 상태로 변경할 수 없습니다."),
 
 	PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
+
+	// ---------------- INVENTORY -------------------
+	INVENTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "재고 정보를 찾을 수 없습니다."),
+	INVENTORY_EVENT_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "재고 이벤트 수량은 0보다 커야 합니다."),
+	INVENTORY_NEGATIVE_AVAILABLE(HttpStatus.CONFLICT, "가용 재고가 0 미만이 될 수 없습니다."),
+	INVENTORY_RESERVATION_NOT_FOUND(HttpStatus.CONFLICT, "예약된 재고가 부족합니다."),
+	INVENTORY_OUTBOUND_NOT_RESERVED(HttpStatus.CONFLICT, "출고 처리할 예약 재고가 없습니다."),
 
 	// ---------------- ORDER -------------------
 	ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),

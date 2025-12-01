@@ -13,10 +13,7 @@ public record UserResponse(
         String email,
         String phone,
         Gender gender,
-        LocalDate birthday,
-        String role,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDate birthday
 ) {
     public static UserResponse from(User user) {
         return new UserResponse(
@@ -26,10 +23,7 @@ public record UserResponse(
                 user.getEmail(),
                 user.getPhone(),
                 user.getGender(),
-                user.getBirthday(),
-                user.getRole().name(),
-                user.getCreatedAt(),
-                user.getUpdatedAt()
+                user.getBirthday()
         );
     }
 }
