@@ -1,11 +1,13 @@
 package com.kt.security;
 
 import com.kt.common.api.CustomException;
+import com.kt.common.api.ErrorCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -21,6 +23,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
     private final JwtExceptionHandler exceptionHandler;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -29,6 +32,16 @@ public class JwtFilter extends OncePerRequestFilter {
         String jwt = resolveToken(request);
 
         if (StringUtils.hasText(jwt)) {
+
+            String blacklistKey = "blacklist:" + jwt;
+            Boolean isBlacklisted = redisTemplate.hasKey(blacklistKey);
+
+            if(isBlacklisted){
+                SecurityContextHolder.clearContext();
+                exceptionHandler.handle(response, ErrorCode.EXPIRED_TOKEN);
+                return;
+            }
+
             try {
                 if (tokenProvider.validateToken(jwt)) {
                     Authentication authentication = tokenProvider.getAuthentication(jwt);
