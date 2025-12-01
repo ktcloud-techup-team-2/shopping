@@ -32,6 +32,7 @@ public class User {
     private Role role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime deletedAt;
 
     public User( String loginId, String password, String name, String email, String phone, LocalDate birthday, Gender gender, Role role,  LocalDateTime createdAt, LocalDateTime updatedAt) {
 
@@ -75,5 +76,21 @@ public class User {
                 createdAt,
                 updatedAt
         );
+    }
+
+    public void updateInfo(String name, String email, String phone, LocalDate birthday) {
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.birthday = birthday;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
     }
 }

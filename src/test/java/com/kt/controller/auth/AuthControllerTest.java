@@ -6,7 +6,8 @@ import com.kt.domain.user.Gender;
 import com.kt.domain.user.User;
 import com.kt.dto.auth.LoginRequest;
 import com.kt.dto.auth.LoginResponse;
-import com.kt.dto.user.UserSignUpRequest;
+import com.kt.dto.user.UserRequest;
+import com.kt.dto.user.UserRequest.Create;
 import com.kt.repository.user.UserRepository;
 import com.kt.security.TokenProvider;
 import com.kt.security.dto.TokenReissueRequestDto;
@@ -59,7 +60,7 @@ public class AuthControllerTest extends AbstractRestDocsTest {
             SecurityContextHolder.clearContext();
 
             // 회원가입 데이터 생성
-            UserSignUpRequest signUpRequest = new UserSignUpRequest(
+            UserRequest.Create signUpRequest = new UserRequest.Create(
                     "idfortest123",
                     "PasswordTest123!",
                     "PasswordTest123!",
@@ -156,7 +157,7 @@ public class AuthControllerTest extends AbstractRestDocsTest {
         void 성공() throws Exception {
             SecurityContextHolder.clearContext();
 
-            UserSignUpRequest signUpRequest = new UserSignUpRequest(
+            UserRequest.Create signUpRequest = new UserRequest.Create(
                     "reissueUser123",
                     "PasswordTest123!",
                     "PasswordTest123!",
@@ -240,7 +241,7 @@ public class AuthControllerTest extends AbstractRestDocsTest {
         void 성공()  throws Exception {
             SecurityContextHolder.clearContext();
 
-            UserSignUpRequest signUpRequest = new UserSignUpRequest(
+            UserRequest.Create signUpRequest = new UserRequest.Create(
                     "logoutUser123",
                     "PasswordTest123!",
                     "PasswordTest123!",
