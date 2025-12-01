@@ -8,6 +8,7 @@ import java.util.Arrays;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.kt.domain.user.Role;
+import com.kt.security.AuthUser;
 import com.kt.security.TokenProvider;
 import com.kt.security.dto.TokenRequestDto;
 
@@ -66,11 +67,11 @@ public abstract class AbstractRestDocsTest {
 
 	private String createAccessToken(Long userId, String... roles) {
 		var authorities = Arrays.stream(roles)
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                .toList();
+			.map(SimpleGrantedAuthority::new)
+			.toList();
 
 		Authentication auth = new UsernamePasswordAuthenticationToken(
-			userId.toString(),
+			new AuthUser(userId, authorities),
 			"",
 			authorities
 		);
@@ -82,7 +83,7 @@ public abstract class AbstractRestDocsTest {
 	/** USER 토큰 */
 	protected RequestPostProcessor jwtUser() {
 		return request -> {
-			String token = createAccessToken(DEFAULT_USER_ID, Role.USER.name());
+			String token = createAccessToken(DEFAULT_USER_ID, Role.USER.getKey());
 			request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
 			return request;
 		};
@@ -91,7 +92,7 @@ public abstract class AbstractRestDocsTest {
 	/** ADMIN 토큰 */
 	protected RequestPostProcessor jwtAdmin() {
 		return request -> {
-			String token = createAccessToken(DEFAULT_ADMIN_ID, Role.ADMIN.name());
+			String token = createAccessToken(DEFAULT_ADMIN_ID, Role.ADMIN.getKey());
 			request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
 			return request;
 		};

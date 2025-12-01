@@ -2,5 +2,9 @@ package com.kt.domain.user;
 
 public enum Role {
     USER,
-    ADMIN,
+    ADMIN;
+
+    public String getKey() {
+        return "ROLE_" + name();
+    }
 }
