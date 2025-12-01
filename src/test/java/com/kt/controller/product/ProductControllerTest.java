@@ -1,0 +1,132 @@
+package com.kt.controller.product;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.kt.common.AbstractRestDocsTest;
+import com.kt.common.RestDocsFactory;
+import com.kt.common.api.ApiResponse;
+import com.kt.common.api.PageBlock;
+import com.kt.domain.inventory.Inventory;
+import com.kt.domain.product.Product;
+import com.kt.dto.product.ProductResponse;
+import com.kt.repository.inventory.InventoryRepository;
+import com.kt.repository.product.ProductRepository;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpMethod;
+import org.springframework.transaction.annotation.Transactional;
+
+@Transactional
+class ProductControllerTest extends AbstractRestDocsTest {
+
+	private static final String DEFAULT_URL = "/products";
+
+	@Autowired
+	private RestDocsFactory restDocsFactory;
+
+	@Autowired
+	private ProductRepository productRepository;
+
+	@Autowired
+	private InventoryRepository inventoryRepository;
+
+	@Nested
+	class 상품_리스트_API {
+		@Test
+		void 성공() throws Exception {
+			PageRequest pageable = PageRequest.of(0, 10);
+			Product first = createActiveProduct("공개 상품1", "공개 상품 설명1", 5_000);
+			Product second = createActiveProduct("공개 상품2", "공개 상품 설명2", 15_000);
+
+			Page<Product> page = new PageImpl<>(java.util.List.of(first, second), pageable, 2);
+			var summaries = page.map(p -> ProductResponse.Summary.from(
+					p,
+					inventoryRepository.findByProductId(p.getId()).orElseThrow()
+				))
+				.getContent();
+			var docsResponse = ApiResponse.ofPage(summaries, toPageBlock(page));
+
+			mockMvc.perform(
+					restDocsFactory.createRequest(
+						DEFAULT_URL,
+						null,
+						HttpMethod.GET,
+						objectMapper
+					).with(jwtUser())
+				)
+				.andExpect(status().isOk())
+				.andDo(
+					restDocsFactory.success(
+						"products-list",
+						"상품 리스트 조회",
+						"사용자 상품 리스트 조회 API",
+						"Product",
+						null,
+						docsResponse
+					)
+				);
+		}
+	}
+
+	@Nested
+	class 상품_상세_API {
+		@Test
+		void 성공() throws Exception {
+			Product product = createActiveProduct("상세용 공개 상품", "공개 상품 설명", 5_000);
+			var inventory = inventoryRepository.findByProductId(product.getId()).orElseThrow();
+			var docsResponse = ApiResponse.of(ProductResponse.Detail.from(product, inventory));
+
+			mockMvc.perform(
+					restDocsFactory.createRequest(
+						DEFAULT_URL + "/{id}",
+						null,
+						HttpMethod.GET,
+						objectMapper,
+						product.getId()
+					).with(jwtUser())
+				)
+				.andExpect(status().isOk())
+				.andDo(
+					restDocsFactory.success(
+						"products-detail",
+						"상품 상세 조회",
+						"사용자 상품 상세 조회 API",
+						"Product",
+						null,
+						docsResponse
+					)
+				);
+		}
+	}
+
+	private PageBlock toPageBlock(Page<?> page) {
+		return new PageBlock(
+			page.getNumber(),
+			page.getSize(),
+			page.getTotalElements(),
+			page.getTotalPages(),
+			page.hasNext(),
+			page.hasPrevious(),
+			page.getSort().stream()
+				.map(order -> new PageBlock.SortOrder(order.getProperty(), order.getDirection().name()))
+				.toList()
+		);
+	}
+
+	private Product createActiveProduct(String name, String description, int price) {
+		Product product = productRepository.save(Product.create(name, description, price));
+
+		Inventory inventory = Inventory.initialize(product);
+		inventory.applyWmsInbound(10);
+		inventoryRepository.save(inventory);
+
+		product.activate();
+		productRepository.save(product);
+
+		return product;
+	}
+}

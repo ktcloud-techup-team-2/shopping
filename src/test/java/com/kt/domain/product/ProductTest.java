@@ -16,16 +16,14 @@ class ProductTest {
 		String name = "테스트 상품명";
 		String description = "테스트 상품 설명";
 		int price = 100_000;
-		int stockQuantity = 10;
 
 		// when
-		Product product = Product.create(name, description, price, stockQuantity);
+		Product product = Product.create(name, description, price);
 
 		// then
 		assertThat(product.getName()).isEqualTo(name);
 		assertThat(product.getDescription()).isEqualTo(description);
 		assertThat(product.getPrice()).isEqualTo(price);
-		assertThat(product.getStockQuantity()).isEqualTo(stockQuantity);
 
 		// 최초 상태는 항상 DRAFT
 		assertThat(product.getStatus()).isEqualTo(ProductStatus.DRAFT);
@@ -38,8 +36,7 @@ class ProductTest {
 		assertThatThrownBy(() -> Product.create(
 			name,
 			"설명",
-			10_000,
-			10
+			10_000
 		))
 			.isInstanceOf(CustomException.class)
 			.hasFieldOrPropertyWithValue("errorCode", ErrorCode.PRODUCT_NAME_REQUIRED);
@@ -54,8 +51,7 @@ class ProductTest {
 		assertThatThrownBy(() -> Product.create(
 			name,
 			"설명",
-			10_000,
-			10
+			10_000
 		))
 			.isInstanceOf(CustomException.class)
 			.hasFieldOrPropertyWithValue("errorCode", ErrorCode.PRODUCT_NAME_TOO_LONG);
@@ -67,24 +63,10 @@ class ProductTest {
 		assertThatThrownBy(() -> Product.create(
 			"테스트 상품명",
 			"설명",
-			-1,
-			10
-		))
-			.isInstanceOf(CustomException.class)
-			.hasFieldOrPropertyWithValue("errorCode", ErrorCode.PRODUCT_PRICE_BELOW_MINIMUM);
-	}
-
-	@Test
-	void 재고가_음수면_예외가_발생한다() {
-		// when & then
-		assertThatThrownBy(() -> Product.create(
-			"테스트 상품명",
-			"설명",
-			10_000,
 			-1
 		))
 			.isInstanceOf(CustomException.class)
-			.hasFieldOrPropertyWithValue("errorCode", ErrorCode.PRODUCT_STOCK_BELOW_MINIMUM);
+			.hasFieldOrPropertyWithValue("errorCode", ErrorCode.PRODUCT_PRICE_BELOW_MINIMUM);
 	}
 
 	@Test
@@ -93,13 +75,11 @@ class ProductTest {
 		Product product = Product.create(
 			"테스트 상품명",
 			"설명",
-			0,
 			0
 		);
 
 		// then
 		assertThat(product.getPrice()).isZero();
-		assertThat(product.getStockQuantity()).isZero();
 		assertThat(product.getStatus()).isEqualTo(ProductStatus.DRAFT);
 	}
 }
