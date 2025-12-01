@@ -3,11 +3,9 @@ package com.kt.controller.user;
 import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
 import com.kt.domain.user.Gender;
-import com.kt.domain.user.User;
+import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
-import com.kt.dto.user.UserSignUpRequest;
 import com.kt.repository.user.UserRepository;
-import com.kt.security.TokenProvider;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,7 +14,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -39,7 +36,7 @@ public class UserControllerTest extends AbstractRestDocsTest {
         @Test
         void 성공 () throws Exception {
             // given
-            UserSignUpRequest request = new UserSignUpRequest(
+            UserRequest.Create request = new UserRequest.Create(
                     "idfortest123",
                     "PasswordTest123!",
                     "PasswordTest123!",
