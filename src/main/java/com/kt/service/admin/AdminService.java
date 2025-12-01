@@ -2,8 +2,10 @@ package com.kt.service.admin;
 
 import com.kt.common.Preconditions;
 import com.kt.common.api.ErrorCode;
+import com.kt.domain.user.Role;
 import com.kt.domain.user.User;
 import com.kt.dto.user.UserRequest;
+import com.kt.dto.user.UserResponse;
 import com.kt.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional
@@ -37,5 +40,16 @@ public class AdminService {
         );
 
         userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> getAdminList()
+    {
+        List<UserResponse> users = userRepository.findAllByRoleAndDeletedAtIsNull(Role.ADMIN)
+                .stream()
+                .map(UserResponse::from)
+                .toList();
+
+        return users;
     }
 }

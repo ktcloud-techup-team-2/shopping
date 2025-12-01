@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 public class AdminControllerTest extends AbstractRestDocsTest {
 
-    private static final String ADMIN_SIGNUP_URL = "/admin/signup";
+    private static final String ADMIN_SIGNUP_URL = "/admins/signup";
 
     @Autowired
     private RestDocsFactory restDocsFactory;
