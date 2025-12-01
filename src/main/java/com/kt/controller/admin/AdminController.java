@@ -37,4 +37,17 @@ public class AdminController {
         UserResponse response = adminService.getAdminById(id);
         return ApiResponseEntity.success(response);
     }
+
+    @PatchMapping("/{id}")
+    public ApiResponseEntity<UserResponse> updateAdmin(@PathVariable Long id,
+                                                       @RequestBody @Valid UserRequest.Update request) {
+        UserResponse response = adminService.updateAdmin(id, request);
+        return ApiResponseEntity.success(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
+        adminService.deleteAdmin(id);
+        return ApiResponseEntity.empty();
+    }
 }

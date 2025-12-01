@@ -61,4 +61,30 @@ public class AdminService {
 
         return UserResponse.from(admin);
     }
+
+    public UserResponse updateAdmin(Long id, UserRequest.Update request) {
+        User admin = userRepository.findByIdAndRoleAndDeletedAtIsNull(id, Role.ADMIN)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        admin.updateInfo(
+                request.name(),
+                request.email(),
+                request.phone(),
+                request.birthday()
+        );
+        userRepository.save(admin);
+
+        return UserResponse.from(admin);
+    }
+
+    public void deleteAdmin (Long id) {
+        User admin = userRepository.findByIdAndRoleAndDeletedAtIsNull(id, Role.ADMIN)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if(admin.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        admin.softDelete();
+    }
 }
