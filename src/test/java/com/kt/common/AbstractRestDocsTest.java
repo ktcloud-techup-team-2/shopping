@@ -66,8 +66,8 @@ public abstract class AbstractRestDocsTest {
 
 	private String createAccessToken(Long userId, String... roles) {
 		var authorities = Arrays.stream(roles)
-			.map(SimpleGrantedAuthority::new)
-			.toList();
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .toList();
 
 		Authentication auth = new UsernamePasswordAuthenticationToken(
 			userId.toString(),
