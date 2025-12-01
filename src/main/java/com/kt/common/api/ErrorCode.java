@@ -47,8 +47,7 @@ public enum ErrorCode {
 	PRODUCT_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "상품명은 필수 입력 값입니다."),
 	PRODUCT_NAME_TOO_LONG(HttpStatus.BAD_REQUEST, "상품명은 200자를 초과할 수 없습니다."),
 	PRODUCT_PRICE_BELOW_MINIMUM(HttpStatus.BAD_REQUEST, "상품 가격은 0 이상이어야 합니다."),
-	PRODUCT_STOCK_DECREASE_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "재고 감소 수량은 0보다 커야 합니다."),
-	PRODUCT_STOCK_INCREASE_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "재고 증가 수량은 0보다 커야 합니다."),
+	PRODUCT_STOCK_REQUIRED_FOR_ACTIVATION(HttpStatus.BAD_REQUEST, "바로 활성화하려면 재고가 1개 이상이어야 합니다."),
 
 	PRODUCT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 삭제된 상품입니다."),
 	PRODUCT_HARD_DELETE_NOT_ALLOWED(HttpStatus.CONFLICT, "임시 저장 상태가 아닌 상품은 완전 삭제할 수 없습니다."),

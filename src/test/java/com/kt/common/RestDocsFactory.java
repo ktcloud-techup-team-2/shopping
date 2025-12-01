@@ -158,8 +158,8 @@ public class RestDocsFactory {
 		for (Field field : declaredFields) {
 			field.setAccessible(true);
 			String fieldPath = pathPrefix + field.getName();
-			JsonFieldType fieldType = determineFieldType(field.getType());
 			Object fieldValue = getFieldValue(dto, field);
+			JsonFieldType fieldType = determineFieldType(field.getType(), fieldValue);
 
 			FieldDescriptor descriptor = PayloadDocumentation.fieldWithPath(fieldPath)
 				.type(fieldType)
@@ -213,7 +213,10 @@ public class RestDocsFactory {
                 || dto instanceof Boolean;
     }
 
-	private JsonFieldType determineFieldType(Class<?> fieldType) {
+	private JsonFieldType determineFieldType(Class<?> fieldType, Object fieldValue) {
+		if (fieldValue instanceof List<?>) {
+			return JsonFieldType.ARRAY;
+		}
 		if (fieldType == String.class || fieldType.isEnum()) {
 			return JsonFieldType.STRING;
 		} else if (Boolean.class.isAssignableFrom(fieldType) || fieldType == boolean.class) {
