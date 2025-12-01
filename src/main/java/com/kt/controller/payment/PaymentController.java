@@ -1,5 +1,8 @@
 package com.kt.controller.payment;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,5 +32,23 @@ public class PaymentController {
 	){
 		Payment payment = paymentService.createPayment(userId, request);
 		return ApiResponseEntity.created(PaymentResponse.Create.from(payment));
+	}
+
+	@GetMapping("/{paymentId}")
+	public ApiResponseEntity<PaymentResponse.Check> getPayment(@PathVariable Long paymentId) {
+		Payment payment = paymentService.getPayment(paymentId);
+		return ApiResponseEntity.success(PaymentResponse.Check.from(payment));
+	}
+
+	@PatchMapping("/{paymentId}/approve")
+	public ApiResponseEntity<PaymentResponse.Check> approvePayment(@PathVariable Long paymentId) {
+		Payment payment = paymentService.approvePayment(paymentId);
+		return ApiResponseEntity.success(PaymentResponse.Check.from(payment));
+	}
+
+	@PatchMapping("/{paymentId}/cancel")
+	public ApiResponseEntity<PaymentResponse.Check> cancelPayment(@PathVariable Long paymentId) {
+		Payment payment = paymentService.cancelPayment(paymentId);
+		return ApiResponseEntity.success(PaymentResponse.Check.from(payment));
 	}
 }

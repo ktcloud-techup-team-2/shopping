@@ -21,22 +21,31 @@ public class PaymentService {
 	private final PaymentRepository paymentRepository;
 	private final OrderRepository orderRepository;
 
-	public Payment createPayment(
-		Long userId,
-		PaymentRequest.Create request
-	){
-		// orderNumber로 Order 조회
+	public Payment createPayment(Long userId, PaymentRequest.Create request) {
 		Order order = orderRepository.findByOrderNumber(request.orderNumber())
 			.orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
 
-		Payment payment = Payment.create(
-			userId,
-			order,
-			request.deliveryFee(),
-			order.getOrderNumber(),
-			order.getTotalPaymentAmount(),
-			request.type()
-		);
+		Payment payment = Payment.create(userId, order, request.deliveryFee(), request.type());
 		return paymentRepository.save(payment);
+	}
+
+	@Transactional(readOnly = true)
+	public Payment getPayment(Long paymentId) {
+		return paymentRepository.findById(paymentId)
+			.orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
+	}
+
+	public Payment approvePayment(Long paymentId) {
+		Payment payment = paymentRepository.findById(paymentId)
+			.orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
+		payment.approve();
+		return payment;
+	}
+
+	public Payment cancelPayment(Long paymentId) {
+		Payment payment = paymentRepository.findById(paymentId)
+			.orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
+		payment.cancel();
+		return payment;
 	}
 }

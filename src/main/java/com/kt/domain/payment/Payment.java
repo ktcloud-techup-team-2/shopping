@@ -1,11 +1,11 @@
 package com.kt.domain.payment;
 
+import com.kt.common.api.CustomException;
+import com.kt.common.api.ErrorCode;
 import com.kt.common.jpa.BaseTimeEntity;
 import com.kt.domain.order.Order;
 
 import jakarta.persistence.*;
-
-import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,11 +15,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "payments")
 public class Payment extends BaseTimeEntity {
 
-	//PG사 결제키
-	//PG사 주문 ID
-
 	@Column(nullable = false)
-	private long userId;
+	private Long userId;
 
 	@Column(nullable = false)
 	private String orderNumber;
@@ -28,7 +25,7 @@ public class Payment extends BaseTimeEntity {
 	private Long orderAmount;
 
 	@Column(nullable = false)
-	private Long deliveryFee = 2500L; //배송비에 대한 로직 필요 ex)얼마이상무료,제주산간지역
+	private Long deliveryFee;
 
 	@Column(nullable = false)
 	private Long paymentAmount;
@@ -45,33 +42,43 @@ public class Payment extends BaseTimeEntity {
 	@JoinColumn(name = "order_id")
 	private Order order;
 
-	public Payment (
-		Long userId,
-		Order order,
-		Long deliveryFee,
-		String orderNumber,
-		Long orderAmount,
-		PaymentType type
-	){
+	private Payment(Long userId, Order order, Long deliveryFee, PaymentType type) {
 		this.userId = userId;
 		this.order = order;
+		this.orderNumber = order.getOrderNumber();
+		this.orderAmount = order.getTotalPaymentAmount();
 		this.deliveryFee = deliveryFee;
-		this.orderNumber = orderNumber;
-		this.orderAmount = orderAmount;
+		this.paymentAmount = this.orderAmount + deliveryFee;
 		this.type = type;
-		this.paymentAmount = deliveryFee+orderAmount;
 		this.status = PaymentStatus.READY;
 	}
 
-	//진행
-	public static Payment create(
-		Long userId,
-		Order order,
-		Long deliveryFee,
-		String orderNumber,
-		Long orderAmount,
-		PaymentType type
-	){
-		return new Payment (userId,order,deliveryFee,orderNumber,orderAmount,type);
+	public static Payment create(Long userId, Order order, Long deliveryFee, PaymentType type) {
+		return new Payment(userId, order, deliveryFee, type);
+	}
+
+	public void approve() {
+		if (!canApprove()) {
+			throw new CustomException(ErrorCode.PAYMENT_APPROVE_NOT_ALLOWED);
+		}
+		this.status = PaymentStatus.DONE;
+	}
+
+	public void cancel() {
+		if (this.status == PaymentStatus.CANCELED) {
+			throw new CustomException(ErrorCode.PAYMENT_ALREADY_CANCELLED);
+		}
+		if (!canCancel()) {
+			throw new CustomException(ErrorCode.PAYMENT_CANCEL_NOT_ALLOWED);
+		}
+		this.status = PaymentStatus.CANCELED;
+	}
+
+	private boolean canApprove() {
+		return this.status == PaymentStatus.READY || this.status == PaymentStatus.IN_PROGRESS;
+	}
+
+	private boolean canCancel() {
+		return this.status == PaymentStatus.READY || this.status == PaymentStatus.DONE;
 	}
 }

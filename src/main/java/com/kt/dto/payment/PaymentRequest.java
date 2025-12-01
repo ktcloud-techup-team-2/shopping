@@ -17,7 +17,6 @@ public class PaymentRequest {
 
 		@NotNull
 		PaymentType type
-
 	) {}
 
 }
