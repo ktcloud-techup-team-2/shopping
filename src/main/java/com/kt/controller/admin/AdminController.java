@@ -31,4 +31,10 @@ public class AdminController {
         List<UserResponse> responses = adminService.getAdminList();
         return ApiResponseEntity.success(responses);
     }
+
+    @GetMapping("/{id}")
+    public ApiResponseEntity<UserResponse> getAdmin(@PathVariable Long id){
+        UserResponse response = adminService.getAdminById(id);
+        return ApiResponseEntity.success(response);
+    }
 }

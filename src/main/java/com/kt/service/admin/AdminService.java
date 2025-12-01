@@ -1,6 +1,7 @@
 package com.kt.service.admin;
 
 import com.kt.common.Preconditions;
+import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.domain.user.Role;
 import com.kt.domain.user.User;
@@ -51,5 +52,13 @@ public class AdminService {
                 .toList();
 
         return users;
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponse getAdminById(Long id) {
+        User admin = userRepository.findByIdAndRoleAndDeletedAtIsNull(id, Role.ADMIN)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return UserResponse.from(admin);
     }
 }
