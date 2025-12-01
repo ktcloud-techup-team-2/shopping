@@ -72,7 +72,7 @@ public class User {
                 phone,
                 birthday,
                 gender,
-                Role.USER,
+                Role.ADMIN,
                 createdAt,
                 updatedAt
         );
