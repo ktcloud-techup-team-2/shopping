@@ -29,7 +29,6 @@ public class PaymentService {
 		return paymentRepository.save(payment);
 	}
 
-	@Transactional(readOnly = true)
 	public Payment getPayment(Long paymentId) {
 		return paymentRepository.findById(paymentId)
 			.orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
