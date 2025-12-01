@@ -38,4 +38,13 @@ public class UserController {
         UserResponse response = userService.updateUser(authUser.id(), request);
         return ApiResponseEntity.success(response);
     }
+
+    @DeleteMapping("/me")
+    public ApiResponseEntity<Void> deleteMyInfo(
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        userService.deleteUser(authUser.id());
+        return ApiResponseEntity.empty();
+    }
+
 }

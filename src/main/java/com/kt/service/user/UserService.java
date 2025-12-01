@@ -64,4 +64,15 @@ public class UserService {
 
         return UserResponse.from(user);
     }
+
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        user.softDelete();
+    }
 }

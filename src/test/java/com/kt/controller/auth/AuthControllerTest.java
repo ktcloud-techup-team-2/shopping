@@ -241,7 +241,7 @@ public class AuthControllerTest extends AbstractRestDocsTest {
         void 성공()  throws Exception {
             SecurityContextHolder.clearContext();
 
-            UserSignUpRequest signUpRequest = new UserSignUpRequest(
+            UserRequest.Create signUpRequest = new UserRequest.Create(
                     "logoutUser123",
                     "PasswordTest123!",
                     "PasswordTest123!",

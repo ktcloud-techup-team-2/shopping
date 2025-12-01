@@ -100,4 +100,95 @@ public class UserControllerTest extends AbstractRestDocsTest {
                     );
         }
     }
+
+    @Nested
+    class 유저_정보_수정_API {
+        @Test
+        void 성공() throws Exception {
+            // given
+            UserRequest.Update request = new UserRequest.Update(
+                    "수정된이름",
+                    "updated@example.com",
+                    "010-9999-9999",
+                    LocalDate.of(2000, 1, 1)
+            );
+            // when & then
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    ME_URL,
+                                    request,
+                                    HttpMethod.PATCH,
+                                    objectMapper
+                            ).with(jwtUser())
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.id").value(1L))
+                    .andExpect(jsonPath("$.data.loginId").value("test1234"))
+                    .andExpect(jsonPath("$.data.name").value(request.name()))
+                    .andExpect(jsonPath("$.data.email").value(request.email()))
+                    .andExpect(jsonPath("$.data.phone").value(request.phone()))
+                    .andExpect(jsonPath("$.data.birthday").value("2000-01-01"))
+                    .andDo(
+                            restDocsFactory.success(
+                                    "users-me-update",
+                                    "내 정보 수정",
+                                    "현재 로그인한 사용자의 정보를 수정하는 API",
+                                    "User",
+                                    request,
+                                    UserResponse.class
+                            )
+                    );
+        }
+
+        @Test
+        void 실패_인증_없음 () throws Exception {
+            // given
+            UserRequest.Update request = new UserRequest.Update(
+                    "수정된이름",
+                    "updated@example.com",
+                    "010-9999-9999",
+                    LocalDate.of(2000, 1, 1)
+            );
+
+            // when & then (인증 토큰 없이 호출)
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    ME_URL,
+                                    request,
+                                    HttpMethod.PATCH,
+                                    objectMapper
+                            )
+                    )
+                    .andExpect(status().isForbidden());
+        }
+    }
+
+    @Nested
+    class 유저_탈퇴_API {
+
+        @Test
+        void 성공 () throws Exception {
+            // when & then
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    ME_URL,
+                                    null,
+                                    HttpMethod.DELETE,
+                                    objectMapper
+                            ).with(jwtUser())
+                    )
+                    .andExpect(status().isNoContent())
+                    .andDo(
+                            restDocsFactory.success(
+                                    "users-me-delete",
+                                    "내 정보 탈퇴",
+                                    "현재 로그인한 사용자의 계정을 탈퇴(soft delete)하는 API",
+                                    "User",
+                                    null,
+                                    null
+                            )
+                    );
+
+        }
+    }
 }
