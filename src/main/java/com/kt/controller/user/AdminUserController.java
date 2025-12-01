@@ -2,13 +2,14 @@ package com.kt.controller.user;
 
 
 import com.kt.common.api.ApiResponseEntity;
+import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
+import com.kt.security.AuthUser;
 import com.kt.service.user.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,5 +30,20 @@ public class AdminUserController {
     public ApiResponseEntity<UserResponse> getUser(@PathVariable Long id) {
         UserResponse response = userService.getUser(id);
         return ApiResponseEntity.success(response);
+    }
+
+    @PatchMapping("/{id}")
+    public ApiResponseEntity<UserResponse> updateInfo (@PathVariable Long id,
+                                                       @RequestBody @Valid UserRequest.Update request){
+        UserResponse response = userService.updateUser(id, request);
+        return ApiResponseEntity.success(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponseEntity<Void> deleteMyInfo(
+            @PathVariable Long id
+    ) {
+        userService.deleteUser(id);
+        return ApiResponseEntity.empty();
     }
 }
