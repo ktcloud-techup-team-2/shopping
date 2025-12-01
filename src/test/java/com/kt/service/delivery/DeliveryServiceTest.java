@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.kt.common.api.CustomException;
@@ -21,6 +22,7 @@ import com.kt.domain.delivery.Delivery;
 import com.kt.domain.delivery.DeliveryAddress;
 import com.kt.domain.delivery.DeliveryStatus;
 import com.kt.domain.delivery.DeliveryStatusHistory;
+import com.kt.domain.delivery.event.DeliveryStatusEvent;
 import com.kt.dto.delivery.DeliveryRequest;
 import com.kt.repository.delivery.CourierRepository;
 import com.kt.repository.delivery.DeliveryAddressRepository;
@@ -44,6 +46,9 @@ class DeliveryServiceTest {
 
 	@Mock
 	private CourierRepository courierRepository;
+
+	@Mock
+	private ApplicationEventPublisher eventPublisher;
 
 	// --- Helper Methods ---
 	private DeliveryAddress mockAddress() {
@@ -123,6 +128,32 @@ class DeliveryServiceTest {
 			verify(deliveryStatusHistoryRepository, times(1)).save(argThat(history ->
 				history.getStatus() == DeliveryStatus.SHIPPING && history.getDeliveryId().equals(deliveryId)
 			));
+
+			verify(eventPublisher, times(1)).publishEvent(argThat((Object event) ->
+				event instanceof DeliveryStatusEvent &&
+					((DeliveryStatusEvent) event).status() == DeliveryStatus.SHIPPING
+			));
+		}
+
+		@Test
+		@DisplayName("실패: 존재하지 않는 택배사 코드로 배송 출발 시도 시 예외 발생")
+		void fail_shipping_invalid_courier() {
+			// given
+			Long deliveryId = 500L;
+			Delivery delivery = mockDelivery(deliveryId, DeliveryStatus.READY);
+			var request = new DeliveryRequest.UpdateStatus(DeliveryStatus.SHIPPING, "WRONG_CODE", "123");
+
+			given(deliveryRepository.findById(deliveryId)).willReturn(Optional.of(delivery));
+
+			given(courierRepository.existsByCode("WRONG_CODE")).willReturn(false);
+
+			// when & then
+			assertThatThrownBy(() -> deliveryService.updateDeliveryStatus(deliveryId, request))
+				.isInstanceOf(CustomException.class)
+				.hasFieldOrPropertyWithValue("errorCode", ErrorCode.COURIER_NOT_FOUND);
+
+			// 이력 저장 안 됐는지 확인
+			verify(deliveryStatusHistoryRepository, never()).save(any());
 		}
 
 		@Test
