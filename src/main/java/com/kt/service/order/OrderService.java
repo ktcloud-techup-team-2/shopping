@@ -13,10 +13,12 @@ import com.kt.common.api.ErrorCode;
 import com.kt.domain.order.Order;
 import com.kt.domain.order.Receiver;
 import com.kt.domain.orderproduct.OrderProduct;
+import com.kt.dto.delivery.DeliveryRequest;
 import com.kt.dto.order.OrderRequest;
 import com.kt.repository.order.OrderRepository;
 import com.kt.repository.orderproduct.OrderProductRepository;
 import com.kt.repository.product.ProductRepository;
+import com.kt.service.delivery.DeliveryService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +30,7 @@ public class OrderService {
 	private final OrderRepository orderRepository;
 	private final ProductRepository productRepository;
 	private final OrderProductRepository orderProductRepository;
+	private final DeliveryService deliveryService;
 
 	//주문번호 생성
 	private String generateOrderNumber(){
@@ -63,7 +66,11 @@ public class OrderService {
 		order.mapToOrder(orderProduct);
 
 		orderProductRepository.save(orderProduct);
-		return orderRepository.save(order);
+
+		var savedOrder = orderRepository.save(order);
+		createDeliveryForOrder(savedOrder.getId(), request.deliveryAddressId(), request.deliveryFee());
+
+		return savedOrder;
 	}
 
 	public List<Order> myOrderList(Long userId){
@@ -101,4 +108,15 @@ public class OrderService {
 	}
 
 	//order-product 연관관계
+
+	private void createDeliveryForOrder(Long orderId, Long deliveryAddressId, Integer deliveryFee) {
+		var deliveryRequest = new DeliveryRequest.Create(
+			orderId,
+			deliveryAddressId,
+			deliveryFee
+		);
+
+		deliveryService.createDelivery(deliveryRequest);
+
+	}
 }
