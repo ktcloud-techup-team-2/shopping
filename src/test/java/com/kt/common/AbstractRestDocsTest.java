@@ -89,6 +89,15 @@ public abstract class AbstractRestDocsTest {
 		};
 	}
 
+    /** USER 토큰 (동적 ID) */
+    protected RequestPostProcessor jwtUser(Long userId) {
+        return request -> {
+            String token = createAccessToken(userId, Role.USER.getKey());
+            request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+            return request;
+        };
+    }
+
 	/** ADMIN 토큰 */
 	protected RequestPostProcessor jwtAdmin() {
 		return request -> {
