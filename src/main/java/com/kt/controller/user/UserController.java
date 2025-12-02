@@ -90,4 +90,11 @@ public class UserController {
         return ApiResponseEntity.pageOf(
                 reviewService.getReviewsByUser(authUser.id(), pageable));
     }
+
+    @PatchMapping("/change-password")
+    public ApiResponseEntity<Void> changePassword (@AuthenticationPrincipal AuthUser authUser,
+                                                   @RequestBody @Valid UserRequest.PasswordChange request){
+        userService.changePassword(authUser.id(), request);
+        return ApiResponseEntity.empty();
+    }
 }
