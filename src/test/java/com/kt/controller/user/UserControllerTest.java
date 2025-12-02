@@ -38,8 +38,6 @@ public class UserControllerTest extends AbstractRestDocsTest {
     private static final String INFO_URL = "/users/my-info";
     private static final String WITHDRAWAL_URL = "/users/withdrawal";
     private static final String CHANGE_PASSWORD_URL = "/users/change-password";
-    private static final String INFO_URL = "/users/my-info";
-    private static final String WITHDRAWAL_URL = "/users/withdrawal";
 
     @Autowired
     private RestDocsFactory restDocsFactory;
