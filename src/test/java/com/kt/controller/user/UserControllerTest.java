@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
@@ -36,6 +37,7 @@ public class UserControllerTest extends AbstractRestDocsTest {
     private static final String SIGNUP_URL = "/users/signup";
     private static final String INFO_URL = "/users/my-info";
     private static final String WITHDRAWAL_URL = "/users/withdrawal";
+    private static final String CHANGE_PASSWORD_URL = "/users/change-password";
 
     @Autowired
     private RestDocsFactory restDocsFactory;
@@ -45,6 +47,8 @@ public class UserControllerTest extends AbstractRestDocsTest {
     private OrderRepository orderRepository;
     @Autowired
     private ReviewRepository reviewRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private Long currentUserId;
     private String orderNumber1;
@@ -53,10 +57,13 @@ public class UserControllerTest extends AbstractRestDocsTest {
     @BeforeEach
     void setUpUser() {
         userRepository.deleteAll();
+        orderRepository.deleteAll();
+
+        String encodedPassword = passwordEncoder.encode("Test1234!");
 
         User user = User.user(
                 "test1234",
-                "encoded-password",
+                encodedPassword,
                 "테스트유저",
                 "example123@gmail.com",
                 "010-1234-5678",
@@ -110,7 +117,6 @@ public class UserControllerTest extends AbstractRestDocsTest {
         reviewRepository.saveAll(List.of(review1, review2));
     }
 
-
     @Nested
     class 회원가입_API {
 
@@ -130,13 +136,13 @@ public class UserControllerTest extends AbstractRestDocsTest {
 
             // then -> body 없이 201 created
             mockMvc.perform(
-                    restDocsFactory.createRequest(
-                            SIGNUP_URL,
-                            request,
-                            HttpMethod.POST,
-                            objectMapper
+                            restDocsFactory.createRequest(
+                                    SIGNUP_URL,
+                                    request,
+                                    HttpMethod.POST,
+                                    objectMapper
+                            )
                     )
-            )
                     .andExpect(status().isCreated())
                     .andDo(
                             restDocsFactory.success(
@@ -271,6 +277,37 @@ public class UserControllerTest extends AbstractRestDocsTest {
 
         }
     }
+    @Nested
+    class 비밀번호_변경_API {
+        @Test
+        void 성공() throws Exception {
+            UserRequest.PasswordChange request = new UserRequest.PasswordChange(
+                    "Test1234!",
+                    "NewPassword123!",
+                    "NewPassword123!"
+            );
+
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    CHANGE_PASSWORD_URL,
+                                    request,
+                                    HttpMethod.PATCH,
+                                    objectMapper
+                            ).with(jwtUser(currentUserId))
+                    )
+                    .andExpect(status().isNoContent())
+                    .andDo(
+                            restDocsFactory.success(
+                                    "users-me-password-change",
+                                    "비밀번호 변경",
+                                    "현재 로그인한 사용자의 비밀번호를 변경하는 API",
+                                    "User",
+                                    request,
+                                    null
+                            )
+                    );
+        }
+    }
 
     @Nested
     class 내_주문_목록_조회_API {
@@ -363,3 +400,4 @@ public class UserControllerTest extends AbstractRestDocsTest {
     }
 
 }
+
