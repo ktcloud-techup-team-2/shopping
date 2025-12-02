@@ -59,6 +59,7 @@ public class UserController {
         return ApiResponseEntity.empty();
     }
 
+    @PatchMapping("/change-password")
     @GetMapping ("/my/orders")
     public ApiResponseEntity<List<OrderResponse.OrderList>> getMyOrders(
             @AuthenticationPrincipal AuthUser authUser

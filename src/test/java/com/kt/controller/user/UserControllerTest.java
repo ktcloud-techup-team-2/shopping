@@ -39,6 +39,7 @@ public class UserControllerTest extends AbstractRestDocsTest {
     private static final String CHANGE_PASSWORD_URL = "/users/change-password";
     private static final String INFO_URL = "/users/my-info";
     private static final String WITHDRAWAL_URL = "/users/withdrawal";
+    private static final String CHANGE_PASSWORD_URL = "/users/change-password";
 
     @Autowired
     private RestDocsFactory restDocsFactory;
@@ -57,8 +58,11 @@ public class UserControllerTest extends AbstractRestDocsTest {
 
     @BeforeEach
     void setUpUser() {
+        orderRepository.deleteAll();
         userRepository.deleteAll();
         orderRepository.deleteAll();
+
+        String encodedPassword = passwordEncoder.encode("Test1234!");
 
         String encodedPassword = passwordEncoder.encode("Test1234!");
 
