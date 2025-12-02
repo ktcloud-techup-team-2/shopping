@@ -4,12 +4,15 @@ import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
 import com.kt.domain.order.Order;
 import com.kt.domain.order.Receiver;
+import com.kt.domain.review.Review;
 import com.kt.domain.user.Gender;
 import com.kt.domain.user.User;
 import com.kt.dto.order.OrderResponse;
+import com.kt.dto.review.ReviewResponse;
 import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
 import com.kt.repository.order.OrderRepository;
+import com.kt.repository.review.ReviewRepository;
 import com.kt.repository.user.UserRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +43,8 @@ public class UserControllerTest extends AbstractRestDocsTest {
     private UserRepository userRepository;
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     private Long currentUserId;
     private String orderNumber1;
@@ -85,6 +90,24 @@ public class UserControllerTest extends AbstractRestDocsTest {
         orderRepository.saveAll(List.of(order1, order2));
         orderNumber1 = "ORD-TEST-001";
         orderNumber2 = "ORD-TEST-002";
+
+        Review review1 = Review.create(
+                currentUserId,
+                1L,
+                5,
+                "아주 만족스러운 상품입니다.",
+                "http://image-server/review1.png"
+        );
+
+        Review review2 = Review.create(
+                currentUserId,
+                2L,
+                4,
+                "무난하게 쓸만해요.",
+                null
+        );
+
+        reviewRepository.saveAll(List.of(review1, review2));
     }
 
 
@@ -307,5 +330,36 @@ public class UserControllerTest extends AbstractRestDocsTest {
         }
     }
 
+    @Nested
+    class 내_리뷰_목록_조회_API {
+
+        @Test
+        void 성공() throws Exception {
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    "/users/my/reviews",
+                                    null,
+                                    HttpMethod.GET,
+                                    objectMapper
+                            ).with(jwtUser(currentUserId))
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data").isArray())
+                    .andExpect(jsonPath("$.data.length()").value(2))
+                    // 아래 필드 이름은 ReviewResponse 구조에 맞게 필요하면 수정
+                    .andExpect(jsonPath("$.data[0].rating").value(4))
+                    .andExpect(jsonPath("$.data[0].content").value("무난하게 쓸만해요."))
+                    .andDo(
+                            restDocsFactory.success(
+                                    "users-my-reviews",
+                                    "내 리뷰 목록 조회",
+                                    "현재 로그인한 사용자의 리뷰 목록을 조회하는 API",
+                                    "User-Review",
+                                    null,
+                                    ReviewResponse[].class
+                            )
+                    );
+        }
+    }
 
 }

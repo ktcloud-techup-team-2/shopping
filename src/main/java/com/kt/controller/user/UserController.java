@@ -3,13 +3,18 @@ package com.kt.controller.user;
 import com.kt.common.api.ApiResponseEntity;
 import com.kt.domain.order.Order;
 import com.kt.dto.order.OrderResponse;
+import com.kt.dto.review.ReviewResponse;
 import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
 import com.kt.security.AuthUser;
 import com.kt.service.order.OrderService;
+import com.kt.service.review.ReviewService;
 import com.kt.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +28,7 @@ public class UserController {
 
     private final UserService userService;
     private final OrderService orderService;
+    private final ReviewService reviewService;
 
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
@@ -75,5 +81,13 @@ public class UserController {
         Long userId = authUser.id();
         Order order = orderService.myOrderInfo(orderNumber, userId);
         return ApiResponseEntity.success(OrderResponse.MyOrder.from(order));
+    }
+
+    @GetMapping("my/reviews")
+    public ApiResponseEntity<List<ReviewResponse>> getMyReviews(
+            @AuthenticationPrincipal AuthUser authUser, @PageableDefault(size=10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ApiResponseEntity.pageOf(
+                reviewService.getReviewsByUser(authUser.id(), pageable));
     }
 }
