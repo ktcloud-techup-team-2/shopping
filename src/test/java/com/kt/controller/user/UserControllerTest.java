@@ -2,10 +2,14 @@ package com.kt.controller.user;
 
 import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
+import com.kt.domain.order.Order;
+import com.kt.domain.order.Receiver;
 import com.kt.domain.user.Gender;
 import com.kt.domain.user.User;
+import com.kt.dto.order.OrderResponse;
 import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
+import com.kt.repository.order.OrderRepository;
 import com.kt.repository.user.UserRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,36 +31,62 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserControllerTest extends AbstractRestDocsTest {
 
     private static final String SIGNUP_URL = "/users/signup";
-    private static final String ME_URL = "/users/me";
+    private static final String INFO_URL = "/users/my-info";
+    private static final String WITHDRAWAL_URL = "/users/withdrawal";
 
     @Autowired
     private RestDocsFactory restDocsFactory;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private OrderRepository orderRepository;
 
     private Long currentUserId;
+    private String orderNumber1;
+    private String orderNumber2;
 
     @BeforeEach
     void setUpUser() {
-        // 테스트마다 동일한 상태 유지 (필요 없으면 deleteAll() 제거해도 됨)
         userRepository.deleteAll();
 
-        // jwtUser()는 DEFAULT_USER_ID(= 1L)로 토큰을 만드니까
-        // /users/me에서 이 ID를 갖는 유저가 조회되도록 하나 생성해 둠.
         User user = User.user(
-                "test1234",                         // loginId
-                "encoded-password",                 // password (실제 값 상관 X, 인코딩 여부도 테스트에 따라 자유)
-                "테스트유저",                             // name
-                "example123@gmail.com",             // email
-                "010-1234-5678",                    // phone
-                LocalDate.of(2000, 8, 9),           // birthday
-                Gender.FEMALE,                      // gender
-                LocalDateTime.now(),                // createdAt
-                LocalDateTime.now()                 // updatedAt
+                "test1234",
+                "encoded-password",
+                "테스트유저",
+                "example123@gmail.com",
+                "010-1234-5678",
+                LocalDate.of(2000, 8, 9),
+                Gender.FEMALE,
+                LocalDateTime.now(),
+                LocalDateTime.now()
         );
 
         currentUserId = userRepository.save(user).getId();
+
+        Receiver receiver = new Receiver(
+                "테스트수령인",
+                "서울시 강남구 테헤란로 123",
+                "010-1111-2222"
+        );
+
+        Order order1 = Order.create(
+                currentUserId,
+                receiver,
+                10000L,
+                "ORD-TEST-001"
+        );
+        Order order2 = Order.create(
+                currentUserId,
+                receiver,
+                20000L,
+                "ORD-TEST-002"
+        );
+
+        orderRepository.saveAll(List.of(order1, order2));
+        orderNumber1 = "ORD-TEST-001";
+        orderNumber2 = "ORD-TEST-002";
     }
+
 
     @Nested
     class 회원가입_API {
@@ -103,7 +134,7 @@ public class UserControllerTest extends AbstractRestDocsTest {
         void 성공 () throws Exception {
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ME_URL,
+                                    INFO_URL,
                                     null,
                                     HttpMethod.GET,
                                     objectMapper
@@ -132,17 +163,16 @@ public class UserControllerTest extends AbstractRestDocsTest {
     class 유저_정보_수정_API {
         @Test
         void 성공() throws Exception {
-            // given
             UserRequest.Update request = new UserRequest.Update(
                     "수정된이름",
                     "updated@example.com",
                     "010-9999-9999",
                     LocalDate.of(2000, 1, 1)
             );
-            // when & then
+
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ME_URL,
+                                    INFO_URL,
                                     request,
                                     HttpMethod.PATCH,
                                     objectMapper
@@ -180,7 +210,7 @@ public class UserControllerTest extends AbstractRestDocsTest {
             // when & then (인증 토큰 없이 호출)
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ME_URL,
+                                    INFO_URL,
                                     request,
                                     HttpMethod.PATCH,
                                     objectMapper
@@ -198,7 +228,7 @@ public class UserControllerTest extends AbstractRestDocsTest {
             // when & then
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ME_URL,
+                                    WITHDRAWAL_URL,
                                     null,
                                     HttpMethod.DELETE,
                                     objectMapper
@@ -218,4 +248,64 @@ public class UserControllerTest extends AbstractRestDocsTest {
 
         }
     }
+
+    @Nested
+    class 내_주문_목록_조회_API {
+
+        @Test
+        void 성공() throws Exception {
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    "/users/my/orders",
+                                    null,
+                                    HttpMethod.GET,
+                                    objectMapper
+                            ).with(jwtUser(currentUserId))
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data").isArray())
+                    .andExpect(jsonPath("$.data.length()").value(2))
+                    .andExpect(jsonPath("$.data[0].orderNumber").value(orderNumber1))
+                    .andDo(
+                            restDocsFactory.success(
+                                    "users-my-orders",
+                                    "내 주문 목록 조회",
+                                    "현재 로그인한 사용자의 주문 목록을 조회하는 API",
+                                    "User-Order",
+                                    null,
+                                    OrderResponse.OrderList[].class
+                            )
+                    );
+        }
+    }
+
+    @Nested
+    class 내_주문_상세_조회_API {
+
+        @Test
+        void 성공() throws Exception {
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    "/users/my/orders/" + orderNumber1,
+                                    null,
+                                    HttpMethod.GET,
+                                    objectMapper
+                            ).with(jwtUser(currentUserId))
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.orderNumber").value(orderNumber1))
+                    .andDo(
+                            restDocsFactory.success(
+                                    "users-my-orders-detail",
+                                    "내 주문 상세 조회",
+                                    "현재 로그인한 사용자의 특정 주문 상세 정보를 조회하는 API",
+                                    "User-Order",
+                                    null,
+                                    OrderResponse.MyOrder.class
+                            )
+                    );
+        }
+    }
+
+
 }
