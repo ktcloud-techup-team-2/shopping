@@ -66,6 +66,11 @@ public class ReviewService {
 		reviewRepository.delete(review);
 	}
 
+    public Page<ReviewResponse> getReviewsByUser (Long userId, Pageable pageable) {
+        return reviewRepository.findByUserId(userId, pageable)
+                .map(ReviewResponse::from);
+    }
+
 	private Review findReviewById(Long reviewId) {
 		return reviewRepository.findById(reviewId)
 			.orElseThrow(() -> new CustomException(ErrorCode.COMMON_INVALID_ARGUMENT));
