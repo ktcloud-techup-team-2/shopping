@@ -95,4 +95,8 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(request.newPassword());
         user.updatePassword(encodedPassword);
     }
+
+    public void inactivateUser(Long userId) {
+        deleteUser(userId);
+    }
 }

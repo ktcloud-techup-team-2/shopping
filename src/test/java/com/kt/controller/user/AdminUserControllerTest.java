@@ -180,4 +180,30 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
                     );
         }
     }
+
+    @Nested
+    class 관리자_유저_비활성화_API {
+        @Test
+        void 성공 () throws Exception {
+            mockMvc.perform(
+                    restDocsFactory.createRequest(
+                            ADMIN_USERS_URL+"/"+userId+"/in-activate",
+                            null,
+                            HttpMethod.PATCH,
+                            objectMapper
+                    ).with(jwtAdmin())
+            )
+                    .andExpect(status().isNoContent())
+                    .andDo(
+                            restDocsFactory.success(
+                                    "admin-users-inactivate",
+                                    "유저 비활성화 (관리자)",
+                                    "관리자가 특정 유저를 비활성화하는 API",
+                                    "Admin-user",
+                                    null,
+                                    null
+                            )
+                    );
+        }
+    }
 }
