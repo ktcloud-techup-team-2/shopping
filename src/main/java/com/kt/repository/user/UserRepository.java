@@ -1,5 +1,6 @@
 package com.kt.repository.user;
 
+import com.kt.domain.user.Role;
 import com.kt.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByIdAndDeletedAtIsNull(Long id);
 
     List<User> findAllByDeletedAtIsNull();
+
+    List<User> findAllByRoleAndDeletedAtIsNull(Role role);
+
+    Optional<User> findByIdAndRoleAndDeletedAtIsNull(Long id, Role role);
 }
