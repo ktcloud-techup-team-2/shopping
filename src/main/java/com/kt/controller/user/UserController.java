@@ -32,21 +32,21 @@ public class UserController {
 
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponseEntity<Void> signUp (@RequestBody @Valid UserRequest.Create request){
+    public ApiResponseEntity<Void> signUp(@RequestBody @Valid UserRequest.Create request) {
         userService.signup(request);
         return ApiResponseEntity.created((Void) null);
     }
 
     @GetMapping("/my-info")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponseEntity<UserResponse> getInfo(@AuthenticationPrincipal AuthUser authUser){
+    public ApiResponseEntity<UserResponse> getInfo(@AuthenticationPrincipal AuthUser authUser) {
         UserResponse response = userService.getUser(authUser.id());
         return ApiResponseEntity.success(response);
     }
 
     @PatchMapping("/my-info")
-    public ApiResponseEntity<UserResponse> updateInfo (@AuthenticationPrincipal AuthUser authUser,
-                                                       @RequestBody @Valid UserRequest.Update request){
+    public ApiResponseEntity<UserResponse> updateInfo(@AuthenticationPrincipal AuthUser authUser,
+                                                      @RequestBody @Valid UserRequest.Update request) {
         UserResponse response = userService.updateUser(authUser.id(), request);
         return ApiResponseEntity.success(response);
     }
@@ -59,7 +59,7 @@ public class UserController {
         return ApiResponseEntity.empty();
     }
 
-    @GetMapping ("/my/orders")
+    @GetMapping("/my/orders")
     public ApiResponseEntity<List<OrderResponse.OrderList>> getMyOrders(
             @AuthenticationPrincipal AuthUser authUser
     ) {
@@ -85,7 +85,7 @@ public class UserController {
 
     @GetMapping("my/reviews")
     public ApiResponseEntity<List<ReviewResponse>> getMyReviews(
-            @AuthenticationPrincipal AuthUser authUser, @PageableDefault(size=10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @AuthenticationPrincipal AuthUser authUser, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return ApiResponseEntity.pageOf(
                 reviewService.getReviewsByUser(authUser.id(), pageable));
