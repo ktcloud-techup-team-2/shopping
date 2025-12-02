@@ -6,6 +6,8 @@ import com.kt.domain.user.Gender;
 import com.kt.domain.user.User;
 import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
+import com.kt.repository.order.OrderRepository;
+import com.kt.repository.review.ReviewRepository;
 import com.kt.repository.user.UserRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
@@ -27,31 +30,39 @@ public class UserControllerTest extends AbstractRestDocsTest {
 
     private static final String SIGNUP_URL = "/users/signup";
     private static final String ME_URL = "/users/me";
+    private static final String CHANGE_PASSWORD_URL = "/users/change-password";
 
     @Autowired
     private RestDocsFactory restDocsFactory;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private ReviewRepository reviewRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private Long currentUserId;
 
     @BeforeEach
     void setUpUser() {
-        // 테스트마다 동일한 상태 유지 (필요 없으면 deleteAll() 제거해도 됨)
+        userRepository.deleteAll();
+        orderRepository.deleteAll();
         userRepository.deleteAll();
 
-        // jwtUser()는 DEFAULT_USER_ID(= 1L)로 토큰을 만드니까
-        // /users/me에서 이 ID를 갖는 유저가 조회되도록 하나 생성해 둠.
+        String encodedPassword = passwordEncoder.encode("Test1234!");
+
         User user = User.user(
-                "test1234",                         // loginId
-                "encoded-password",                 // password (실제 값 상관 X, 인코딩 여부도 테스트에 따라 자유)
-                "테스트유저",                             // name
-                "example123@gmail.com",             // email
-                "010-1234-5678",                    // phone
-                LocalDate.of(2000, 8, 9),           // birthday
-                Gender.FEMALE,                      // gender
-                LocalDateTime.now(),                // createdAt
-                LocalDateTime.now()                 // updatedAt
+                "test1234",
+                encodedPassword,
+                "테스트유저",
+                "example123@gmail.com",
+                "010-1234-5678",
+                LocalDate.of(2000, 8, 9),
+                Gender.FEMALE,
+                LocalDateTime.now(),
+                LocalDateTime.now()
         );
 
         currentUserId = userRepository.save(user).getId();
@@ -216,6 +227,38 @@ public class UserControllerTest extends AbstractRestDocsTest {
                             )
                     );
 
+        }
+    }
+
+    @Nested
+    class 비밀번호_변경_API {
+        @Test
+        void 성공() throws Exception {
+            UserRequest.PasswordChange request = new UserRequest.PasswordChange(
+                    "Test1234!",
+                    "NewPassword123!",
+                    "NewPassword123!"
+            );
+
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    CHANGE_PASSWORD_URL,
+                                    request,
+                                    HttpMethod.PATCH,
+                                    objectMapper
+                            ).with(jwtUser(currentUserId))
+                    )
+                    .andExpect(status().isNoContent())
+                    .andDo(
+                            restDocsFactory.success(
+                                    "users-me-password-change",
+                                    "비밀번호 변경",
+                                    "현재 로그인한 사용자의 비밀번호를 변경하는 API",
+                                    "User",
+                                    request,
+                                    null
+                            )
+                    );
         }
     }
 }

@@ -47,7 +47,7 @@ public class UserController {
         return ApiResponseEntity.empty();
     }
 
-    @PatchMapping("/chage-password")
+    @PatchMapping("/change-password")
     public ApiResponseEntity<Void> changePassword (@AuthenticationPrincipal AuthUser authUser,
                                                    @RequestBody @Valid UserRequest.PasswordChange request){
         userService.changePassword(authUser.id(), request);
