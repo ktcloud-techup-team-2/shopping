@@ -3,10 +3,12 @@ package com.kt.controller.user;
 import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
 import com.kt.domain.user.Gender;
+import com.kt.domain.user.User;
 import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
 import com.kt.repository.user.UserRepository;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,6 +32,30 @@ public class UserControllerTest extends AbstractRestDocsTest {
     private RestDocsFactory restDocsFactory;
     @Autowired
     private UserRepository userRepository;
+
+    private Long currentUserId;
+
+    @BeforeEach
+    void setUpUser() {
+        // 테스트마다 동일한 상태 유지 (필요 없으면 deleteAll() 제거해도 됨)
+        userRepository.deleteAll();
+
+        // jwtUser()는 DEFAULT_USER_ID(= 1L)로 토큰을 만드니까
+        // /users/me에서 이 ID를 갖는 유저가 조회되도록 하나 생성해 둠.
+        User user = User.user(
+                "test1234",                         // loginId
+                "encoded-password",                 // password (실제 값 상관 X, 인코딩 여부도 테스트에 따라 자유)
+                "테스트유저",                             // name
+                "example123@gmail.com",             // email
+                "010-1234-5678",                    // phone
+                LocalDate.of(2000, 8, 9),           // birthday
+                Gender.FEMALE,                      // gender
+                LocalDateTime.now(),                // createdAt
+                LocalDateTime.now()                 // updatedAt
+        );
+
+        currentUserId = userRepository.save(user).getId();
+    }
 
     @Nested
     class 회원가입_API {
@@ -76,16 +103,16 @@ public class UserControllerTest extends AbstractRestDocsTest {
         void 성공 () throws Exception {
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    "/users/me",
+                                    ME_URL,
                                     null,
                                     HttpMethod.GET,
                                     objectMapper
-                            ).with(jwtUser())
+                            ).with(jwtUser(currentUserId))
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.id").value(1L))
+                    .andExpect(jsonPath("$.data.id").value(currentUserId))
                     .andExpect(jsonPath("$.data.loginId").value("test1234"))
-                    .andExpect(jsonPath("$.data.name").value("조수연"))
+                    .andExpect(jsonPath("$.data.name").value("테스트유저"))
                     .andExpect(jsonPath("$.data.email").value("example123@gmail.com"))
                     .andExpect(jsonPath("$.data.phone").value("010-1234-5678"))
                     .andDo(
@@ -119,10 +146,10 @@ public class UserControllerTest extends AbstractRestDocsTest {
                                     request,
                                     HttpMethod.PATCH,
                                     objectMapper
-                            ).with(jwtUser())
+                            ).with(jwtUser(currentUserId))
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.id").value(1L))
+                    .andExpect(jsonPath("$.data.id").value(currentUserId))
                     .andExpect(jsonPath("$.data.loginId").value("test1234"))
                     .andExpect(jsonPath("$.data.name").value(request.name()))
                     .andExpect(jsonPath("$.data.email").value(request.email()))
@@ -175,7 +202,7 @@ public class UserControllerTest extends AbstractRestDocsTest {
                                     null,
                                     HttpMethod.DELETE,
                                     objectMapper
-                            ).with(jwtUser())
+                            ).with(jwtUser(currentUserId))
                     )
                     .andExpect(status().isNoContent())
                     .andDo(
