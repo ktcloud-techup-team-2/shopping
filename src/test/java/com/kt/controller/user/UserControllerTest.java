@@ -117,7 +117,6 @@ public class UserControllerTest extends AbstractRestDocsTest {
         reviewRepository.saveAll(List.of(review1, review2));
     }
 
-
     @Nested
     class 회원가입_API {
 
