@@ -34,21 +34,21 @@ public class Order extends BaseTimeEntity {
 	private OrderStatus orderStatus;
 
 	@Column(nullable = false)
-	private long totalPaymentAmount;
+	private Long orderAmount;
 
 	@OneToMany(mappedBy = "order")
 	private final List<OrderProduct> orderProducts = new ArrayList<>();
 
-	private Order(Long userId, Receiver receiver, long totalPaymentAmount, String orderNumber) {
+	private Order(Long userId, Receiver receiver, Long orderAmount, String orderNumber) {
 		this.userId = userId;
 		this.receiver = receiver;
-		this.totalPaymentAmount = totalPaymentAmount;
+		this.orderAmount = orderAmount;
 		this.orderStatus = OrderStatus.PENDING;
 		this.orderNumber = orderNumber;
 	}
 
-	public static Order create(Long userId, Receiver receiver, long totalPaymentAmount, String orderNumber) {
-		return new Order(userId, receiver, totalPaymentAmount, orderNumber);
+	public static Order create(Long userId, Receiver receiver, Long orderAmount, String orderNumber) {
+		return new Order(userId, receiver, orderAmount, orderNumber);
 	}
 
 	public void mapToOrder(OrderProduct orderProduct) {

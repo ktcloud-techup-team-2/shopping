@@ -49,7 +49,7 @@ public class Payment extends BaseTimeEntity {
 		this.userId = userId;
 		this.order = order;
 		this.orderNumber = order.getOrderNumber();
-		this.orderAmount = order.getTotalPaymentAmount();
+		this.orderAmount = order.getOrderAmount();
 		this.deliveryFee = deliveryFee;
 		this.paymentAmount = this.orderAmount + deliveryFee;
 		this.type = type;
