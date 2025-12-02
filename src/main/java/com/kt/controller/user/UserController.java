@@ -59,6 +59,37 @@ public class UserController {
         return ApiResponseEntity.empty();
     }
 
+    @GetMapping ("/my/orders")
+    public ApiResponseEntity<List<OrderResponse.OrderList>> getMyOrders(
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        Long userId = authUser.id();
+
+        List<Order> orders = orderService.myOrderList(userId);
+        List<OrderResponse.OrderList> response = orders.stream()
+                .map(OrderResponse.OrderList::from)
+                .toList();
+
+        return ApiResponseEntity.success(response);
+    }
+
+    @GetMapping("/my/orders/{orderNumber}")
+    public ApiResponseEntity<OrderResponse.MyOrder> getMyOrderDetail(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable("orderNumber") String orderNumber
+    ) {
+        Long userId = authUser.id();
+        Order order = orderService.myOrderInfo(orderNumber, userId);
+        return ApiResponseEntity.success(OrderResponse.MyOrder.from(order));
+    }
+
+    @GetMapping("my/reviews")
+    public ApiResponseEntity<List<ReviewResponse>> getMyReviews(
+            @AuthenticationPrincipal AuthUser authUser, @PageableDefault(size=10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ApiResponseEntity.pageOf(
+                reviewService.getReviewsByUser(authUser.id(), pageable));
+    }
     @PatchMapping("/change-password")
     @GetMapping ("/my/orders")
     public ApiResponseEntity<List<OrderResponse.OrderList>> getMyOrders(
