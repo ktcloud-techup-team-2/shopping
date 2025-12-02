@@ -103,4 +103,16 @@ public class UserService {
     public void inactivateUser(Long userId) {
         deleteUser(userId);
     }
+
+    public void changePassword(Long userId, UserRequest.PasswordChange request) {
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Preconditions.validate(passwordEncoder.matches(request.oldPassword(), user.getPassword()), ErrorCode.INVALID_PASSWORD);
+
+        Preconditions.validate(request.newPassword().equals(request.newPasswordConfirm()), ErrorCode.INVALID_PASSWORD_CHECK);
+
+        String encodedPassword = passwordEncoder.encode(request.newPassword());
+        user.updatePassword(encodedPassword);
+    }
 }

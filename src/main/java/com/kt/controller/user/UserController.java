@@ -90,6 +90,7 @@ public class UserController {
         return ApiResponseEntity.pageOf(
                 reviewService.getReviewsByUser(authUser.id(), pageable));
     }
+
     @PatchMapping("/change-password")
     @GetMapping ("/my/orders")
     public ApiResponseEntity<List<OrderResponse.OrderList>> getMyOrders(
