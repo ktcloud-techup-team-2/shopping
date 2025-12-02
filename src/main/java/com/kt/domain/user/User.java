@@ -93,4 +93,9 @@ public class User {
     public boolean isDeleted() {
         return this.deletedAt != null;
     }
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+        this.updatedAt = LocalDateTime.now();
+    }
 }
