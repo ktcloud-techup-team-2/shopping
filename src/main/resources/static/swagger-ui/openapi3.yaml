@@ -39,7 +39,43 @@ paths:
                     }
       security:
       - bearerAuthJWT: []
-  /api/v1/admin/delivery/couriers:
+  /admin/reviews:
+    get:
+      tags: [Admin-Review]
+      summary: 전체 리뷰 조회
+      description: 관리자가 모든 리뷰를 페이징 조회합니다.
+      operationId: admin-review-list
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/TestPageResponse'}
+              examples:
+                admin-review-list:
+                  value: |-
+                    {
+                      "data" : [ {
+                        "reviewId" : 1,
+                        "userId" : 1,
+                        "productId" : 100,
+                        "rating" : 5,
+                        "content" : "관리자용",
+                        "reviewImageUrl" : null,
+                        "createdAt" : "2025-12-01T17:40:22",
+                        "updatedAt" : "2025-12-01T17:40:22"
+                      } ],
+                      "page" : {
+                        "number" : 0,
+                        "size" : 1,
+                        "totalElements" : 1,
+                        "totalPages" : 1,
+                        "hasNext" : false,
+                        "hasPrev" : false,
+                        "sort" : [ ]
+                      }
+                    }
+  /admin/delivery/couriers:
     get:
       tags: [Admin-Courier]
       summary: 택배사 목록 조회
@@ -104,7 +140,7 @@ paths:
                     }
       security:
       - bearerAuthJWT: []
-  /api/v1/admin/delivery/orders:
+  /admin/delivery/orders:
     get:
       tags: [Admin-Delivery]
       summary: 배송 목록 조회
@@ -126,7 +162,7 @@ paths:
                         "trackingNumber" : "TRACK123",
                         "courierCode" : "CJ",
                         "status" : "PENDING",
-                        "createdAt" : "2025-12-01T02:56:35.639077"
+                        "createdAt" : "2025-12-01T17:40:13.818023"
                       } ],
                       "page" : {
                         "number" : 0,
@@ -140,7 +176,21 @@ paths:
                     }
       security:
       - bearerAuthJWT: []
-  /api/v1/admin/delivery/couriers/{courierId}:
+  /admin/reviews/{reviewId}:
+    delete:
+      tags: [Admin-Review]
+      summary: 리뷰 강제 삭제
+      description: 관리자가 부적절한 리뷰를 삭제합니다.
+      operationId: admin-review-delete
+      parameters:
+      - name: reviewId
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '204': {description: '204'}
+  /admin/delivery/couriers/{courierId}:
     put:
       tags: [Admin-Courier]
       summary: 택배사 수정
@@ -197,7 +247,7 @@ paths:
         '204': {description: '204'}
       security:
       - bearerAuthJWT: []
-  /api/v1/admin/delivery/orders/{deliveryId}:
+  /admin/delivery/orders/{deliveryId}:
     get:
       tags: [Admin-Delivery]
       summary: 배송 상세 조회
@@ -231,12 +281,12 @@ paths:
                         "status" : "PENDING",
                         "courierCode" : "TRACK123",
                         "trackingNumber" : "CJ",
-                        "createdAt" : "2025-12-01T02:56:35.616381"
+                        "createdAt" : "2025-12-01T17:40:13.793031"
                       }
                     }
       security:
       - bearerAuthJWT: []
-  /api/v1/admin/delivery/orders/{deliveryId}/status:
+  /admin/delivery/orders/{deliveryId}/status:
     patch:
       tags: [Admin-Delivery]
       summary: 배송 상태 변경
@@ -282,7 +332,7 @@ paths:
                         "status" : "SHIPPING",
                         "courierCode" : "TRACK123",
                         "trackingNumber" : "CJ",
-                        "createdAt" : "2025-12-01T02:56:35.244831"
+                        "createdAt" : "2025-12-01T17:40:13.28737"
                       }
                     }
       security:
@@ -557,6 +607,139 @@ paths:
                     }
       security:
       - bearerAuthJWT: []
+  /reviews:
+    get:
+      tags: [Review]
+      summary: 상품 리뷰 조회
+      description: 특정 상품의 리뷰 목록을 페이징 조회합니다.
+      operationId: review-list-by-product
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/TestPageResponse'}
+              examples:
+                review-list-by-product:
+                  value: |-
+                    {
+                      "data" : [ {
+                        "reviewId" : 1,
+                        "userId" : 1,
+                        "productId" : 100,
+                        "rating" : 5,
+                        "content" : "굿",
+                        "reviewImageUrl" : null,
+                        "createdAt" : "2025-12-01T06:11:00",
+                        "updatedAt" : "2025-12-01T06:11:00"
+                      } ],
+                      "page" : {
+                        "number" : 0,
+                        "size" : 1,
+                        "totalElements" : 1,
+                        "totalPages" : 1,
+                        "hasNext" : false,
+                        "hasPrev" : false,
+                        "sort" : [ ]
+                      }
+                    }
+    post:
+      tags: [Review]
+      summary: 리뷰 작성
+      description: 상품에 대한 리뷰를 작성합니다.
+      operationId: review-create
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/Create'}
+            examples:
+              review-create:
+                value: |-
+                  {
+                    "productId" : 100,
+                    "rating" : 5,
+                    "content" : "좋아요",
+                    "reviewImageUrl" : null
+                  }
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                review-create:
+                  value: |-
+                    {
+                      "data" : {
+                        "reviewId" : 1,
+                        "userId" : 1,
+                        "productId" : 100,
+                        "rating" : 5,
+                        "content" : "좋아요",
+                        "reviewImageUrl" : null,
+                        "createdAt" : "2025-12-01T06:11:00",
+                        "updatedAt" : "2025-12-01T06:11:00"
+                      }
+                    }
+  /reviews/{reviewId}:
+    put:
+      tags: [Review]
+      summary: 리뷰 수정
+      description: 자신이 작성한 리뷰를 수정합니다.
+      operationId: review-update
+      parameters:
+      - name: reviewId
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/Update'}
+            examples:
+              review-update:
+                value: |-
+                  {
+                    "rating" : 4,
+                    "content" : "수정함",
+                    "reviewImageUrl" : null
+                  }
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                review-update:
+                  value: |-
+                    {
+                      "data" : {
+                        "reviewId" : 1,
+                        "userId" : 1,
+                        "productId" : 100,
+                        "rating" : 5,
+                        "content" : "수정함",
+                        "reviewImageUrl" : null,
+                        "createdAt" : "2025-12-01T06:11:00",
+                        "updatedAt" : "2025-12-01T06:11:00"
+                      }
+                    }
+    delete:
+      tags: [Review]
+      summary: 리뷰 삭제
+      description: 자신이 작성한 리뷰를 삭제합니다.
+      operationId: review-delete
+      parameters:
+      - name: reviewId
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '204': {description: '204'}
 components:
   schemas:
     Create:
@@ -565,6 +748,12 @@ components:
       properties:
         code: {type: string, description: code, nullable: true}
         name: {type: string, description: name, nullable: true}
+    Update:
+      title: Update
+      type: object
+      properties:
+        name: {type: string, description: name, nullable: true}
+        isActive: {type: boolean, description: isActive, nullable: true}
     TestPageResponse:
       title: TestPageResponse
       type: object
@@ -601,12 +790,6 @@ components:
                 - {type: number}
             totalElements: {type: number, description: totalElements, nullable: true}
           description: page
-    Update:
-      title: Update
-      type: object
-      properties:
-        name: {type: string, description: name, nullable: true}
-        isActive: {type: boolean, description: isActive, nullable: true}
     TestDeliveryAddressResponse:
       title: TestDeliveryAddressResponse
       type: object

@@ -27,7 +27,7 @@ import com.kt.service.delivery.DeliveryService;
 
 class AdminDeliveryControllerTest extends AbstractRestDocsTest {
 
-	private static final String BASE_URL = "/api/v1/admin/delivery/orders";
+	private static final String BASE_URL = "/admin/delivery/orders";
 
 	@Autowired
 	private RestDocsFactory restDocsFactory;
