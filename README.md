@@ -6,8 +6,7 @@
 
 
 > 반려동물 용품 쇼핑과 병원 예약을 한 곳에서 이용할 수 있는 반려생활 전용 전자상거래 서비스입니다. </br>
-상품 구매, 병원 예약, 자유게시판과 같은 기본 커뮤니티 기능을 제공해
-반려인들이 일상에서 필요한 기능들을 간편하게 이용할 수 있도록 돕는 것이 목표입니다.
+> 상품 구매, 병원 예약, 자유게시판과 같은 기본 커뮤니티 기능을 제공해 반려인들이 일상에서 필요한 기능들을 간편하게 이용할 수 있도록 돕는 것이 목표입니다.
 
 ## 🎯 프로젝트 개요
 
@@ -97,18 +96,13 @@
 
 ## 🗂️ ERD 설계
 
-
-
-<img width="500" height="380" alt="Image" src="https://github.com/user-attachments/assets/3c4127fb-df03-4f51-82da-8cde1d3220f7" />
+<img width="500" height="380" alt="Image" src="https://github.com/user-attachments/assets/c05495e9-bf45-4d1f-a827-e2b16ba007ce" />
 
 ## 📋 기술 문서
-
-
 
 ### 기능 명세서 
 
 - https://www.notion.so/2b19e3e335cc80559376eb258e41ec66?source=copy_link
-
 ## 📷 시연 영상
 
 
