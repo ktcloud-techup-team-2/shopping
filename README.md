@@ -96,7 +96,7 @@
 
 ## 🗂️ ERD 설계
 
-<img width="500" height="380" alt="Image" src="https://github.com/user-attachments/assets/776259d9-76a5-40b5-a44e-0065adb35280" />
+<img width="500" height="380" alt="Image" src="https://github.com/user-attachments/assets/8fddd09b-dd7e-4f4d-b188-ac03913a92d3" />
 
 ## 📋 기술 문서
 
