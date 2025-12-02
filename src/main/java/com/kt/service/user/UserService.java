@@ -83,4 +83,8 @@ public class UserService {
 
         user.softDelete();
     }
+
+    public void inactivateUser(Long userId) {
+        deleteUser(userId);
+    }
 }

@@ -46,4 +46,10 @@ public class AdminUserController {
         userService.deleteUser(id);
         return ApiResponseEntity.empty();
     }
+
+    @PatchMapping ("/{id}/in-activate")
+    public ApiResponseEntity<Void> activateUser(@PathVariable Long id){
+        userService.inactivateUser(id);
+        return ApiResponseEntity.empty();
+    }
 }
