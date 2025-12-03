@@ -80,7 +80,7 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().name()));
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_"+user.getRole().name()));
         Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null, authorities);
 
         TokenRequestDto tokenDto = tokenProvider.generateToken(authentication, userId);
