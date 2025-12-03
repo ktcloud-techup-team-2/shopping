@@ -23,9 +23,9 @@ public enum ErrorCode {
 	// ---------------- USER -------------------
 	INVALID_USER_ID(HttpStatus.CONFLICT,"이미 사용 중인 아이디입니다."),
 	INVALID_PASSWORD_CHECK(HttpStatus.BAD_REQUEST, "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
-    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "기존 비밀번호와 일치하지 않습니다."),
-    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다."),
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."),
+	INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "기존 비밀번호와 일치하지 않습니다."),
+	INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다."),
+	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."),
 
 	// ---------------- DELIVERY -------------------
 	DELIVERY_ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "배송지를 찾을 수 없습니다."),
@@ -51,6 +51,7 @@ public enum ErrorCode {
 	PRODUCT_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "상품명은 필수 입력 값입니다."),
 	PRODUCT_NAME_TOO_LONG(HttpStatus.BAD_REQUEST, "상품명은 200자를 초과할 수 없습니다."),
 	PRODUCT_PRICE_BELOW_MINIMUM(HttpStatus.BAD_REQUEST, "상품 가격은 0 이상이어야 합니다."),
+	PRODUCT_PET_TYPE_REQUIRED(HttpStatus.BAD_REQUEST, "상품 반려동물 분류는 필수입니다."),
 	PRODUCT_STOCK_REQUIRED_FOR_ACTIVATION(HttpStatus.BAD_REQUEST, "바로 활성화하려면 재고가 1개 이상이어야 합니다."),
 
 	PRODUCT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 삭제된 상품입니다."),

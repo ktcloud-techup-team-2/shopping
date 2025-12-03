@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
+import com.kt.domain.pet.PetType;
 
 class ProductTest {
 	@Test
@@ -16,9 +17,10 @@ class ProductTest {
 		String name = "테스트 상품명";
 		String description = "테스트 상품 설명";
 		int price = 100_000;
+		PetType petType = PetType.DOG;
 
 		// when
-		Product product = Product.create(name, description, price);
+		Product product = Product.create(name, description, price, petType);
 
 		// then
 		assertThat(product.getName()).isEqualTo(name);
@@ -36,7 +38,8 @@ class ProductTest {
 		assertThatThrownBy(() -> Product.create(
 			name,
 			"설명",
-			10_000
+			10_000,
+			PetType.DOG
 		))
 			.isInstanceOf(CustomException.class)
 			.hasFieldOrPropertyWithValue("errorCode", ErrorCode.PRODUCT_NAME_REQUIRED);
@@ -51,7 +54,8 @@ class ProductTest {
 		assertThatThrownBy(() -> Product.create(
 			name,
 			"설명",
-			10_000
+			10_000,
+			PetType.DOG
 		))
 			.isInstanceOf(CustomException.class)
 			.hasFieldOrPropertyWithValue("errorCode", ErrorCode.PRODUCT_NAME_TOO_LONG);
@@ -63,7 +67,8 @@ class ProductTest {
 		assertThatThrownBy(() -> Product.create(
 			"테스트 상품명",
 			"설명",
-			-1
+			-1,
+			PetType.DOG
 		))
 			.isInstanceOf(CustomException.class)
 			.hasFieldOrPropertyWithValue("errorCode", ErrorCode.PRODUCT_PRICE_BELOW_MINIMUM);
@@ -75,11 +80,30 @@ class ProductTest {
 		Product product = Product.create(
 			"테스트 상품명",
 			"설명",
-			0
+			0,
+			PetType.DOG
 		);
 
 		// then
 		assertThat(product.getPrice()).isZero();
 		assertThat(product.getStatus()).isEqualTo(ProductStatus.DRAFT);
+	}
+
+	@Test
+	void create_requiresPetType() {
+		assertThatThrownBy(() -> Product.create(
+			"상품",
+			"설명",
+			1000,
+			null
+		)).isInstanceOf(CustomException.class);
+	}
+
+	@Test
+	void update_requiresPetType() {
+		Product product = Product.create("상품", "설명", 1000, PetType.DOG);
+
+		assertThatThrownBy(() -> product.update("상품", "설명", 2000, null))
+			.isInstanceOf(CustomException.class);
 	}
 }
