@@ -47,6 +47,14 @@ public enum ErrorCode {
 	// ---------------- REVIEW ----------------
 	REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."),
 
+	// ---------------- CATEGORY -------------------
+	CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
+	CATEGORY_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "카테고리 명은 필수입니다."),
+	CATEGORY_NAME_TOO_LONG(HttpStatus.BAD_REQUEST, "카테고리 명은 100자를 초과할 수 없습니다."),
+	CATEGORY_PET_TYPE_REQUIRED(HttpStatus.BAD_REQUEST, "카테고리 반려동물 분류는 필수입니다."),
+	CATEGORY_STATUS_REQUIRED(HttpStatus.BAD_REQUEST, "카테고리 상태는 필수입니다."),
+	CATEGORY_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 삭제된 카테고리입니다."),
+
 	// ---------------- PRODUCT -------------------
 	PRODUCT_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "상품명은 필수 입력 값입니다."),
 	PRODUCT_NAME_TOO_LONG(HttpStatus.BAD_REQUEST, "상품명은 200자를 초과할 수 없습니다."),
