@@ -33,7 +33,8 @@ public class AdminProductService {
 		var product = Product.create(
 			request.name(),
 			request.description(),
-			request.price()
+			request.price(),
+			request.petType()
 		);
 		var saved = productRepository.save(product);
 		inventoryService.initialize(saved);
@@ -67,7 +68,8 @@ public class AdminProductService {
 		product.update(
 			request.name(),
 			request.description(),
-			request.price()
+			request.price(),
+			request.petType()
 		);
 		var inventory = inventoryService.getInventoryOrThrow(id);
 		return ProductResponse.Detail.from(product, inventory);
@@ -82,7 +84,7 @@ public class AdminProductService {
 			productRepository.delete(product);
 			return;
 		}
-
+		// TODO :: auditorAware 파라미터로 변경 예정
 		Long deleterId = auditorAware.getCurrentAuditor().orElse(null);
 		product.softDelete(deleterId);
 	}

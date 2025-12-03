@@ -2,6 +2,7 @@ package com.kt.domain.inventory;
 
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
+import com.kt.domain.pet.PetType;
 import com.kt.domain.product.Product;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +13,7 @@ class InventoryTest {
 
 	@Test
 	void WMS_입고로_재고가_증가한다() {
-		Product product = Product.create("테스트", "설명", 10_000);
+		Product product = Product.create("테스트", "설명", 10_000, PetType.DOG);
 		Inventory inventory = Inventory.initialize(product);
 
 		inventory.applyWmsInbound(5);
@@ -23,7 +24,7 @@ class InventoryTest {
 
 	@Test
 	void OMS_RESERVE는_가용재고를_차감한다() {
-		Product product = Product.create("테스트", "설명", 10_000);
+		Product product = Product.create("테스트", "설명", 10_000, PetType.DOG);
 		Inventory inventory = Inventory.initialize(product);
 		inventory.applyWmsInbound(10);
 
@@ -35,7 +36,7 @@ class InventoryTest {
 
 	@Test
 	void OMS_COMMIT은_예약재고를_출고준비로_이동한다() {
-		Product product = Product.create("테스트", "설명", 10_000);
+		Product product = Product.create("테스트", "설명", 10_000, PetType.DOG);
 		Inventory inventory = Inventory.initialize(product);
 		inventory.applyWmsInbound(10);
 		inventory.applyOmsReserve(4);
@@ -49,7 +50,7 @@ class InventoryTest {
 
 	@Test
 	void 예약보다_많이_커밋하면_예외가_발생한다() {
-		Product product = Product.create("테스트", "설명", 10_000);
+		Product product = Product.create("테스트", "설명", 10_000, PetType.DOG);
 		Inventory inventory = Inventory.initialize(product);
 		inventory.applyWmsInbound(3);
 		inventory.applyOmsReserve(1);

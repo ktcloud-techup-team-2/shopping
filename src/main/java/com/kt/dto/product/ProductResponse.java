@@ -1,6 +1,7 @@
 package com.kt.dto.product;
 
 import com.kt.domain.inventory.Inventory;
+import com.kt.domain.pet.PetType;
 import com.kt.domain.product.Product;
 import com.kt.domain.product.ProductStatus;
 
@@ -17,6 +18,7 @@ public class ProductResponse {
 		long reservedQuantity,
 		long outboundProcessingQuantity,
 		ProductStatus status,
+		PetType petType,
 		boolean deleted
 	) {
 		public static Detail from(Product product, Inventory inventory) {
@@ -29,6 +31,7 @@ public class ProductResponse {
 				inventory.getReserved(),
 				inventory.getOutboundProcessing(),
 				product.getStatus(),
+				product.getPetType(),
 				product.isDeleted()
 			);
 		}
@@ -39,7 +42,8 @@ public class ProductResponse {
 		String name,
 		int price,
 		long availableQuantity,
-		ProductStatus status
+		ProductStatus status,
+		PetType petType
 	) {
 		public static Summary from(Product product, Inventory inventory) {
 			return new Summary(
@@ -47,7 +51,8 @@ public class ProductResponse {
 				product.getName(),
 				product.getPrice(),
 				inventory.getAvailable(),
-				product.getStatus()
+				product.getStatus(),
+				product.getPetType()
 			);
 		}
 	}

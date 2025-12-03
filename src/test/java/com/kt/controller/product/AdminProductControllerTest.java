@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.kt.common.api.ApiResponse;
 import com.kt.common.api.PageBlock;
 import com.kt.domain.inventory.Inventory;
+import com.kt.domain.pet.PetType;
 import com.kt.domain.product.Product;
 import com.kt.dto.product.ProductRequest;
 import com.kt.dto.product.ProductResponse;
@@ -48,6 +49,7 @@ class AdminProductControllerTest extends AbstractRestDocsTest {
 				"테스트 상품명",
 				"테스트 상품 설명",
 				10_000,
+				PetType.DOG,
 				false
 			);
 
@@ -82,7 +84,7 @@ class AdminProductControllerTest extends AbstractRestDocsTest {
 
 		@Test
 		void 성공() throws Exception {
-			Product product = createDraftProduct("상세 상품", "상세 상품 설명", 10_000);
+			Product product = createDraftProduct("상세 상품", "상세 상품 설명", 10_000, PetType.DOG);
 			var inventory = inventoryRepository.findByProductId(product.getId()).orElseThrow();
 			var docsResponse = ApiResponse.of(ProductResponse.Detail.from(product, inventory));
 
@@ -115,8 +117,8 @@ class AdminProductControllerTest extends AbstractRestDocsTest {
 		@Test
 		void 성공() throws Exception {
 			PageRequest pageable = PageRequest.of(0, 10);
-			Product first = createDraftProduct("리스트 상품1", "리스트 설명1", 10_000);
-			Product second = createDraftProduct("리스트 상품2", "리스트 설명2", 20_000);
+			Product first = createDraftProduct("리스트 상품1", "리스트 설명1", 10_000, PetType.DOG);
+			Product second = createDraftProduct("리스트 상품2", "리스트 설명2", 20_000, PetType.CAT);
 
 			Page<Product> page = new PageImpl<>(java.util.List.of(first, second), pageable, 2);
 			var summaries = page.map(p -> ProductResponse.Summary.from(
@@ -153,11 +155,12 @@ class AdminProductControllerTest extends AbstractRestDocsTest {
 
 		@Test
 		void 성공() throws Exception {
-			Product product = createDraftProduct("수정 전 상품", "수정 전 설명", 10_000);
+			Product product = createDraftProduct("수정 전 상품", "수정 전 설명", 10_000, PetType.DOG);
 			ProductRequest.Update request = new ProductRequest.Update(
 				"수정 후 상품",
 				"수정된 설명",
-				20_000
+				20_000,
+				PetType.DOG
 			);
 
 			var perform = mockMvc.perform(
@@ -193,7 +196,7 @@ class AdminProductControllerTest extends AbstractRestDocsTest {
 
 		@Test
 		void 성공() throws Exception {
-			Product product = createDraftProduct("활성화 대상", "활성화 대상 설명", 10_000);
+			Product product = createDraftProduct("활성화 대상", "활성화 대상 설명", 10_000, PetType.DOG);
 			addStock(product, 5);
 
 			var perform = mockMvc.perform(
@@ -229,7 +232,7 @@ class AdminProductControllerTest extends AbstractRestDocsTest {
 
 		@Test
 		void 성공() throws Exception {
-			Product product = createDraftProduct("삭제 대상", "삭제 대상 설명", 10_000);
+			Product product = createDraftProduct("삭제 대상", "삭제 대상 설명", 10_000, PetType.DOG);
 
 			mockMvc.perform(
 					restDocsFactory.createRequest(
@@ -254,8 +257,8 @@ class AdminProductControllerTest extends AbstractRestDocsTest {
 		}
 	}
 
-	private Product createDraftProduct(String name, String description, int price) {
-		Product product = Product.create(name, description, price);
+	private Product createDraftProduct(String name, String description, int price, PetType petType) {
+		Product product = Product.create(name, description, price, petType);
 		Product saved = productRepository.save(product);
 		inventoryRepository.save(Inventory.initialize(saved));
 		return saved;
