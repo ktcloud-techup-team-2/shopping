@@ -26,4 +26,13 @@ public class PetRequest {
             boolean allergy,
             String photoUrl
     ) {}
+
+    public record Update(
+            Boolean neutered,
+            @PositiveOrZero(message = "몸무게는 0 이상이어야 합니다.")
+            Double weight,
+            BodyShape bodyShape,
+            boolean allergy,
+            String photoUrl
+    ) {}
 }

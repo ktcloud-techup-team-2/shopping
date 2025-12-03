@@ -99,4 +99,18 @@ public class Pet extends BaseSoftDeleteEntity {
                 photoUrl
         );
     }
+
+    public void update(
+            boolean neutered,
+            Double weight,
+            BodyShape bodyShape,
+            boolean allergy,
+            String photoUrl
+    ) {
+        this.neutered = neutered;
+        this.weight = weight;
+        this.bodyShape = bodyShape;
+        this.allergy = allergy;
+        this.photoUrl = photoUrl;
+    }
 }
