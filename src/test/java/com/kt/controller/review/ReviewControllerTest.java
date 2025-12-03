@@ -1,43 +1,53 @@
 package com.kt.controller.review;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.LinkedHashMap;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
 import com.kt.common.api.ApiResponse;
-import com.kt.security.AuthUser;
+import com.kt.common.api.PageBlock;
+import com.kt.domain.product.Product;
+import com.kt.domain.review.Review;
+import com.kt.domain.user.Role;
+import com.kt.domain.user.User;
 import com.kt.dto.review.ReviewRequest;
 import com.kt.dto.review.ReviewResponse;
-import com.kt.service.review.ReviewService;
+import com.kt.repository.product.ProductRepository;
+import com.kt.repository.review.ReviewRepository;
+import com.kt.repository.user.UserRepository;
 
+@Transactional
 class ReviewControllerTest extends AbstractRestDocsTest {
 
-	private static final String BASE_URL = "/reviews";
+	private static final String DEFAULT_URL = "/reviews";
+	private static final Long TEST_USER_ID = 1L;
 
 	@Autowired
 	private RestDocsFactory restDocsFactory;
 
-	@MockitoBean
-	private ReviewService reviewService;
+	@Autowired
+	private ReviewRepository reviewRepository;
+
+	@Autowired
+	private UserRepository userRepository;
+
+	@Autowired
+	private ProductRepository productRepository;
 
 	@Nested
 	@DisplayName("리뷰 작성 API")
@@ -45,29 +55,30 @@ class ReviewControllerTest extends AbstractRestDocsTest {
 		@Test
 		void 성공() throws Exception {
 			// given
-			var request = new ReviewRequest.Create(100L, 5, "좋아요", null);
-			var realResponse = createMockResponse(1L, 100L, "좋아요");
+			Product product = createProduct();
 
-			// Service Mocking (Controller가 AuthUser에서 ID를 꺼내서 전달함)
-			given(reviewService.createReview(anyLong(), any(ReviewRequest.Create.class)))
-				.willReturn(realResponse);
-
-			// Shadow DTO + ApiResponse 포장
-			var docsResponse = ApiResponse.of(TestReviewResponse.from(realResponse));
+			var request = new ReviewRequest.Create(product.getId(), 5, "좋아요", null);
 
 			// when & then
 			mockMvc.perform(
 					restDocsFactory.createRequest(
-							BASE_URL,
+							DEFAULT_URL,
 							request,
 							HttpMethod.POST,
 							objectMapper
 						)
-						.with(mockAuthUser()) // ✅ [해결 1] AuthUser 객체 직접 주입 (403 해결)
-						.with(csrf())         // ✅ [해결 2] CSRF 토큰 주입 (403 해결)
+						.with(jwtUser())
+						.with(csrf())
 				)
 				.andExpect(status().isCreated())
-				.andDo(
+				.andDo(result -> {
+					var response = objectMapper.readValue(result.getResponse().getContentAsString(), ApiResponse.class);
+					var responseData = (LinkedHashMap) response.getData();
+					Long reviewId = Long.valueOf(responseData.get("reviewId").toString());
+
+					Review createdReview = reviewRepository.findById(reviewId).orElseThrow();
+					var docsResponse = ApiResponse.of(ReviewResponse.from(createdReview));
+
 					restDocsFactory.success(
 						"review-create",
 						"리뷰 작성",
@@ -75,8 +86,8 @@ class ReviewControllerTest extends AbstractRestDocsTest {
 						"Review",
 						request,
 						docsResponse
-					)
-				);
+					).handle(result);
+				});
 		}
 	}
 
@@ -86,28 +97,32 @@ class ReviewControllerTest extends AbstractRestDocsTest {
 		@Test
 		void 성공() throws Exception {
 			// given
-			Long productId = 100L;
-			var realResponse = createMockResponse(1L, productId, "굿");
-			Page<ReviewResponse> page = new PageImpl<>(List.of(realResponse));
+			User user = createUser(TEST_USER_ID, Role.USER);
+			Product product = createProduct();
+			Long productId = product.getId();
 
-			given(reviewService.getReviewListByProduct(eq(productId), any(Pageable.class)))
-				.willReturn(page);
+			createReview(user.getId(), productId, 5, "최고");
+			createReview(user.getId(), productId, 4, "좋아요");
 
-			// Shadow DTO List 변환 + PageResponse 포장 (핵심!)
-			var shadowList = List.of(TestReviewResponse.from(realResponse));
-			var docsResponse = TestPageResponse.of(shadowList); // ✅ [해결 3] 페이징 구조 맞춤
+			Pageable pageable = PageRequest.of(0, 10);
+			Page<Review> reviewPage = reviewRepository.findByProductId(productId, pageable);
+
+			var responseList = reviewPage.getContent().stream()
+				.map(ReviewResponse::from)
+				.toList();
+
+			var docsResponse = ApiResponse.ofPage(responseList, toPageBlock(reviewPage));
 
 			// when & then
 			mockMvc.perform(
 					restDocsFactory.createRequest(
-							BASE_URL,
+							DEFAULT_URL,
 							null,
 							HttpMethod.GET,
 							objectMapper
 						)
 						.param("productId", String.valueOf(productId))
-						// 조회 API는 보통 권한이 필요 없지만, 테스트 통과를 위해 넣음
-						.with(mockAuthUser())
+						.with(jwtUser())
 				)
 				.andExpect(status().isOk())
 				.andDo(
@@ -129,29 +144,29 @@ class ReviewControllerTest extends AbstractRestDocsTest {
 		@Test
 		void 성공() throws Exception {
 			// given
-			Long reviewId = 1L;
+			User user = createUser(TEST_USER_ID, Role.USER);
+			Product product = createProduct();
+			Long reviewId = createReview(user.getId(), product.getId(), 5, "수정 전 내용").getId();
+
 			var request = new ReviewRequest.Update(4, "수정함", null);
-			var realResponse = createMockResponse(reviewId, 100L, "수정함");
-
-			given(reviewService.updateReview(anyLong(), eq(reviewId), any(ReviewRequest.Update.class)))
-				.willReturn(realResponse);
-
-			var docsResponse = ApiResponse.of(TestReviewResponse.from(realResponse));
 
 			// when & then
 			mockMvc.perform(
 					restDocsFactory.createRequest(
-							BASE_URL + "/{reviewId}",
+							DEFAULT_URL + "/{reviewId}",
 							request,
 							HttpMethod.PUT,
 							objectMapper,
 							reviewId
 						)
-						.with(mockAuthUser()) // ✅ AuthUser 주입
-						.with(csrf())         // ✅ CSRF 필수
+						.with(jwtUser(user.getId()))
+						.with(csrf())
 				)
 				.andExpect(status().isOk())
-				.andDo(
+				.andDo(result -> {
+					Review updatedReview = reviewRepository.findById(reviewId).orElseThrow();
+					var docsResponse = ApiResponse.of(ReviewResponse.from(updatedReview));
+
 					restDocsFactory.success(
 						"review-update",
 						"리뷰 수정",
@@ -159,8 +174,8 @@ class ReviewControllerTest extends AbstractRestDocsTest {
 						"Review",
 						request,
 						docsResponse
-					)
-				);
+					).handle(result);
+				});
 		}
 	}
 
@@ -169,19 +184,22 @@ class ReviewControllerTest extends AbstractRestDocsTest {
 	class DeleteReview {
 		@Test
 		void 성공() throws Exception {
-			Long reviewId = 1L;
-			willDoNothing().given(reviewService).deleteReview(anyLong(), eq(reviewId));
+			// given
+			User user = createUser(TEST_USER_ID, Role.USER);
+			Product product = createProduct();
+			Long reviewId = createReview(user.getId(), product.getId(), 5, "삭제 대상").getId();
 
+			// when & then
 			mockMvc.perform(
 					restDocsFactory.createRequest(
-							BASE_URL + "/{reviewId}",
+							DEFAULT_URL + "/{reviewId}",
 							null,
 							HttpMethod.DELETE,
 							objectMapper,
 							reviewId
 						)
-						.with(mockAuthUser()) // ✅ AuthUser 주입
-						.with(csrf())         // ✅ CSRF 필수
+						.with(jwtUser())
+						.with(csrf())
 				)
 				.andExpect(status().isNoContent())
 				.andDo(
@@ -194,71 +212,60 @@ class ReviewControllerTest extends AbstractRestDocsTest {
 						null
 					)
 				);
+
+			assertThat(reviewRepository.findById(reviewId)).isEmpty();
 		}
 	}
 
-	// --- Helper Methods ---
-
-	/**
-	 * [핵심] AuthUser 객체를 직접 생성하여 SecurityContext에 주입하는 헬퍼 메서드
-	 * @AuthenticationPrincipal이 AuthUser 타입을 요구하므로 필수
-	 */
-	private RequestPostProcessor mockAuthUser() {
-		// 1. 권한 설정 ("ROLE_" 접두사 중요! SecurityConfig에서 hasRole("USER")로 체크하므로)
-		var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-
-		// 2. AuthUser 진짜 객체 생성 (ID: 1L)
-		AuthUser authUser = new AuthUser(1L, authorities);
-
-		// 3. 인증 토큰 생성
-		UsernamePasswordAuthenticationToken auth =
-			new UsernamePasswordAuthenticationToken(authUser, null, authorities);
-
-		// 4. ✅ 핵심: Spring Security Test의 authentication() 프로세서 반환
-		// (이게 알아서 SecurityContext에 꽂아주고 필터 통과시켜 줍니다)
-		return authentication(auth);
+	private User createUser(Long id, Role role) {
+		User user;
+		if (role == Role.ADMIN) {
+			user = User.admin(
+				"admin" + id,
+				"pass",
+				"관리자",
+				"admin@kt.com",
+				"010-0000-0000",
+				null,
+				null,
+				LocalDateTime.now(),
+				LocalDateTime.now());
+		} else {
+			user = User.user(
+				"user" + id,
+				"pass",
+				"일반사용자",
+				"user@kt.com",
+				"010-1111-1111",
+				null,
+				null,
+				LocalDateTime.now(),
+				LocalDateTime.now());
+		}
+		return userRepository.save(user);
 	}
 
-	private ReviewResponse createMockResponse(Long reviewId, Long productId, String content) {
-		return new ReviewResponse(
-			reviewId, 1L, productId, 5, content, null, LocalDateTime.now(), LocalDateTime.now()
+	private Product createProduct() {
+		Product product = Product.create("테스트 상품", "설명", 10000);
+		return productRepository.save(product);
+	}
+
+	private Review createReview(Long userId, Long productId, Integer rating, String content) {
+		Review review = Review.create(userId, productId, rating, content, null);
+		return reviewRepository.save(review);
+	}
+
+	private PageBlock toPageBlock(Page<?> page) {
+		return new PageBlock(
+			page.getNumber(),
+			page.getSize(),
+			page.getTotalElements(),
+			page.getTotalPages(),
+			page.hasNext(),
+			page.hasPrevious(),
+			page.getSort().stream()
+				.map(order -> new PageBlock.SortOrder(order.getProperty(), order.getDirection().name()))
+				.toList()
 		);
-	}
-
-	// --- Shadow DTOs (StackOverflow 방지 & 구조 일치용) ---
-
-	// 1. ReviewResponse Shadow
-	static class TestReviewResponse {
-		Long reviewId; Long userId; Long productId; Integer rating; String content;
-		String reviewImageUrl; String createdAt; String updatedAt;
-
-		static TestReviewResponse from(ReviewResponse real) {
-			TestReviewResponse dto = new TestReviewResponse();
-			dto.reviewId = real.reviewId();
-			dto.userId = real.userId();
-			dto.productId = real.productId();
-			dto.rating = real.rating();
-			dto.content = real.content();
-			dto.reviewImageUrl = real.reviewImageUrl();
-			dto.createdAt = real.createdAt().toString();
-			dto.updatedAt = real.updatedAt().toString();
-			return dto;
-		}
-	}
-
-	// 2. PageResponse Shadow
-	static class TestPageResponse<T> {
-		List<T> data;
-		TestPageInfo page;
-		static <T> TestPageResponse<T> of(List<T> data) {
-			TestPageResponse<T> r = new TestPageResponse<>();
-			r.data = data;
-			r.page = new TestPageInfo();
-			return r;
-		}
-	}
-	static class TestPageInfo {
-		int number=0; int size=1; long totalElements=1; int totalPages=1;
-		boolean hasNext=false; boolean hasPrev=false; List<String> sort=List.of();
 	}
 }

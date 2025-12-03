@@ -1,65 +1,85 @@
 package com.kt.controller.review;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*; // csrf, user
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
+import com.kt.common.api.ApiResponse;
+import com.kt.common.api.PageBlock;
+import com.kt.domain.product.Product;
+import com.kt.domain.review.Review;
+import com.kt.domain.user.Role;
+import com.kt.domain.user.User;
 import com.kt.dto.review.ReviewResponse;
-import com.kt.service.review.ReviewService;
+import com.kt.repository.product.ProductRepository;
+import com.kt.repository.review.ReviewRepository;
+import com.kt.repository.user.UserRepository;
 
+@Transactional
 class AdminReviewControllerTest extends AbstractRestDocsTest {
 
-	private static final String BASE_URL = "/admin/reviews";
+	private static final String DEFAULT_URL = "/admin/reviews";
+	private static final Long TEST_USER_ID = 100L;
+	private static final Long TEST_ADMIN_ID = 1L;
 
 	@Autowired
 	private RestDocsFactory restDocsFactory;
 
-	@MockitoBean
-	private ReviewService reviewService;
+	@Autowired
+	private ReviewRepository reviewRepository;
+
+	@Autowired
+	private UserRepository userRepository;
+
+	@Autowired
+	private ProductRepository productRepository;
+
 
 	@Nested
-	@DisplayName("관리자 전체 리뷰 조회 API")
-	class GetAllReviews {
+	class 관리자_전체_리뷰_조회_API {
 		@Test
 		void 성공() throws Exception {
 			// given
-			var realResponse = new ReviewResponse(
-				1L, 1L, 100L, 5, "관리자용", null, LocalDateTime.now(), LocalDateTime.now()
-			);
-			Page<ReviewResponse> page = new PageImpl<>(List.of(realResponse));
+			Pageable pageable = PageRequest.of(0, 10);
 
-			given(reviewService.getAllReviews(any(Pageable.class))).willReturn(page);
+			createUser(TEST_ADMIN_ID, Role.ADMIN);
+			User regularUser = createUser(TEST_USER_ID, Role.USER);
+			Product product = createProduct();
 
-			// Shadow DTO + PageResponse (JSON 구조 맞춤)
-			var shadowList = List.of(TestReviewResponse.from(realResponse));
-			var docsResponse = TestPageResponse.of(shadowList);
+			Review review1 = createReview(regularUser.getId(), product.getId(), 5, "최고의 상품");
+			Review review2 = createReview(regularUser.getId(), product.getId(), 4, "좋아요");
+
+			Page<Review> reviewPage = new PageImpl<>(List.of(review1, review2), pageable, 2);
+
+			var responseList = reviewPage.getContent().stream()
+				.map(ReviewResponse::from)
+				.toList();
+
+			var docsResponse = ApiResponse.ofPage(responseList, toPageBlock(reviewPage));
 
 			// when & then
 			mockMvc.perform(
 					restDocsFactory.createRequest(
-							BASE_URL,
+							DEFAULT_URL + "?page=0&size=10",
 							null,
 							HttpMethod.GET,
 							objectMapper
 						)
-						// ✅ [핵심] 관리자 권한 부여 (표준 방식)
-						.with(user("admin").roles("ADMIN"))
+						.with(jwtAdmin())
 				)
 				.andExpect(status().isOk())
 				.andDo(
@@ -76,24 +96,25 @@ class AdminReviewControllerTest extends AbstractRestDocsTest {
 	}
 
 	@Nested
-	@DisplayName("관리자 리뷰 강제 삭제 API")
-	class DeleteReviewByAdmin {
+	class 관리자_리뷰_강제_삭제_API {
 		@Test
 		void 성공() throws Exception {
-			Long reviewId = 1L;
-			willDoNothing().given(reviewService).deleteReviewByAdmin(reviewId);
+			// given
+			createUser(TEST_ADMIN_ID, Role.ADMIN);
+			User regularUser = createUser(TEST_USER_ID, Role.USER);
+			Product product = createProduct();
+			Long reviewId = createReview(regularUser.getId(), product.getId(), 1, "삭제대상").getId();
 
+			// when & then
 			mockMvc.perform(
 					restDocsFactory.createRequest(
-							BASE_URL + "/{reviewId}",
+							DEFAULT_URL + "/{reviewId}",
 							null,
 							HttpMethod.DELETE,
 							objectMapper,
 							reviewId
 						)
-						// ✅ [핵심] 관리자 권한 + CSRF 토큰
-						.with(user("admin").roles("ADMIN"))
-						.with(csrf())
+						.with(jwtAdmin())
 				)
 				.andExpect(status().isNoContent())
 				.andDo(
@@ -106,35 +127,60 @@ class AdminReviewControllerTest extends AbstractRestDocsTest {
 						null
 					)
 				);
+
+			assertThat(reviewRepository.findById(reviewId)).isEmpty();
 		}
 	}
 
-	// --- Shadow DTOs (이전과 동일) ---
-	static class TestReviewResponse {
-		Long reviewId; Long userId; Long productId; Integer rating; String content;
-		String reviewImageUrl; String createdAt; String updatedAt;
-
-		static TestReviewResponse from(ReviewResponse real) {
-			TestReviewResponse dto = new TestReviewResponse();
-			dto.reviewId = real.reviewId(); dto.userId = real.userId(); dto.productId = real.productId();
-			dto.rating = real.rating(); dto.content = real.content();
-			dto.reviewImageUrl = real.reviewImageUrl();
-			dto.createdAt = real.createdAt().toString();
-			dto.updatedAt = real.updatedAt().toString();
-			return dto;
+	private User createUser(Long id, Role role) {
+		User user;
+		if (role == Role.ADMIN) {
+			user = User.admin(
+				"admin" + id,
+				"pass",
+				"관리자",
+				"admin@kt.com",
+				"010-0000-0000",
+				null,
+				null,
+				LocalDateTime.now(),
+				LocalDateTime.now());
+		} else {
+			user = User.user(
+				"user" + id,
+				"pass",
+				"일반사용자",
+				"user@kt.com",
+				"010-1111-1111",
+				null,
+				null,
+				LocalDateTime.now(),
+				LocalDateTime.now());
 		}
+		return userRepository.save(user);
 	}
 
-	static class TestPageResponse<T> {
-		List<T> data; TestPageInfo page;
-		static <T> TestPageResponse<T> of(List<T> data) {
-			TestPageResponse<T> r = new TestPageResponse<>();
-			r.data = data; r.page = new TestPageInfo();
-			return r;
-		}
+	private Product createProduct() {
+		Product product = Product.create("테스트 상품", "설명", 10000);
+		return productRepository.save(product);
 	}
-	static class TestPageInfo {
-		int number=0; int size=1; long totalElements=1; int totalPages=1;
-		boolean hasNext=false; boolean hasPrev=false; List<String> sort=List.of();
+
+	private Review createReview(Long userId, Long productId, Integer rating, String content) {
+		Review review = Review.create(userId, productId, rating, content, null);
+		return reviewRepository.save(review);
+	}
+
+	private PageBlock toPageBlock(Page<?> page) {
+		return new PageBlock(
+			page.getNumber(),
+			page.getSize(),
+			page.getTotalElements(),
+			page.getTotalPages(),
+			page.hasNext(),
+			page.hasPrevious(),
+			page.getSort().stream()
+				.map(order -> new PageBlock.SortOrder(order.getProperty(), order.getDirection().name()))
+				.toList()
+		);
 	}
 }
