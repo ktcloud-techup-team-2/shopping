@@ -2,6 +2,7 @@ package com.kt.controller.order;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,7 +44,7 @@ public class AdminOrderController {
 	}
 
 	// 관리자 주문 취소
-	@PatchMapping("/{id}/cancel")
+	@DeleteMapping("/{id}/cancel")
 	public ApiResponseEntity<OrderResponse.AdminDetail> cancelOrderAdmin(@PathVariable Long id) {
 		Order order = adminOrderService.cancelOrderAdmin(id);
 		return ApiResponseEntity.success(OrderResponse.AdminDetail.from(order));
