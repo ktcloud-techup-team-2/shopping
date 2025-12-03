@@ -1,4 +1,4 @@
-package com.kt.service.admin;
+package com.kt.service.user;
 
 import com.kt.common.Preconditions;
 import com.kt.common.api.CustomException;
@@ -86,5 +86,14 @@ public class AdminService {
         }
 
         admin.softDelete();
+    }
+
+    public void initAdminPassword(Long id) {
+        User admin = userRepository.findByIdAndRoleAndDeletedAtIsNull(id, Role.ADMIN)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        String tempPassword = "AdminPassword123!";
+
+        admin.updatePassword(passwordEncoder.encode(tempPassword));
     }
 }
