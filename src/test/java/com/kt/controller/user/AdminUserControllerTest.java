@@ -13,11 +13,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,6 +33,9 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
     private RestDocsFactory restDocsFactory;
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private Long userId;
 
@@ -182,28 +187,72 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
     }
 
     @Nested
-    class 관리자_유저_비활성화_API {
+    class 관리자_유저_비밀번호_변경_API {
         @Test
-        void 성공 () throws Exception {
+        void 성공() throws Exception {
+            // given
+            UserRequest.AdminPasswordChange request = new UserRequest.AdminPasswordChange(
+                    "NewPassword123!",
+                    "NewPassword123!"
+            );
+
             mockMvc.perform(
-                    restDocsFactory.createRequest(
-                            ADMIN_USERS_URL+"/"+userId+"/in-activate",
-                            null,
-                            HttpMethod.PATCH,
-                            objectMapper
-                    ).with(jwtAdmin())
-            )
+                            restDocsFactory.createRequest(
+                                    ADMIN_USERS_URL + "/" + userId + "/change-password",
+                                    request,
+                                    HttpMethod.PATCH,
+                                    objectMapper
+                            ).with(jwtAdmin())
+                    )
                     .andExpect(status().isNoContent())
                     .andDo(
                             restDocsFactory.success(
-                                    "admin-users-inactivate",
-                                    "유저 비활성화 (관리자)",
-                                    "관리자가 특정 유저를 비활성화하는 API",
-                                    "Admin-user",
+                                    "admin-users-change-password",
+                                    "회원 비밀번호 변경(관리자)",
+                                    "관리자가 특정 유저의 비밀번호를 새 비밀번호로 변경하는 API",
+                                    "Admin-User",
+                                    request,
+                                    null
+                            )
+                    );
+
+            User updated = userRepository.findById(userId).orElseThrow();
+            assertThat(passwordEncoder.matches("NewPassword123!", updated.getPassword()))
+                    .isTrue();
+        }
+    }
+
+    @Nested
+    class 관리자_유저_비밀번호_초기화_API {
+
+        @Test
+        void 성공() throws Exception {
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    ADMIN_USERS_URL + "/" + userId + "/init-password",
+                                    null,
+                                    HttpMethod.PATCH,
+                                    objectMapper
+                            ).with(jwtAdmin())
+                    )
+                    .andExpect(status().isNoContent())
+                    .andDo(
+                            restDocsFactory.success(
+                                    "admin-users-init-password",
+                                    "회원 비밀번호 초기화(관리자)",
+                                    "관리자가 특정 유저의 비밀번호를 임시 비밀번호로 초기화하는 API",
+                                    "Admin-User",
                                     null,
                                     null
                             )
                     );
+
+            User updated = userRepository.findById(userId).orElseThrow();
+            assertThat(passwordEncoder.matches("Init1234!", updated.getPassword()))
+                    .isFalse();
+
+            assertThat(passwordEncoder.matches("Temp1234!", updated.getPassword())).isTrue();
         }
+
     }
 }
