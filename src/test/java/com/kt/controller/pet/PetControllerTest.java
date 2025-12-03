@@ -48,8 +48,8 @@ public class PetControllerTest extends AbstractRestDocsTest {
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
         petRepository.deleteAll();
+        userRepository.deleteAll();
 
         User user = User.user(
                 LOGIN_ID,
@@ -130,15 +130,71 @@ public class PetControllerTest extends AbstractRestDocsTest {
                             request,
                             HttpMethod.PATCH,
                             objectMapper,
-                            petId
+                            defaultPetId
                     ).with(jwtUser(currentUserId))
             )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.id").value(petId))
+                    .andExpect(jsonPath("$.data.id").value(defaultPetId))
                     .andExpect(jsonPath("$.data.weight").value(request.weight()))
                     .andExpect(jsonPath("$.data.neutered").value(request.neutered()))
                     .andExpect(jsonPath("$.data.bodyShape").value(request.bodyShape().name()))
                     .andExpect(jsonPath("$.data.allergy").value(request.allergy()));
+        }
+    }
+
+    @Nested
+    class 펫_단건_조회_API {
+        @Test
+        void 성공() throws Exception {
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    PET_URL + "/{id}",
+                                    null,
+                                    HttpMethod.GET,
+                                    objectMapper,
+                                    defaultPetId
+                            ).with(jwtUser(currentUserId))
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.id").value(defaultPetId))
+                    .andExpect(jsonPath("$.data.name").value("TESTCAT"));
+        }
+    }
+
+    @Nested
+    class 펫_목록_조회_API {
+
+        @Test
+        void 성공() throws Exception {
+            User user = userRepository.findById(currentUserId).orElseThrow();
+
+            // 추가 펫 생성
+            Pet extra = Pet.create(
+                    user,
+                    PetType.CAT,
+                    "나비",
+                    Gender.FEMALE,
+                    false,
+                    "코리안숏헤어",
+                    "2020-05-10",
+                    4.5,
+                    BodyShape.NORMAL,
+                    false,
+                    "https://example.com/images/nabi.jpg"
+            );
+            petRepository.save(extra);
+
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    PET_URL,
+                                    null,
+                                    HttpMethod.GET,
+                                    objectMapper
+                            ).with(jwtUser(currentUserId))
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data").isArray())
+                    .andExpect(jsonPath("$.data.length()").value(2));
         }
     }
 }
