@@ -44,10 +44,12 @@ public class PetControllerTest extends AbstractRestDocsTest {
     private PasswordEncoder passwordEncoder;
 
     private Long currentUserId;
+    private Long defaultPetId;
 
     @BeforeEach
-    void setUpUser() {
+    void setUp() {
         userRepository.deleteAll();
+        petRepository.deleteAll();
 
         User user = User.user(
                 LOGIN_ID,
@@ -62,6 +64,22 @@ public class PetControllerTest extends AbstractRestDocsTest {
         );
 
         currentUserId = userRepository.save(user).getId();
+
+        Pet pet = Pet.create(
+                user,
+                PetType.CAT,
+                "TESTCAT",
+                Gender.MALE,
+                true,
+                "스핑크스",
+                "2012-03-01",
+                4.5,
+                BodyShape.SKINNY,
+                true,
+                "https://example.com/images/pobi.jpg"
+        );
+
+        defaultPetId = petRepository.save(pet).getId();
     }
 
     @Nested
@@ -97,22 +115,6 @@ public class PetControllerTest extends AbstractRestDocsTest {
     class 펫_수정_api {
         @Test
         void 성공()  throws Exception {
-            User user = userRepository.findById(currentUserId).orElseThrow();
-
-            Pet pet = Pet.create(
-                    user,
-                    PetType.DOG,
-                    "포비",
-                    Gender.MALE,
-                    true,
-                    "포메라니안",
-                    "2012-03-01",
-                    3.9,
-                    BodyShape.SKINNY,
-                    true,
-                    "https://example.com/images/pobi.jpg"
-            );
-            Long petId = petRepository.save(pet).getId();
 
             PetRequest.Update request = new PetRequest.Update(
                     true,
