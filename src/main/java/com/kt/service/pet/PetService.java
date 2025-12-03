@@ -1,6 +1,7 @@
 package com.kt.service.pet;
 
 
+import com.kt.common.Preconditions;
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.domain.pet.Pet;
@@ -41,6 +42,25 @@ public class PetService {
 
         Pet saved = petRepository.save(pet);
         return PetResponse.Create.from(saved);
+    }
+
+    public PetResponse.Update update (Long petId, Long userId, PetRequest.Update request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PET_NOT_FOUND));
+
+        Preconditions.validate(pet.getUser().getId().equals(userId), ErrorCode.PET_NOT_FOUND);
+
+        pet.update(
+                Boolean.TRUE.equals(request.neutered()),
+                request.weight(),
+                request.bodyShape(),
+                request.allergy(),
+                request.photoUrl()
+        );
+        return PetResponse.Update.from(pet);
     }
 }
 
