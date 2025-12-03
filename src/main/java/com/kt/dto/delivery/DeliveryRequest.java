@@ -2,6 +2,7 @@ package com.kt.dto.delivery;
 
 import com.kt.domain.delivery.DeliveryStatus;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
@@ -24,6 +25,16 @@ public class DeliveryRequest {
 		DeliveryStatus status,
 
 		String courierCode,
+		String trackingNumber
+	) {
+
+	}
+
+	public record RegisterTracking(
+		@NotBlank(message = "택배사 코드는 필수입니다.")
+		String courierCode,
+
+		@NotBlank(message = "송장 번호는 필수입니다.")
 		String trackingNumber
 	) {
 
