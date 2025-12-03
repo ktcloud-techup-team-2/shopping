@@ -84,7 +84,7 @@ public class AdminProductService {
 			productRepository.delete(product);
 			return;
 		}
-
+		// TODO :: auditorAware 파라미터로 변경 예정
 		Long deleterId = auditorAware.getCurrentAuditor().orElse(null);
 		product.softDelete(deleterId);
 	}
