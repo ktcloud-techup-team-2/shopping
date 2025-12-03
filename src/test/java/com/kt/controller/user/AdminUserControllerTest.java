@@ -29,6 +29,9 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
 
     private static final String ADMIN_USERS_URL = "/admin/users";
 
+    private static final String ADMIN_LOGIN_ID  = "adminUser123";
+    private static final String ADMIN_PASSWORD  = "AdminTest123!";
+
     @Autowired
     private RestDocsFactory restDocsFactory;
     @Autowired
@@ -43,9 +46,9 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
     void setUp() {
         userRepository.deleteAll();
 
-        User user = User.user(
-                "test1234",
-                "encoded-password",
+        User user = User.admin(
+                ADMIN_LOGIN_ID,
+                passwordEncoder.encode(ADMIN_PASSWORD),
                 "테스트",
                 "example123@gmail.com",
                 "010-1234-5678",
@@ -74,7 +77,7 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
                     )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.id").value(userId))
-                    .andExpect(jsonPath("$.data.loginId").value("test1234"))
+                    .andExpect(jsonPath("$.data.loginId").value(ADMIN_LOGIN_ID))
                     .andExpect(jsonPath("$.data.name").value("테스트"))
                     .andExpect(jsonPath("$.data.email").value("example123@gmail.com"))
                     .andExpect(jsonPath("$.data.phone").value("010-1234-5678"))
