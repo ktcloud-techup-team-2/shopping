@@ -11,8 +11,7 @@ import org.junit.jupiter.api.Test;
 class CategoryTest {
 
 	@Test
-	@DisplayName("루트 카테고리를 생성하면 깊이는 1이고 상태와 반려동물 분류가 설정된다")
-	void createRoot_setsDepthAndAttributes() {
+	void 루트_카테고리를_생성하면_깊이_부모_상태_반려동물이_설정된다() {
 		// when
 		Category root = Category.createRoot("루트", 1, CategoryStatus.ACTIVE, PetType.DOG);
 
@@ -24,8 +23,7 @@ class CategoryTest {
 	}
 
 	@Test
-	@DisplayName("자식 카테고리를 생성하면 부모와 깊이가 설정된다")
-	void createChild_setsParentAndDepth() {
+	void 자식_카테고리를_생성하면_부모와_깊이가_설정된다() {
 		// given
 		Category parent = Category.createRoot("부모", 1, CategoryStatus.ACTIVE, PetType.CAT);
 
@@ -39,8 +37,7 @@ class CategoryTest {
 	}
 
 	@Test
-	@DisplayName("부모를 변경하면 깊이도 함께 변경된다")
-	void changeParent_updatesDepth() {
+	void 부모를_변경하면_부모와_깊이가_함께_변경된다() {
 		// given
 		Category originalParent = Category.createRoot("부모1", 1, CategoryStatus.ACTIVE, PetType.DOG);
 		Category newParent = Category.createRoot("부모2", 2, CategoryStatus.ACTIVE, PetType.DOG);
@@ -55,8 +52,7 @@ class CategoryTest {
 	}
 
 	@Test
-	@DisplayName("소프트 삭제 시 상태는 비활성화되고 삭제 정보가 기록된다")
-	void softDelete_marksInactiveAndRecordsDeletion() {
+	void 카테고리를_소프트_삭제하면_비활성화되고_삭제_정보가_기록된다() {
 		// given
 		Category category = Category.createRoot("삭제 대상", 1, CategoryStatus.ACTIVE, PetType.DOG);
 
@@ -71,8 +67,7 @@ class CategoryTest {
 	}
 
 	@Test
-	@DisplayName("삭제된 카테고리는 수정할 수 없다")
-	void modifyingDeletedCategory_throwsException() {
+	void 삭제된_카테고리를_수정하면_예외가_발생한다() {
 		// given
 		Category category = Category.createRoot("삭제 대상", 1, CategoryStatus.ACTIVE, PetType.DOG);
 		category.softDelete(null);
