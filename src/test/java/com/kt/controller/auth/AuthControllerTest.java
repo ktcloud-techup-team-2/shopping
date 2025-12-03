@@ -7,7 +7,6 @@ import com.kt.domain.user.User;
 import com.kt.dto.auth.LoginRequest;
 import com.kt.dto.auth.LoginResponse;
 import com.kt.repository.user.UserRepository;
-import com.kt.security.TokenProvider;
 import com.kt.security.dto.TokenReissueRequestDto;
 import com.kt.security.dto.TokenResponseDto;
 import jakarta.transaction.Transactional;
@@ -39,22 +38,23 @@ public class AuthControllerTest extends AbstractRestDocsTest {
     private static final String LOGIN_ID = "loginUser123";
     private static final String PASSWORD = "PasswordTest123!";
 
+    private static final String ADMIN_LOGIN_ID  = "adminUser123";
+    private static final String ADMIN_PASSWORD  = "AdminTest123!";
+
     @Autowired
     private RestDocsFactory restDocsFactory;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private TokenProvider tokenProvider;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     private Long userId;
+    private Long adminId;
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
         SecurityContextHolder.clearContext();
         userRepository.deleteAll();
         stringRedisTemplate.getConnectionFactory()
@@ -74,13 +74,26 @@ public class AuthControllerTest extends AbstractRestDocsTest {
                 LocalDateTime.now()
         );
         userId = userRepository.save(user).getId();
+
+        User admin = User.admin(
+                ADMIN_LOGIN_ID,
+                passwordEncoder.encode(ADMIN_PASSWORD),
+                "관리자",
+                "admin@example.com",
+                "010-9999-9999",
+                LocalDate.of(1995, 5, 5),
+                Gender.MALE,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+        adminId = userRepository.save(admin).getId();
     }
 
     @Nested
     class 로그인_API {
 
         @Test
-        void 성공() throws Exception {
+        void 유저_로그인_성공() throws Exception {
 
             LoginRequest request = new LoginRequest(
                     LOGIN_ID,
@@ -101,6 +114,31 @@ public class AuthControllerTest extends AbstractRestDocsTest {
                                     "auth-login",
                                     "로그인",
                                     "기존 회원의 로그인 및 토큰 발급 API",
+                                    "Auth",
+                                    request,
+                                    LoginResponse.class
+                            )
+                    );
+        }
+
+        @Test
+        void 관리자_로그인_성공() throws Exception {
+            LoginRequest request = new LoginRequest(ADMIN_LOGIN_ID, ADMIN_PASSWORD);
+
+            mockMvc.perform(
+                            restDocsFactory.createRequest(
+                                    LOGIN_URL,
+                                    request,
+                                    HttpMethod.POST,
+                                    objectMapper
+                            )
+                    )
+                    .andExpect(status().isOk())
+                    .andDo(
+                            restDocsFactory.success(
+                                    "auth-login-admin",
+                                    "관리자 로그인",
+                                    "관리자 로그인 및 토큰 발급 API",
                                     "Auth",
                                     request,
                                     LoginResponse.class
