@@ -201,10 +201,11 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
 
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_USERS_URL + "/" + userId + "/change-password",
+                                    ADMIN_USERS_URL + "/{id}/change-password",
                                     request,
                                     HttpMethod.PATCH,
-                                    objectMapper
+                                    objectMapper,
+                                    userId
                             ).with(jwtAdmin())
                     )
                     .andExpect(status().isNoContent())
@@ -232,10 +233,11 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
         void 성공() throws Exception {
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_USERS_URL + "/" + userId + "/init-password",
+                                    ADMIN_USERS_URL + "/{id}/init-password",
                                     null,
                                     HttpMethod.PATCH,
-                                    objectMapper
+                                    objectMapper,
+                                    userId
                             ).with(jwtAdmin())
                     )
                     .andExpect(status().isNoContent())
