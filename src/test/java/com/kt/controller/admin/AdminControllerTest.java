@@ -13,11 +13,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,6 +34,9 @@ public class AdminControllerTest extends AbstractRestDocsTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private Long adminId;
 
@@ -225,5 +230,34 @@ public class AdminControllerTest extends AbstractRestDocsTest {
         }
     }
 
+    @Nested
+    class 관리자_비밀번호_초기화_API {
+        @Test
+        void 성공()  throws Exception {
+            mockMvc.perform(
+                    restDocsFactory.createRequest(
+                            ADMIN_URL_PREFIX+"/"+adminId+"/init-password",
+                            null,
+                            HttpMethod.PATCH,
+                            objectMapper
+                    ).with(jwtAdmin())
+            )
+                    .andExpect(status().isNoContent())
+                    .andDo(
+                            restDocsFactory.success(
+                                    "admin-admins-init-password",
+                                    "관리자 비밀번호 초기화",
+                                    "관리자가 특정 관리자 계정의 비밀번호를 임시 비밀번호로 초기화하는 API",
+                                    "Admin",
+                                    null,
+                                    null
+                            )
+                    );
 
+            User updated = userRepository.findById(adminId).orElseThrow();
+
+            assertThat (passwordEncoder.matches("encoded-password", updated.getPassword())).isFalse();
+            assertThat(passwordEncoder.matches("AdminPassword123!", updated.getPassword())).isTrue();
+        }
+    }
 }

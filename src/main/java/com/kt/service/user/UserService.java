@@ -28,15 +28,15 @@ public class UserService {
         Preconditions.validate(!userRepository.existsByloginId(request.loginId()), ErrorCode.INVALID_USER_ID);
 
         var user = User.user(
-            request.loginId(),
-            passwordEncoder.encode(request.password()),
-            request.name(),
-            request.email(),
-            request.phone(),
-            request.birthday(),
-            request.gender(),
-            LocalDateTime.now(),
-            LocalDateTime.now()
+                request.loginId(),
+                passwordEncoder.encode(request.password()),
+                request.name(),
+                request.email(),
+                request.phone(),
+                request.birthday(),
+                request.gender(),
+                LocalDateTime.now(),
+                LocalDateTime.now()
         );
 
         userRepository.save(user);
@@ -84,10 +84,6 @@ public class UserService {
         user.softDelete();
     }
 
-    public void inactivateUser(Long userId) {
-        deleteUser(userId);
-    }
-
     public void changePassword(Long userId, UserRequest.PasswordChange request) {
         User user = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -97,6 +93,25 @@ public class UserService {
         Preconditions.validate(request.newPassword().equals(request.newPasswordConfirm()), ErrorCode.INVALID_PASSWORD_CHECK);
 
         String encodedPassword = passwordEncoder.encode(request.newPassword());
+        user.updatePassword(encodedPassword);
+    }
+
+    public void changePasswordByAdmin (Long userId, UserRequest.AdminPasswordChange request) {
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Preconditions.validate(request.newPassword().equals(request.newPasswordConfirm()), ErrorCode.INVALID_PASSWORD_CHECK);
+
+        String encodedPassword = passwordEncoder.encode(request.newPassword());
+        user.updatePassword(encodedPassword);
+    }
+
+    public void initPassword(Long userId) {
+        User user = userRepository.findByIdAndDeletedAtIsNull(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        String tempPassword = "Temp1234!";  // 임의 비밀번호 설정
+        String encodedPassword = passwordEncoder.encode(tempPassword);
         user.updatePassword(encodedPassword);
     }
 }

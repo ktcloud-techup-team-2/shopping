@@ -47,9 +47,17 @@ public class AdminUserController {
         return ApiResponseEntity.empty();
     }
 
-    @PatchMapping ("/{id}/in-activate")
-    public ApiResponseEntity<Void> activateUser(@PathVariable Long id){
-        userService.inactivateUser(id);
+    @PatchMapping("/{id}/change-password")
+    public ApiResponseEntity<Void> changeUserPasswordByAdmin (
+            @PathVariable Long id,
+            @RequestBody @Valid UserRequest.AdminPasswordChange request) {
+        userService.changePasswordByAdmin(id, request);
+        return ApiResponseEntity.empty();
+    }
+
+    @PatchMapping("/{id}/init-password")
+    public ApiResponseEntity<Void> initUserPassword (@PathVariable Long id) {
+        userService.initPassword(id);
         return ApiResponseEntity.empty();
     }
 }

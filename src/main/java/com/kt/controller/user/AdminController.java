@@ -1,10 +1,9 @@
-package com.kt.controller.admin;
+package com.kt.controller.user;
 
 import com.kt.common.api.ApiResponseEntity;
 import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
-import com.kt.service.admin.AdminService;
-import com.kt.service.user.UserService;
+import com.kt.service.user.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,6 +47,12 @@ public class AdminController {
     @DeleteMapping("/{id}")
     public ApiResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
         adminService.deleteAdmin(id);
+        return ApiResponseEntity.empty();
+    }
+
+    @PatchMapping("/{id}/init-password")
+    public ApiResponseEntity<Void> initAdminPassword(@PathVariable Long id) {
+        adminService.initAdminPassword(id);
         return ApiResponseEntity.empty();
     }
 }
