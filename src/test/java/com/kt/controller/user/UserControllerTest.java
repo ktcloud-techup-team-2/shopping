@@ -39,6 +39,9 @@ public class UserControllerTest extends AbstractRestDocsTest {
     private static final String WITHDRAWAL_URL = "/users/withdrawal";
     private static final String CHANGE_PASSWORD_URL = "/users/change-password";
 
+    private static final String LOGIN_ID = "loginUser123";
+    private static final String PASSWORD = "PasswordTest123!";
+
     @Autowired
     private RestDocsFactory restDocsFactory;
     @Autowired
@@ -59,10 +62,10 @@ public class UserControllerTest extends AbstractRestDocsTest {
         userRepository.deleteAll();
         orderRepository.deleteAll();
 
-        String encodedPassword = passwordEncoder.encode("Test1234!");
+        String encodedPassword = passwordEncoder.encode(PASSWORD);
 
         User user = User.user(
-                "test1234",
+                LOGIN_ID,
                 encodedPassword,
                 "테스트유저",
                 "example123@gmail.com",
@@ -119,14 +122,14 @@ public class UserControllerTest extends AbstractRestDocsTest {
 
     @Nested
     class 회원가입_API {
-
         @Test
         void 성공 () throws Exception {
+            userRepository.deleteAll();
             // given
             UserRequest.Create request = new UserRequest.Create(
-                    "idfortest123",
-                    "PasswordTest123!",
-                    "PasswordTest123!",
+                    LOGIN_ID,
+                    PASSWORD,
+                    PASSWORD,
                     "JNSJ",
                     "example123@example.com",
                     "010-1234-1234",
@@ -171,7 +174,7 @@ public class UserControllerTest extends AbstractRestDocsTest {
                     )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.id").value(currentUserId))
-                    .andExpect(jsonPath("$.data.loginId").value("test1234"))
+                    .andExpect(jsonPath("$.data.loginId").value(LOGIN_ID))
                     .andExpect(jsonPath("$.data.name").value("테스트유저"))
                     .andExpect(jsonPath("$.data.email").value("example123@gmail.com"))
                     .andExpect(jsonPath("$.data.phone").value("010-1234-5678"))
@@ -209,7 +212,7 @@ public class UserControllerTest extends AbstractRestDocsTest {
                     )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.id").value(currentUserId))
-                    .andExpect(jsonPath("$.data.loginId").value("test1234"))
+                    .andExpect(jsonPath("$.data.loginId").value(LOGIN_ID))
                     .andExpect(jsonPath("$.data.name").value(request.name()))
                     .andExpect(jsonPath("$.data.email").value(request.email()))
                     .andExpect(jsonPath("$.data.phone").value(request.phone()))
@@ -282,7 +285,7 @@ public class UserControllerTest extends AbstractRestDocsTest {
         @Test
         void 성공() throws Exception {
             UserRequest.PasswordChange request = new UserRequest.PasswordChange(
-                    "Test1234!",
+                    PASSWORD,
                     "NewPassword123!",
                     "NewPassword123!"
             );
