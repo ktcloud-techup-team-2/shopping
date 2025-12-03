@@ -138,10 +138,11 @@ public class AdminControllerTest extends AbstractRestDocsTest {
         void 성공() throws Exception {
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_URL_PREFIX + "/" + adminId,
+                                    ADMIN_URL_PREFIX + "/{id}",
                                     null,
                                     HttpMethod.GET,
-                                    objectMapper
+                                    objectMapper,
+                                    adminId
                             ).with(jwtAdmin())
                     )
                     .andExpect(status().isOk())
@@ -178,10 +179,11 @@ public class AdminControllerTest extends AbstractRestDocsTest {
 
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_URL_PREFIX + "/" + adminId,
+                                    ADMIN_URL_PREFIX + "/{id}",
                                     request,
                                     HttpMethod.PATCH,
-                                    objectMapper
+                                    objectMapper,
+                                    adminId
                             ).with(jwtAdmin())
                     )
                     .andExpect(status().isOk())
@@ -210,10 +212,11 @@ public class AdminControllerTest extends AbstractRestDocsTest {
         void 성공() throws Exception {
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_URL_PREFIX + "/" + adminId,
+                                    ADMIN_URL_PREFIX + "/{id}",
                                     null,
                                     HttpMethod.DELETE,
-                                    objectMapper
+                                    objectMapper,
+                                    adminId
                             ).with(jwtAdmin())
                     )
                     .andExpect(status().isNoContent())
