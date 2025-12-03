@@ -35,7 +35,7 @@ public class AuthService {
     private final RedisTemplate<String, String> redisTemplate;
 
     public LoginResponse login(LoginRequest loginRequest) {
-        User user = userRepository.findByLoginId(loginRequest.loginId())
+        User user = userRepository.findByLoginIdAndDeletedAtIsNull(loginRequest.loginId())
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
 
         if(!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
