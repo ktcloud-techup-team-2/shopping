@@ -6,29 +6,23 @@ import com.kt.domain.user.Gender;
 import com.kt.domain.user.User;
 import com.kt.dto.auth.LoginRequest;
 import com.kt.dto.auth.LoginResponse;
-import com.kt.dto.user.UserRequest;
-import com.kt.dto.user.UserRequest.Create;
 import com.kt.repository.user.UserRepository;
 import com.kt.security.TokenProvider;
 import com.kt.security.dto.TokenReissueRequestDto;
-import com.kt.security.dto.TokenRequestDto;
 import com.kt.security.dto.TokenResponseDto;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.time.Duration;
 import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -42,6 +36,9 @@ public class AuthControllerTest extends AbstractRestDocsTest {
     private static final String REISSUE_URL = "/auth/reissue";
     private static final String LOGOUT_URL = "/auth/logout";
 
+    private static final String LOGIN_ID = "loginUser123";
+    private static final String PASSWORD = "PasswordTest123!";
+
     @Autowired
     private RestDocsFactory restDocsFactory;
     @Autowired
@@ -50,6 +47,34 @@ public class AuthControllerTest extends AbstractRestDocsTest {
     private TokenProvider tokenProvider;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private Long userId;
+
+    @BeforeEach
+    void setUp() {
+        userRepository.deleteAll();
+        SecurityContextHolder.clearContext();
+        userRepository.deleteAll();
+        stringRedisTemplate.getConnectionFactory()
+                .getConnection()
+                .serverCommands()
+                .flushAll();
+
+        User user = User.user(
+                LOGIN_ID,
+                passwordEncoder.encode(PASSWORD),
+                "로그인유저",
+                "login@example.com",
+                "010-0000-1111",
+                LocalDate.of(2000, 1, 1),
+                Gender.FEMALE,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+        userId = userRepository.save(user).getId();
+    }
 
     @Nested
     class 로그인_API {
@@ -57,38 +82,11 @@ public class AuthControllerTest extends AbstractRestDocsTest {
         @Test
         void 성공() throws Exception {
 
-            SecurityContextHolder.clearContext();
-
-            // 회원가입 데이터 생성
-            UserRequest.Create signUpRequest = new UserRequest.Create(
-                    "idfortest123",
-                    "PasswordTest123!",
-                    "PasswordTest123!",
-                    "JNSJ",
-                    "example123@example.com",
-                    "010-1234-1234",
-                    Gender.MALE,
-                    LocalDate.of(1999, 9, 9)
-            );
-
-            mockMvc.perform(
-                            restDocsFactory.createRequest(
-                                    "/users/signup",
-                                    signUpRequest,
-                                    HttpMethod.POST,
-                                    objectMapper
-                            )
-                    )
-                    .andDo(print())
-                    .andExpect(status().isCreated());
-
-            //given
             LoginRequest request = new LoginRequest(
-                    "idfortest123",
-                    "PasswordTest123!"
+                    LOGIN_ID,
+                    PASSWORD
             );
 
-            //when
             mockMvc.perform(
                     restDocsFactory.createRequest(
                             LOGIN_URL,
@@ -114,20 +112,20 @@ public class AuthControllerTest extends AbstractRestDocsTest {
         void 실패_비밀번호_불일치() throws Exception {
             //given
             LoginRequest request = new LoginRequest(
-                    "idfortest123",
+                    LOGIN_ID,
                     "WrongPassword1!"
             );
 
             //when
             mockMvc.perform(
-                    restDocsFactory.createRequest(
-                            LOGIN_URL,
-                            request,
-                            HttpMethod.POST,
-                            objectMapper
+                            restDocsFactory.createRequest(
+                                    LOGIN_URL,
+                                    request,
+                                    HttpMethod.POST,
+                                    objectMapper
+                            )
                     )
-            )
-                    .andExpect(status(). isUnauthorized());
+                    .andExpect(status().isUnauthorized());
         }
 
         @Test
@@ -135,7 +133,7 @@ public class AuthControllerTest extends AbstractRestDocsTest {
             // given
             LoginRequest request = new LoginRequest(
                     "wrongId1234",
-                    "PasswordTest123!"
+                    PASSWORD
             );
 
             // when & then
@@ -155,62 +153,47 @@ public class AuthControllerTest extends AbstractRestDocsTest {
     class 토큰_재발급_API {
         @Test
         void 성공() throws Exception {
-            SecurityContextHolder.clearContext();
 
-            UserRequest.Create signUpRequest = new UserRequest.Create(
-                    "reissueUser123",
-                    "PasswordTest123!",
-                    "PasswordTest123!",
-                    "JNSJ",
-                    "reissue@example.com",
-                    "010-1234-5678",
-                    Gender.MALE,
-                    LocalDate.of(1999, 9, 9)
-            );
+            LoginRequest loginRequest = new LoginRequest(LOGIN_ID, PASSWORD);
 
-            mockMvc.perform(
+            String loginResponseBody = mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    "/users/signup",
-                                    signUpRequest,
+                                    LOGIN_URL,
+                                    loginRequest,
                                     HttpMethod.POST,
                                     objectMapper
                             )
                     )
-                    .andExpect(status().isCreated());
+                    .andExpect(status().isOk())
+                    .andReturn()
+                    .getResponse()
+                    .getContentAsString();
 
-            User user = userRepository.findByLoginId("reissueUser123")
-                    .orElseThrow();
+            LoginResponse loginResponse =
+                    objectMapper.readValue(loginResponseBody, LoginResponse.class);
 
-            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().name()));
+            Long loginUserId = loginResponse.userId();
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(user.getId(), null, authorities);
+            String redisKey = "refreshToken:" + loginUserId;
+            String refreshToken = stringRedisTemplate.opsForValue().get(redisKey);
 
-            TokenRequestDto tokenRequestDto = tokenProvider.generateToken(authentication, user.getId());
-
-            String redisKey = "refreshToken:" + user.getId();
-            stringRedisTemplate.opsForValue().set(
-                    redisKey,
-                    tokenRequestDto.refreshToken(),
-                    Duration.ofDays(7)
-            );
-
-            TokenReissueRequestDto request = new TokenReissueRequestDto(tokenRequestDto.refreshToken());
+            TokenReissueRequestDto request = new TokenReissueRequestDto(refreshToken);
 
             mockMvc.perform(
-                    restDocsFactory.createRequest(
-                            REISSUE_URL,
-                            request,
-                            HttpMethod.POST,
-                            objectMapper
+                            restDocsFactory.createRequest(
+                                    REISSUE_URL,
+                                    request,
+                                    HttpMethod.POST,
+                                    objectMapper
+                            )
                     )
-            )
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andDo(
                             restDocsFactory.success(
                                     "auth-reissue",
                                     "토큰 재발급",
-                                    "RefreshToken으로으로 AccessToken 재발급하는 API",
+                                    "RefreshToken으로 AccessToken 재발급하는 API",
                                     "Auth",
                                     request,
                                     TokenResponseDto.class
@@ -230,7 +213,6 @@ public class AuthControllerTest extends AbstractRestDocsTest {
                             objectMapper
                     )
             )
-                    .andDo(print())
                     .andExpect(status().isUnauthorized());
         }
     }
@@ -239,54 +221,41 @@ public class AuthControllerTest extends AbstractRestDocsTest {
     class 로그아웃_API {
         @Test
         void 성공()  throws Exception {
-            SecurityContextHolder.clearContext();
 
-            UserRequest.Create signUpRequest = new UserRequest.Create(
-                    "logoutUser123",
-                    "PasswordTest123!",
-                    "PasswordTest123!",
-                    "JNSJ",
-                    "logout@example.com",
-                    "010-1234-5678",
-                    Gender.MALE,
-                    LocalDate.of(1999, 9, 9)
-            );
-
-            mockMvc.perform(
-                            restDocsFactory.createRequest(
-                                    "/users/signup",
-                                    signUpRequest,
-                                    HttpMethod.POST,
-                                    objectMapper
-                            )
-                    )
-                    .andExpect(status().isCreated());
-
-            LoginRequest loginRequest = new LoginRequest("logoutUser123", "PasswordTest123!");
+            LoginRequest request = new LoginRequest(LOGIN_ID, PASSWORD);
 
             String responseBody = mockMvc.perform(
-                            restDocsFactory.createRequest(
-                                    "/auth/login",
-                                    loginRequest,
-                                    HttpMethod.POST,
-                                    objectMapper
-                            )
+                    restDocsFactory.createRequest(
+                            LOGIN_URL,
+                            request,
+                            HttpMethod.POST,
+                            objectMapper
+                    )
                     )
                     .andExpect(status().isOk())
                     .andReturn()
                     .getResponse()
                     .getContentAsString();
 
-            LoginResponse loginResponse = objectMapper.readValue(responseBody, LoginResponse.class);
+            LoginResponse loginResponse =
+                    objectMapper.readValue(responseBody, LoginResponse.class);
             String accessToken = loginResponse.accessToken();
 
-
             mockMvc.perform(
-                            post(LOGOUT_URL)
-                                    .header("Authorization", "Bearer " + accessToken)
-                    )
-                    .andDo(print())
-                    .andExpect(status().isNoContent());
+                    post(LOGOUT_URL)
+                            .header("Authorization", "Bearer " + accessToken)
+            )
+                    .andExpect(status().isNoContent())
+                    .andDo(
+                            restDocsFactory.success(
+                                    "auth-logout",
+                                    "로그아웃",
+                                    "AccessToken 블랙리스트 등록 및 RefreshToken 삭제 API",
+                                    "Auth",
+                                    null,
+                                    null
+                            )
+                    );
         }
 
         @Test
