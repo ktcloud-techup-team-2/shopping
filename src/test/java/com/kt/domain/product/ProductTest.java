@@ -90,7 +90,7 @@ class ProductTest {
 	}
 
 	@Test
-	void create_requiresPetType() {
+	void 생성시_petType이_없으면_예외가_발생한다() {
 		assertThatThrownBy(() -> Product.create(
 			"상품",
 			"설명",
@@ -100,7 +100,7 @@ class ProductTest {
 	}
 
 	@Test
-	void update_requiresPetType() {
+	void 수정시_petType이_없으면_예외가_발생한다() {
 		Product product = Product.create("상품", "설명", 1000, PetType.DOG);
 
 		assertThatThrownBy(() -> product.update("상품", "설명", 2000, null))
