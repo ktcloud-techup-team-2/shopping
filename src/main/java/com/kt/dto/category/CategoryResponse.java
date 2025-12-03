@@ -32,8 +32,7 @@ public class CategoryResponse {
 	}
 
 	@Builder
-	public record Tree(TreeResponse tree) {
-	}
+	public record Tree(TreeResponse tree) { }
 
 	public record UserLevels(List<Level> levels) {
 		public record Level(int depth, List<UserCategory> categories) {

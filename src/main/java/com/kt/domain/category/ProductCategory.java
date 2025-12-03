@@ -1,5 +1,8 @@
 package com.kt.domain.category;
 
+import static com.kt.common.Preconditions.*;
+
+import com.kt.common.api.ErrorCode;
 import com.kt.common.jpa.BaseAuditEntity;
 import com.kt.domain.product.Product;
 import jakarta.persistence.*;
@@ -27,12 +30,8 @@ public class ProductCategory extends BaseAuditEntity {
 	}
 
 	public static ProductCategory create(Product product, Category category) {
-		if (product == null) {
-			throw new IllegalArgumentException("product cannot be null");
-		}
-		if (category == null) {
-			throw new IllegalArgumentException("category cannot be null");
-		}
+		nullValidate(product, ErrorCode.COMMON_INVALID_ARGUMENT);
+		nullValidate(category, ErrorCode.COMMON_INVALID_ARGUMENT);
 		return new ProductCategory(product, category);
 	}
 }

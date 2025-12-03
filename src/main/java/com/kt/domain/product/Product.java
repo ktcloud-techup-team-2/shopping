@@ -1,5 +1,7 @@
 package com.kt.domain.product;
 
+import static com.kt.common.Preconditions.*;
+
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.common.jpa.BaseSoftDeleteEntity;
@@ -9,10 +11,6 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import static com.kt.common.Preconditions.validate;
-
-import java.util.Objects;
 
 import org.apache.logging.log4j.util.Strings;
 
@@ -120,7 +118,7 @@ public class Product extends BaseSoftDeleteEntity {
 	}
 
 	private PetType validatePetType(PetType petType) {
-		validate(Objects.nonNull(petType), ErrorCode.PRODUCT_PET_TYPE_REQUIRED);
+		nullValidate(petType, ErrorCode.COMMON_VALIDATION_FAILED);
 		return petType;
 	}
 
