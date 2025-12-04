@@ -22,4 +22,10 @@ public class CategoryController {
 		var response = categoryQueryService.getLevels(petType);
 		return ApiResponseEntity.success(response);
 	}
+
+	@GetMapping("/tree")
+	public ApiResponseEntity<CategoryResponse.Tree> getTree(@RequestParam PetType petType) {
+		var response = categoryQueryService.getUserTree(petType);
+		return ApiResponseEntity.success(response);
+	}
 }

@@ -26,6 +26,9 @@ public class ProductRequest {
 		@NotNull(message = "반려동물 분류는 필수입니다.")
 		PetType petType,
 
+		@NotEmpty(message = "카테고리를 한 개 이상 선택해주세요.")
+		List<Long> categoryIds,
+
 		boolean activateImmediately
 	) {}
 	public record Update(
@@ -39,11 +42,14 @@ public class ProductRequest {
 		int price,
 
 		@NotNull(message = "반려동물 분류는 필수입니다.")
-		PetType petType
+		PetType petType,
+
+		@NotEmpty(message = "카테고리를 한 개 이상 선택해주세요.")
+		List<Long> categoryIds
 	) {}
 	public record BulkSoldOut(
-			@NotEmpty(message = "품절 처리할 상품을 한 개 이상 선택해주세요.")
-			List<Long> productIds
+		@NotEmpty(message = "품절 처리할 상품을 한 개 이상 선택해주세요.")
+		List<Long> productIds
 	) {}
 	public record SearchCond(
 		String name,
