@@ -22,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -195,6 +196,28 @@ public class PetControllerTest extends AbstractRestDocsTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data").isArray())
                     .andExpect(jsonPath("$.data.length()").value(2));
+        }
+    }
+
+    @Nested
+    class 펫_삭제_API {
+        @Test
+        void 성공() throws Exception {
+            mockMvc.perform(
+                    restDocsFactory.createRequest(
+                            PET_URL+"/{id}",
+                            null,
+                            HttpMethod.DELETE,
+                            objectMapper,
+                            defaultPetId
+                    ).with(jwtUser(currentUserId))
+            )
+                    .andExpect(status().isNoContent());
+
+            assertThat(petRepository.findByIdAndDeletedAtIsNull(defaultPetId)).isEmpty();
+
+            Pet deletedPet = petRepository.findById(defaultPetId).orElseThrow();
+            assertThat(deletedPet.isDeleted()).isTrue();
         }
     }
 }
