@@ -11,6 +11,7 @@ import com.kt.common.api.ErrorCode;
 import com.kt.domain.pet.PetType;
 
 class ProductTest {
+
 	@Test
 	void 상품_생성에_성공한다() {
 		// given
@@ -20,7 +21,7 @@ class ProductTest {
 		PetType petType = PetType.DOG;
 
 		// when
-		Product product = Product.create(name, description, price, petType);
+		Product product = createProduct(name, description, price, petType);
 
 		// then
 		assertThat(product.getName()).isEqualTo(name);
@@ -35,7 +36,7 @@ class ProductTest {
 	@NullAndEmptySource
 	void 상품명_null_또는_빈문자열이면_예외가_발생한다(String name) {
 		// when & then
-		assertThatThrownBy(() -> Product.create(
+		assertThatThrownBy(() -> createProduct(
 			name,
 			"설명",
 			10_000,
@@ -51,7 +52,7 @@ class ProductTest {
 		String name = "a".repeat(201);
 
 		// when & then
-		assertThatThrownBy(() -> Product.create(
+		assertThatThrownBy(() -> createProduct(
 			name,
 			"설명",
 			10_000,
@@ -64,7 +65,7 @@ class ProductTest {
 	@Test
 	void 가격이_음수면_예외가_발생한다() {
 		// when & then
-		assertThatThrownBy(() -> Product.create(
+		assertThatThrownBy(() -> createProduct(
 			"테스트 상품명",
 			"설명",
 			-1,
@@ -77,7 +78,7 @@ class ProductTest {
 	@Test
 	void 가격과_재고는_0이어도_정상_생성된다() {
 		// when
-		Product product = Product.create(
+		Product product = createProduct(
 			"테스트 상품명",
 			"설명",
 			0,
@@ -91,7 +92,7 @@ class ProductTest {
 
 	@Test
 	void 생성시_petType이_없으면_예외가_발생한다() {
-		assertThatThrownBy(() -> Product.create(
+		assertThatThrownBy(() -> createProduct(
 			"상품",
 			"설명",
 			1000,
@@ -101,9 +102,13 @@ class ProductTest {
 
 	@Test
 	void 수정시_petType이_없으면_예외가_발생한다() {
-		Product product = Product.create("상품", "설명", 1000, PetType.DOG);
+		Product product = createProduct("상품", "설명", 1000, PetType.DOG);
 
 		assertThatThrownBy(() -> product.update("상품", "설명", 2000, null))
 			.isInstanceOf(CustomException.class);
+	}
+
+	private Product createProduct(String name, String description, int price, PetType petType) {
+		return Product.create(name, description, price, petType);
 	}
 }

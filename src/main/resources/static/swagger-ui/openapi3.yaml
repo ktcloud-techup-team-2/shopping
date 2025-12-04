@@ -35,7 +35,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 112,
+                        "id" : 8,
                         "name" : "신규 카테고리",
                         "parentId" : null,
                         "depth" : 1,
@@ -63,73 +63,24 @@ paths:
                   value: |-
                     {
                       "data" : [ {
-                        "id" : 41,
-                        "name" : "테스트 상품명",
-                        "price" : 10000,
-                        "availableQuantity" : 0,
-                        "status" : "DRAFT",
-                        "petType" : "CAT"
-                      }, {
-                        "id" : 42,
-                        "name" : "테스트 상품명",
-                        "price" : 10000,
-                        "availableQuantity" : 0,
-                        "status" : "DRAFT",
-                        "petType" : "CAT"
-                      }, {
-                        "id" : 43,
-                        "name" : "테스트 상품명",
-                        "price" : 10000,
-                        "availableQuantity" : 0,
-                        "status" : "DRAFT",
-                        "petType" : "CAT"
-                      }, {
-                        "id" : 44,
-                        "name" : "테스트 상품명",
-                        "price" : 10000,
-                        "availableQuantity" : 0,
-                        "status" : "DRAFT",
-                        "petType" : "CAT"
-                      }, {
-                        "id" : 45,
-                        "name" : "테스트 상품명",
-                        "price" : 10000,
-                        "availableQuantity" : 0,
-                        "status" : "DRAFT",
-                        "petType" : "CAT"
-                      }, {
-                        "id" : 46,
-                        "name" : "테스트 상품명",
-                        "price" : 10000,
-                        "availableQuantity" : 0,
-                        "status" : "DRAFT",
-                        "petType" : "CAT"
-                      }, {
-                        "id" : 47,
-                        "name" : "테스트 상품명",
-                        "price" : 10000,
-                        "availableQuantity" : 0,
-                        "status" : "DRAFT",
-                        "petType" : "CAT"
-                      }, {
-                        "id" : 131,
+                        "id" : 102,
                         "name" : "리스트 상품1",
                         "price" : 10000,
                         "availableQuantity" : 0,
-                        "status" : "DRAFT",
+                        "status" : "ACTIVE",
                         "petType" : "DOG"
                       }, {
-                        "id" : 132,
+                        "id" : 103,
                         "name" : "리스트 상품2",
                         "price" : 20000,
                         "availableQuantity" : 0,
-                        "status" : "DRAFT",
-                        "petType" : "CAT"
+                        "status" : "ACTIVE",
+                        "petType" : "DOG"
                       } ],
                       "page" : {
                         "number" : 0,
-                        "size" : 20,
-                        "totalElements" : 9,
+                        "size" : 10,
+                        "totalElements" : 2,
                         "totalPages" : 1,
                         "hasNext" : false,
                         "hasPrev" : false,
@@ -168,7 +119,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 134
+                        "id" : 106
                       }
                     }
       security:
@@ -196,8 +147,8 @@ paths:
                         "rating" : 5,
                         "content" : "관리자용",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-03T15:02:20",
-                        "updatedAt" : "2025-12-03T15:02:20"
+                        "createdAt" : "2025-12-04T15:15:15",
+                        "updatedAt" : "2025-12-04T15:15:15"
                       } ],
                       "page" : {
                         "number" : 0,
@@ -226,7 +177,7 @@ paths:
                   value: |-
                     {
                       "data" : [ {
-                        "id" : 245,
+                        "id" : 15,
                         "loginId" : "test1234",
                         "name" : "테스트",
                         "email" : "example123@gmail.com",
@@ -255,12 +206,12 @@ paths:
                     {
                       "data" : {
                         "tree" : {
-                          "rootIds" : [ "105", "107" ],
+                          "rootIds" : [ "1", "3" ],
                           "nodesById" : {
-                            "105" : {
-                              "id" : "105",
+                            "1" : {
+                              "id" : "1",
                               "label" : "루트",
-                              "childrenIds" : [ "106" ],
+                              "childrenIds" : [ "2" ],
                               "state" : {
                                 "opened" : true,
                                 "checked" : false
@@ -268,8 +219,8 @@ paths:
                               "keywords" : "루트",
                               "sortOrder" : 1
                             },
-                            "107" : {
-                              "id" : "107",
+                            "3" : {
+                              "id" : "3",
                               "label" : "다른 루트",
                               "childrenIds" : [ ],
                               "state" : {
@@ -279,10 +230,10 @@ paths:
                               "keywords" : "다른 루트",
                               "sortOrder" : 2
                             },
-                            "106" : {
-                              "id" : "106",
+                            "2" : {
+                              "id" : "2",
                               "label" : "자식",
-                              "parentId" : "105",
+                              "parentId" : "1",
                               "childrenIds" : [ ],
                               "state" : {
                                 "opened" : false,
@@ -320,7 +271,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 111,
+                        "id" : 7,
                         "name" : "상세 카테고리",
                         "parentId" : null,
                         "depth" : 1,
@@ -351,7 +302,7 @@ paths:
                 value: |-
                   {
                     "name" : "수정된 이름",
-                    "parentId" : 109,
+                    "parentId" : 5,
                     "sortOrder" : 3,
                     "status" : "INACTIVE",
                     "petType" : "DOG"
@@ -367,9 +318,9 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 110,
+                        "id" : 6,
                         "name" : "수정된 이름",
-                        "parentId" : 109,
+                        "parentId" : 5,
                         "depth" : 2,
                         "sortOrder" : 3,
                         "status" : "INACTIVE",
@@ -480,7 +431,7 @@ paths:
                         "trackingNumber" : "TRACK123",
                         "courierCode" : "CJ",
                         "status" : "PENDING",
-                        "createdAt" : "2025-12-03T15:02:19.01939"
+                        "createdAt" : "2025-12-04T15:15:14.032247"
                       } ],
                       "page" : {
                         "number" : 0,
@@ -492,6 +443,32 @@ paths:
                         "sort" : [ ]
                       }
                     }
+      security:
+      - bearerAuthJWT: []
+  /admin/products/sold-out:
+    post:
+      tags: [Admin-Product]
+      summary: 상품 일괄 품절 처리
+      description: 관리자 상품 일괄 품절 처리 API
+      operationId: admin-products-bulk-soldout
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/BulkSoldOut'}
+            examples:
+              admin-products-bulk-soldout:
+                value: |-
+                  {
+                    "productIds" : [ 97, 98 ]
+                  }
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/admin-products-sold-out486549215'}
+              examples:
+                admin-products-bulk-soldout: {value: '{ }'}
       security:
       - bearerAuthJWT: []
   /admin/products/{id}:
@@ -517,7 +494,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 133,
+                        "id" : 105,
                         "name" : "상세 상품",
                         "description" : "상세 상품 설명",
                         "price" : 10000,
@@ -566,16 +543,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 130,
-                        "name" : "수정 후 상품",
-                        "description" : "수정된 설명",
-                        "price" : 20000,
-                        "availableQuantity" : 0,
-                        "reservedQuantity" : 0,
-                        "outboundProcessingQuantity" : 0,
-                        "status" : "DRAFT",
-                        "petType" : "DOG",
-                        "deleted" : false
+                        "id" : 101
                       }
                     }
       security:
@@ -609,7 +577,7 @@ paths:
         schema: {type: string}
       responses:
         '204': {description: '204'}
-  /admin/users/243:
+  /admin/users/13:
     delete:
       tags: [Admin-User]
       summary: 유저 삭제(관리자)
@@ -619,7 +587,7 @@ paths:
         '204': {description: '204'}
       security:
       - bearerAuthJWT: []
-  /admin/users/244:
+  /admin/users/14:
     patch:
       tags: [Admin-User]
       summary: 유저 정보 수정(관리자)
@@ -649,7 +617,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 244,
+                        "id" : 14,
                         "loginId" : "test1234",
                         "name" : "관리자수정이름",
                         "email" : "updated-admin@example.com",
@@ -660,7 +628,7 @@ paths:
                     }
       security:
       - bearerAuthJWT: []
-  /admin/users/246:
+  /admin/users/16:
     get:
       tags: [Admin-User]
       summary: 유저 단건 조회(관리자)
@@ -677,7 +645,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 246,
+                        "id" : 16,
                         "loginId" : "test1234",
                         "name" : "테스트",
                         "email" : "example123@gmail.com",
@@ -779,7 +747,7 @@ paths:
                         "status" : "PENDING",
                         "courierCode" : "TRACK123",
                         "trackingNumber" : "CJ",
-                        "createdAt" : "2025-12-03T15:02:19.001101"
+                        "createdAt" : "2025-12-04T15:15:14.012753"
                       }
                     }
       security:
@@ -807,18 +775,96 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 129,
-                        "name" : "활성화 대상",
-                        "description" : "활성화 대상 설명",
-                        "price" : 10000,
-                        "availableQuantity" : 5,
-                        "reservedQuantity" : 0,
-                        "outboundProcessingQuantity" : 0,
-                        "status" : "ACTIVE",
-                        "petType" : "DOG",
-                        "deleted" : false
+                        "id" : 100
                       }
                     }
+      security:
+      - bearerAuthJWT: []
+  /admin/products/{id}/in-activate:
+    post:
+      tags: [Admin-Product]
+      summary: 상품 비활성화
+      description: 관리자 상품 비활성화 API
+      operationId: admin-products-inactivate
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                admin-products-inactivate:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 99
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admin/products/{id}/toggle-sold-out:
+    post:
+      tags: [Admin-Product]
+      summary: 상품 품절 상태 토글
+      description: 관리자 상품 품절 상태 토글 API
+      operationId: admin-products-toggle-soldout
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                admin-products-toggle-soldout:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 96
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admin/users/11/init-password:
+    patch:
+      tags: [Admin-User]
+      summary: 회원 비밀번호 초기화(관리자)
+      description: 관리자가 특정 유저의 비밀번호를 임시 비밀번호로 초기화하는 API
+      operationId: admin-users-init-password
+      responses:
+        '204': {description: '204'}
+      security:
+      - bearerAuthJWT: []
+  /admin/users/12/change-password:
+    patch:
+      tags: [Admin-User]
+      summary: 회원 비밀번호 변경(관리자)
+      description: 관리자가 특정 유저의 비밀번호를 새 비밀번호로 변경하는 API
+      operationId: admin-users-change-password
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/AdminPasswordChange'}
+            examples:
+              admin-users-change-password:
+                value: |-
+                  {
+                    "newPassword" : "NewPassword123!",
+                    "newPasswordConfirm" : "NewPassword123!"
+                  }
+      responses:
+        '204': {description: '204'}
       security:
       - bearerAuthJWT: []
   /admin/users/242/in-activate:
@@ -877,7 +923,7 @@ paths:
                         "status" : "SHIPPING",
                         "courierCode" : "TRACK123",
                         "trackingNumber" : "CJ",
-                        "createdAt" : "2025-12-03T15:02:18.957673"
+                        "createdAt" : "2025-12-04T15:15:13.961199"
                       }
                     }
       security:
@@ -899,7 +945,7 @@ paths:
                   value: |-
                     {
                       "data" : [ {
-                        "id" : 236,
+                        "id" : 5,
                         "loginId" : "admin_login",
                         "name" : "테스트관리자",
                         "email" : "admin@test.com",
@@ -910,7 +956,7 @@ paths:
                     }
       security:
       - bearerAuthJWT: []
-  /admins/233:
+  /admins/2:
     delete:
       tags: [Admin]
       summary: 관리자 삭제
@@ -920,7 +966,7 @@ paths:
         '204': {description: '204'}
       security:
       - bearerAuthJWT: []
-  /admins/234:
+  /admins/3:
     patch:
       tags: [Admin]
       summary: 관리자 정보 수정
@@ -950,7 +996,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 234,
+                        "id" : 3,
                         "loginId" : "admin_login",
                         "name" : "수정된관리자이름",
                         "email" : "updated-admin@example.com",
@@ -961,7 +1007,7 @@ paths:
                     }
       security:
       - bearerAuthJWT: []
-  /admins/235:
+  /admins/4:
     get:
       tags: [Admin]
       summary: 관리자 단건 조회
@@ -978,7 +1024,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 235,
+                        "id" : 4,
                         "loginId" : "admin_login",
                         "name" : "테스트관리자",
                         "email" : "admin@test.com",
@@ -1017,9 +1063,19 @@ paths:
           description: '201'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/admins-signup486549215'}
+              schema: {$ref: '#/components/schemas/admin-products-sold-out486549215'}
               examples:
                 admin-signup: {value: '{ }'}
+      security:
+      - bearerAuthJWT: []
+  /admins/1/init-password:
+    patch:
+      tags: [Admin]
+      summary: 관리자 비밀번호 초기화
+      description: 관리자가 특정 관리자 계정의 비밀번호를 임시 비밀번호로 초기화하는 API
+      operationId: admin-admins-init-password
+      responses:
+        '204': {description: '204'}
       security:
       - bearerAuthJWT: []
   /auth/login:
@@ -1049,9 +1105,9 @@ paths:
                 auth-login:
                   value: |-
                     {
-                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyNDEiLCJpYXQiOjE3NjQ3NDE3MzYsImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE3NjQ3NDIwMzZ9.Ns2CyyHhCu5jQ9jGUwkFS0_JRK85_Ox7aJdyZe5FJzI",
+                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMCIsImlhdCI6MTc2NDgyODkxMSwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTc2NDgyOTIxMX0.n7-Malicx4iENZQTOoXHKTuslhcd9b3S_mBBc7mfxVs",
                       "tokenType" : "Bearer",
-                      "userId" : 241,
+                      "userId" : 10,
                       "loginId" : "idfortest123"
                     }
   /auth/reissue:
@@ -1068,7 +1124,7 @@ paths:
               auth-reissue:
                 value: |-
                   {
-                    "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyNDAiLCJpYXQiOjE3NjQ3NDE3MzYsImV4cCI6MTc2NDc4NDkzNn0.1j_w0-JY2zIzGD8cWVTpxn9QUlcuTkew89KkgYrDO2I"
+                    "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzY0ODI4OTExLCJleHAiOjE3NjQ4NzIxMTF9.JL6Rq8v7PWZ-VPNYDcNv_G4cJZZhkeue3ywuIMEKguo"
                   }
       responses:
         '200':
@@ -1080,9 +1136,9 @@ paths:
                 auth-reissue:
                   value: |-
                     {
-                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyNDAiLCJpYXQiOjE3NjQ3NDE3MzYsImF1dGgiOiJVU0VSIiwiZXhwIjoxNzY0NzQyMDM2fQ.Xh5XNQmNPEgM7j7uOB43OrFZDJbEw96g2plyXmL_yPM",
+                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzY0ODI4OTExLCJhdXRoIjoiVVNFUiIsImV4cCI6MTc2NDgyOTIxMX0.B6NfZSAAXMi7FGxVUZoUPU9D6zwh2K839YveNZFHz1I",
                       "grantType" : "Bearer",
-                      "userId" : 240
+                      "userId" : 9
                     }
   /categories/levels:
     get:
@@ -1104,7 +1160,7 @@ paths:
                         "levels" : [ {
                           "depth" : 1,
                           "categories" : [ {
-                            "id" : 113,
+                            "id" : 9,
                             "name" : "루트",
                             "parentId" : null,
                             "petType" : "DOG",
@@ -1113,15 +1169,15 @@ paths:
                         }, {
                           "depth" : 2,
                           "categories" : [ {
-                            "id" : 114,
+                            "id" : 10,
                             "name" : "자식1",
-                            "parentId" : 113,
+                            "parentId" : 9,
                             "petType" : "DOG",
                             "sortOrder" : 1
                           }, {
-                            "id" : 115,
+                            "id" : 11,
                             "name" : "자식2",
-                            "parentId" : 113,
+                            "parentId" : 9,
                             "petType" : "DOG",
                             "sortOrder" : 2
                           } ]
@@ -1170,7 +1226,7 @@ paths:
                         "status" : "PENDING",
                         "courierCode" : "TRACK123",
                         "trackingNumber" : "CJ",
-                        "createdAt" : "2025-12-03T15:02:19.710092"
+                        "createdAt" : "2025-12-04T15:15:14.698922"
                       }
                     }
       security:
@@ -1200,8 +1256,8 @@ paths:
                       "detailAddress" : "101호",
                       "isDefault" : true,
                       "isActive" : true,
-                      "createdAt" : "2025-12-03T15:02:19.633806",
-                      "updatedAt" : "2025-12-03T15:02:19.633811"
+                      "createdAt" : "2025-12-04T15:15:14.620133",
+                      "updatedAt" : "2025-12-04T15:15:14.620136"
                     }, {
                       "id" : 101,
                       "addressName" : "회사",
@@ -1212,8 +1268,8 @@ paths:
                       "detailAddress" : "101호",
                       "isDefault" : false,
                       "isActive" : true,
-                      "createdAt" : "2025-12-03T15:02:19.633813",
-                      "updatedAt" : "2025-12-03T15:02:19.633813"
+                      "createdAt" : "2025-12-04T15:15:14.620139",
+                      "updatedAt" : "2025-12-04T15:15:14.620139"
                     } ]
       security:
       - bearerAuthJWT: []
@@ -1257,8 +1313,8 @@ paths:
                       "detailAddress" : "101호",
                       "isDefault" : true,
                       "isActive" : true,
-                      "createdAt" : "2025-12-03T15:02:19.649183",
-                      "updatedAt" : "2025-12-03T15:02:19.649184"
+                      "createdAt" : "2025-12-04T15:15:14.636776",
+                      "updatedAt" : "2025-12-04T15:15:14.636778"
                     }
       security:
       - bearerAuthJWT: []
@@ -1308,8 +1364,8 @@ paths:
                       "detailAddress" : "101호",
                       "isDefault" : true,
                       "isActive" : true,
-                      "createdAt" : "2025-12-03T15:02:19.606595",
-                      "updatedAt" : "2025-12-03T15:02:19.606596"
+                      "createdAt" : "2025-12-04T15:15:14.593587",
+                      "updatedAt" : "2025-12-04T15:15:14.593591"
                     }
       security:
       - bearerAuthJWT: []
@@ -1355,7 +1411,7 @@ paths:
                         "courierCode" : "CJ",
                         "trackingNumber" : "TRACK123456",
                         "status" : "SHIPPING",
-                        "shippedAt" : "2025-12-03T15:02:19.674583",
+                        "shippedAt" : "2025-12-04T15:15:14.66308",
                         "deliveredAt" : null
                       }
                     }
@@ -1395,7 +1451,7 @@ paths:
                         "status" : "PENDING",
                         "courierCode" : "TRACK123",
                         "trackingNumber" : "CJ",
-                        "createdAt" : "2025-12-03T15:02:19.694779"
+                        "createdAt" : "2025-12-04T15:15:14.684978"
                       }
                     }
       security:
@@ -1417,14 +1473,14 @@ paths:
                   value: |-
                     {
                       "data" : [ {
-                        "id" : 136,
+                        "id" : 108,
                         "name" : "공개 상품1",
                         "price" : 5000,
                         "availableQuantity" : 10,
                         "status" : "ACTIVE",
                         "petType" : "DOG"
                       }, {
-                        "id" : 137,
+                        "id" : 109,
                         "name" : "공개 상품2",
                         "price" : 15000,
                         "availableQuantity" : 10,
@@ -1433,7 +1489,7 @@ paths:
                       } ],
                       "page" : {
                         "number" : 0,
-                        "size" : 20,
+                        "size" : 10,
                         "totalElements" : 2,
                         "totalPages" : 1,
                         "hasNext" : false,
@@ -1466,7 +1522,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 135,
+                        "id" : 107,
                         "name" : "상세용 공개 상품",
                         "description" : "공개 상품 설명",
                         "price" : 5000,
@@ -1503,8 +1559,8 @@ paths:
                         "rating" : 5,
                         "content" : "굿",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-03T15:02:20",
-                        "updatedAt" : "2025-12-03T15:02:20"
+                        "createdAt" : "2025-12-04T15:15:15",
+                        "updatedAt" : "2025-12-04T15:15:15"
                       } ],
                       "page" : {
                         "number" : 0,
@@ -1551,8 +1607,8 @@ paths:
                         "rating" : 5,
                         "content" : "좋아요",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-03T15:02:20",
-                        "updatedAt" : "2025-12-03T15:02:20"
+                        "createdAt" : "2025-12-04T15:15:15",
+                        "updatedAt" : "2025-12-04T15:15:15"
                       }
                     }
   /reviews/{reviewId}:
@@ -1596,8 +1652,8 @@ paths:
                         "rating" : 5,
                         "content" : "수정함",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-03T15:02:20",
-                        "updatedAt" : "2025-12-03T15:02:20"
+                        "createdAt" : "2025-12-04T15:15:15",
+                        "updatedAt" : "2025-12-04T15:15:15"
                       }
                     }
     delete:
@@ -1652,7 +1708,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 254,
+                        "id" : 24,
                         "loginId" : "test1234",
                         "name" : "테스트유저",
                         "email" : "example123@gmail.com",
@@ -1692,7 +1748,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 252,
+                        "id" : 22,
                         "loginId" : "test1234",
                         "name" : "수정된이름",
                         "email" : "updated@example.com",
@@ -1731,7 +1787,7 @@ paths:
           description: '201'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/admins-signup486549215'}
+              schema: {$ref: '#/components/schemas/admin-products-sold-out486549215'}
               examples:
                 user-signup: {value: '{ }'}
   /users/withdrawal:
@@ -1764,12 +1820,12 @@ paths:
                         "orderNumber" : "ORD-TEST-001",
                         "orderStatus" : "PENDING",
                         "totalPaymentAmount" : 10000,
-                        "createdAt" : "2025-12-03T15:02:21.020173"
+                        "createdAt" : "2025-12-04T15:15:16.49234"
                       }, {
                         "orderNumber" : "ORD-TEST-002",
                         "orderStatus" : "PENDING",
                         "totalPaymentAmount" : 20000,
-                        "createdAt" : "2025-12-03T15:02:21.022273"
+                        "createdAt" : "2025-12-04T15:15:16.495707"
                       } ]
                     }
       security:
@@ -1791,23 +1847,23 @@ paths:
                   value: |-
                     {
                       "data" : [ {
-                        "reviewId" : 146,
-                        "userId" : 247,
+                        "reviewId" : 2,
+                        "userId" : 17,
                         "productId" : 2,
                         "rating" : 4,
                         "content" : "무난하게 쓸만해요.",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-03T15:02:20",
-                        "updatedAt" : "2025-12-03T15:02:20"
+                        "createdAt" : "2025-12-04T15:15:16",
+                        "updatedAt" : "2025-12-04T15:15:16"
                       }, {
-                        "reviewId" : 145,
-                        "userId" : 247,
+                        "reviewId" : 1,
+                        "userId" : 17,
                         "productId" : 1,
                         "rating" : 5,
                         "content" : "아주 만족스러운 상품입니다.",
                         "reviewImageUrl" : "http://image-server/review1.png",
-                        "createdAt" : "2025-12-03T15:02:20",
-                        "updatedAt" : "2025-12-03T15:02:20"
+                        "createdAt" : "2025-12-04T15:15:16",
+                        "updatedAt" : "2025-12-04T15:15:16"
                       } ],
                       "page" : {
                         "number" : 0,
@@ -1850,7 +1906,7 @@ paths:
                           "mobile" : "010-1111-2222"
                         },
                         "orderProducts" : [ ],
-                        "createdAt" : "2025-12-03T15:02:20.922749"
+                        "createdAt" : "2025-12-04T15:15:16.398693"
                       }
                     }
       security:
@@ -1874,6 +1930,20 @@ components:
           description: data
         slice: {type: object, description: slice, nullable: true}
         page: {type: object, description: page, nullable: true}
+    BulkSoldOut:
+      title: BulkSoldOut
+      type: object
+      properties:
+        productIds:
+          type: array
+          description: productIds
+          nullable: true
+          items:
+            oneOf:
+            - {type: object}
+            - {type: boolean}
+            - {type: string}
+            - {type: number}
     TestPageResponse:
       title: TestPageResponse
       type: object
@@ -1924,6 +1994,12 @@ components:
         email: {type: string, description: email, nullable: true}
     Class: {title: Class, type: object}
     ListN: {title: ListN, type: object}
+    AdminPasswordChange:
+      title: AdminPasswordChange
+      type: object
+      properties:
+        newPasswordConfirm: {type: string, description: newPasswordConfirm, nullable: true}
+        newPassword: {type: string, description: newPassword, nullable: true}
     UpdateStatus:
       title: UpdateStatus
       type: object
@@ -1931,7 +2007,7 @@ components:
         trackingNumber: {type: string, description: trackingNumber, nullable: true}
         courierCode: {type: string, description: courierCode, nullable: true}
         status: {type: string, description: status, nullable: true}
-    admins-signup486549215: {type: object}
+    admin-products-sold-out486549215: {type: object}
     TokenReissueRequestDto:
       title: TokenReissueRequestDto
       type: object

@@ -9,6 +9,7 @@ public class ProductResponse {
 	public record Create(
 		Long id
 	) {}
+
 	public record Detail(
 		Long id,
 		String name,
@@ -54,6 +55,16 @@ public class ProductResponse {
 				product.getStatus(),
 				product.getPetType()
 			);
+		}
+	}
+
+	public record CommandResult(Long id) {
+		public static CommandResult from(Long id) {
+			return new CommandResult(id);
+		}
+
+		public static CommandResult from(Product product) {
+			return new CommandResult(product.getId());
 		}
 	}
 }

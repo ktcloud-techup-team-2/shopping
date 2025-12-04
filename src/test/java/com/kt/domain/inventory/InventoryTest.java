@@ -4,6 +4,7 @@ import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.domain.pet.PetType;
 import com.kt.domain.product.Product;
+
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,9 +14,7 @@ class InventoryTest {
 
 	@Test
 	void WMS_입고로_재고가_증가한다() {
-		Product product = Product.create("테스트", "설명", 10_000, PetType.DOG);
-		Inventory inventory = Inventory.initialize(product);
-
+		Inventory inventory = newInventoryWithProduct();
 		inventory.applyWmsInbound(5);
 
 		assertThat(inventory.getPhysicalStockTotal()).isEqualTo(5);
@@ -24,8 +23,7 @@ class InventoryTest {
 
 	@Test
 	void OMS_RESERVE는_가용재고를_차감한다() {
-		Product product = Product.create("테스트", "설명", 10_000, PetType.DOG);
-		Inventory inventory = Inventory.initialize(product);
+		Inventory inventory = newInventoryWithProduct();
 		inventory.applyWmsInbound(10);
 
 		inventory.applyOmsReserve(3);
@@ -36,8 +34,7 @@ class InventoryTest {
 
 	@Test
 	void OMS_COMMIT은_예약재고를_출고준비로_이동한다() {
-		Product product = Product.create("테스트", "설명", 10_000, PetType.DOG);
-		Inventory inventory = Inventory.initialize(product);
+		Inventory inventory = newInventoryWithProduct();
 		inventory.applyWmsInbound(10);
 		inventory.applyOmsReserve(4);
 
@@ -50,13 +47,17 @@ class InventoryTest {
 
 	@Test
 	void 예약보다_많이_커밋하면_예외가_발생한다() {
-		Product product = Product.create("테스트", "설명", 10_000, PetType.DOG);
-		Inventory inventory = Inventory.initialize(product);
+		Inventory inventory = newInventoryWithProduct();
 		inventory.applyWmsInbound(3);
 		inventory.applyOmsReserve(1);
 
 		assertThatThrownBy(() -> inventory.applyOmsCommit(2))
 			.isInstanceOf(CustomException.class)
 			.hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVENTORY_RESERVATION_NOT_FOUND);
+	}
+
+	private Inventory newInventoryWithProduct() {
+		Product product = Product.create("테스트", "설명", 10_000, PetType.DOG);
+		return Inventory.initialize(product);
 	}
 }
