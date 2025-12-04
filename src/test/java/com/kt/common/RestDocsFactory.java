@@ -16,6 +16,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
@@ -25,6 +27,8 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.payload.PayloadDocumentation;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 /**
  * RestDocs + restdocs-api-spec 연동을 위한 공통 팩토리 클래스
@@ -50,6 +54,44 @@ public class RestDocsFactory {
 			: "";
 
 		return buildRequest(url, content, method, pathParams);
+	}
+
+	/**
+	 * GET + QueryString 전용 요청 빌더
+	 * - dto 를 쿼리 파라미터로 변환해서 붙여줌
+	 * - Pageable 도 같이 받으면 page/size/sort 도 자동 추가
+	 */
+	public MockHttpServletRequestBuilder createParamRequest(
+		String url,
+		Object queryDto,                 // 검색 조건 DTO (ex. SearchCond)
+		Pageable pageable,              // PageRequest.of(...)
+		ObjectMapper objectMapper,
+		Object... pathParams
+	) {
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+		// 검색 조건 DTO → 쿼리 스트링
+		if (queryDto != null) {
+			params.addAll(
+				MultiValueMapConverter.convert(objectMapper, queryDto)
+			);
+		}
+
+		// 2) Pageable → page / size / sort
+		if (pageable != null) {
+			params.add("page", String.valueOf(pageable.getPageNumber()));
+			params.add("size", String.valueOf(pageable.getPageSize()));
+
+			pageable.getSort().forEach(order -> {
+				String sortParam = order.getProperty() + "," + order.getDirection().name();
+				params.add("sort", sortParam); // ex) sort=createdAt,DESC
+			});
+		}
+
+		// GET 요청 빌더 생성
+		return RestDocumentationRequestBuilders.get(url, pathParams)
+			.params(params)
+			.accept(MediaType.APPLICATION_JSON);
 	}
 
 	private MockHttpServletRequestBuilder buildRequest(
