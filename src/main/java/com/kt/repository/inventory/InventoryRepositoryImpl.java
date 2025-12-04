@@ -20,33 +20,33 @@ public class InventoryRepositoryImpl implements InventoryRepositoryCustom {
 		QInventory inventory = QInventory.inventory;
 		QProduct product = QProduct.product;
 
-		Inventory result = queryFactory.selectFrom(inventory)
+		Inventory result = queryFactory
+			.selectFrom(inventory)
 			.join(inventory.product, product).fetchJoin()
 			.where(product.id.eq(productId))
 			.fetchOne();
-		return Optional.ofNullable(result);
-	}
 
-	@Override
-	public Optional<Inventory> findByProductIdForUpdate(Long productId) {
-		QInventory inventory = QInventory.inventory;
-		QProduct product = QProduct.product;
-
-		Inventory result = queryFactory.selectFrom(inventory)
-			.join(inventory.product, product).fetchJoin()
-			.where(product.id.eq(productId))
-			.setLockMode(LockModeType.PESSIMISTIC_WRITE)
-			.fetchOne();
 		return Optional.ofNullable(result);
 	}
 
 	@Override
 	public long deleteByProductId(Long productId) {
 		QInventory inventory = QInventory.inventory;
+		QProduct product = QProduct.product;
+
+		Long inventoryId = queryFactory
+			.select(product.id)
+			.from(product)
+			.where(product.id.eq(productId))
+			.fetchOne();
+
+		if (inventoryId == null) {
+			return 0L;
+		}
 
 		return queryFactory
 			.delete(inventory)
-			.where(inventory.product.id.eq(productId))
+			.where(inventory.id.eq(inventoryId))
 			.execute();
 	}
 }

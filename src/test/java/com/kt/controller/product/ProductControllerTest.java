@@ -52,10 +52,10 @@ class ProductControllerTest extends AbstractRestDocsTest {
 			var docsResponse = ApiResponse.ofPage(summaries, toPageBlock(page));
 
 			mockMvc.perform(
-					restDocsFactory.createRequest(
+					restDocsFactory.createParamRequest(
 						DEFAULT_URL,
 						null,
-						HttpMethod.GET,
+						pageable,
 						objectMapper
 					).with(jwtUser())
 				)
@@ -120,7 +120,6 @@ class ProductControllerTest extends AbstractRestDocsTest {
 
 	private Product createActiveProduct(String name, String description, int price, PetType petType) {
 		Product product = productRepository.save(Product.create(name, description, price, petType));
-
 		Inventory inventory = Inventory.initialize(product);
 		inventory.applyWmsInbound(10);
 		inventoryRepository.save(inventory);

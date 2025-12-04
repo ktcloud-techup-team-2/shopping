@@ -3,6 +3,7 @@ package com.kt.dto.product;
 import java.util.List;
 
 import com.kt.domain.pet.PetType;
+import com.kt.domain.product.ProductStatus;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -43,5 +44,10 @@ public class ProductRequest {
 	public record BulkSoldOut(
 			@NotEmpty(message = "품절 처리할 상품을 한 개 이상 선택해주세요.")
 			List<Long> productIds
+	) {}
+	public record SearchCond(
+		String name,
+		PetType petType,
+		ProductStatus status
 	) {}
 }
