@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.kt.domain.pet.PetType;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -161,7 +162,7 @@ class AdminReviewControllerTest extends AbstractRestDocsTest {
 	}
 
 	private Product createProduct() {
-		Product product = Product.create("테스트 상품", "설명", 10000);
+		Product product = Product.create("테스트 상품", "설명", 10000, PetType.DOG);
 		return productRepository.save(product);
 	}
 

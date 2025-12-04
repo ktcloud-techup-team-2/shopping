@@ -7,6 +7,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 
+import com.kt.domain.pet.PetType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -198,7 +199,7 @@ class ReviewControllerTest extends AbstractRestDocsTest {
 							objectMapper,
 							reviewId
 						)
-						.with(jwtUser())
+						.with(jwtUser(user.getId()))
 						.with(csrf())
 				)
 				.andExpect(status().isNoContent())
@@ -246,7 +247,7 @@ class ReviewControllerTest extends AbstractRestDocsTest {
 	}
 
 	private Product createProduct() {
-		Product product = Product.create("테스트 상품", "설명", 10000);
+		Product product = Product.create("테스트 상품", "설명", 10000, PetType.DOG);
 		return productRepository.save(product);
 	}
 
