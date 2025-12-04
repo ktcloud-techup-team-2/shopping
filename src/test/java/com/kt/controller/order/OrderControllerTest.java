@@ -8,6 +8,7 @@ import com.kt.domain.delivery.DeliveryAddress;
 import com.kt.domain.inventory.Inventory;
 import com.kt.domain.order.Order;
 import com.kt.domain.order.Receiver;
+import com.kt.domain.pet.PetType;
 import com.kt.domain.product.Product;
 import com.kt.dto.order.OrderRequest;
 import com.kt.repository.delivery.DeliveryAddressRepository;
@@ -183,7 +184,7 @@ class OrderControllerTest extends AbstractRestDocsTest {
 
 
 	private Product createProduct(String name, String description, int price) {
-		Product product = productRepository.save(Product.create(name, description, price));
+		Product product = productRepository.save(Product.create(name, description, price, PetType.DOG));
 
 		Inventory inventory = Inventory.initialize(product);
 		inventory.applyWmsInbound(100);
