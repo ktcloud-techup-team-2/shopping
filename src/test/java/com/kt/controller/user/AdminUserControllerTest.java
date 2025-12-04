@@ -6,6 +6,7 @@ import com.kt.domain.user.Gender;
 import com.kt.domain.user.User;
 import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
+import com.kt.repository.pet.PetRepository;
 import com.kt.repository.user.UserRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,10 +41,14 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private PetRepository petRepository;
+
     private Long userId;
 
     @BeforeEach
     void setUp() {
+        petRepository.deleteAll();
         userRepository.deleteAll();
 
         User user = User.admin(
