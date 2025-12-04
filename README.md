@@ -94,15 +94,16 @@
 - IntelliJ idea
 - GitHub Issues/Projects, Discord, Notion
 
-## 🗂️ ERD 설계
-
-<img width="500" height="380" alt="Image" src="https://github.com/user-attachments/assets/8fddd09b-dd7e-4f4d-b188-ac03913a92d3" />
 
 ## 📋 기술 문서
 
-### 기능 명세서 
+### 기능 명세서
+- 👉 [기능 명세서 바로가기](https://www.notion.so/2b19e3e335cc80559376eb258e41ec66)
 
-- https://www.notion.so/2b19e3e335cc80559376eb258e41ec66?source=copy_link
+### 🗂️ ERD 설계
+- 🗺️ [ERD 다이어그램 보기](https://viewer.diagrams.net/?lightbox=1&highlight=0000ff&edit=_blank&nav=1&title=ktcloud%20기본프로젝트.drawio&dark=0#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D1rVuv7FRPRN-jVVisDjKKiBD82lHEGVdv%26export%3Ddownload)
+
+
 ## 📷 시연 영상
 
 
