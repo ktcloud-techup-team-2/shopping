@@ -1,15 +1,16 @@
 package com.kt.domain.product;
 
+import static com.kt.common.Preconditions.*;
+
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.common.jpa.BaseSoftDeleteEntity;
+import com.kt.domain.pet.PetType;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import static com.kt.common.Preconditions.validate;
 
 import org.apache.logging.log4j.util.Strings;
 
@@ -32,35 +33,44 @@ public class Product extends BaseSoftDeleteEntity {
 	@Column(nullable = false, length = 20)
 	private ProductStatus status;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 20)
+	private PetType petType;
+
 	private Product(
 		String name,
 		String description,
-		int price
+		int price,
+		PetType petType
 	) {
 		this.name = validateName(name);
 		this.description = description;
 		this.price = validatePrice(price);
 		// 최초 등록시 항상 DRAFT(임시 저장)
 		this.status = ProductStatus.DRAFT;
+		this.petType = validatePetType(petType);
 	}
 
 	public static Product create(
 		String name,
 		String description,
-		int price
+		int price,
+		PetType petType
 	) {
-		return new Product(name, description, price);
+		return new Product(name, description, price, petType);
 	}
 
 	public void update(
 		String name,
 		String description,
-		int price
+		int price,
+		PetType petType
 	) {
 		assertNotDeleted();
 		this.name = validateName(name);
 		this.description = description;
 		this.price = validatePrice(price);
+		this.petType = validatePetType(petType);
 	}
 
 	public void activate() {
@@ -105,6 +115,11 @@ public class Product extends BaseSoftDeleteEntity {
 	private int validatePrice(int price) {
 		validate(price >= 0, ErrorCode.PRODUCT_PRICE_BELOW_MINIMUM);
 		return price;
+	}
+
+	private PetType validatePetType(PetType petType) {
+		nullValidate(petType, ErrorCode.COMMON_VALIDATION_FAILED);
+		return petType;
 	}
 
 	private void changeStatus(ProductStatus target) {

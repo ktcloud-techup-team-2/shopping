@@ -1,61 +1,60 @@
 package com.kt.controller.delivery;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import java.util.List;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
 import com.kt.common.api.ApiResponse;
+import com.kt.common.api.CustomException;
+import com.kt.common.api.ErrorCode;
+import com.kt.domain.delivery.Courier;
 import com.kt.dto.delivery.CourierRequest;
 import com.kt.dto.delivery.CourierResponse;
-import com.kt.service.delivery.CourierService;
+import com.kt.repository.delivery.CourierRepository;
 
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Transactional
 class AdminCourierControllerTest extends AbstractRestDocsTest {
 
-	private static final String BASE_URL = "/admin/delivery/couriers";
+	private static final String DEFAULT_URL = "/admin/delivery/couriers";
 
 	@Autowired
 	private RestDocsFactory restDocsFactory;
 
-	@MockitoBean
-	private CourierService courierService;
+	@Autowired
+	private CourierRepository courierRepository;
 
 	@Nested
-	@DisplayName("택배사 등록 API")
-	class CreateCourier {
+	class 택배사_등록_API {
 		@Test
 		void 성공() throws Exception {
 			// given
 			var request = new CourierRequest.Create("CJ", "CJ대한통운");
-			var realResponse = new CourierResponse(1L, "CJ", "CJ대한통운", true);
-
-			given(courierService.createCourier(any())).willReturn(realResponse);
-
-			// Shadow DTO (문서화용)
-			var docsResponse = ApiResponse.of(TestCourierResponse.from(realResponse));
-
 
 			// when & then
 			mockMvc.perform(
 					restDocsFactory.createRequest(
-						BASE_URL,
+						DEFAULT_URL,
 						request,
 						HttpMethod.POST,
 						objectMapper
 					).with(jwtAdmin())
 				)
 				.andExpect(status().isCreated())
-				.andDo(
+				.andDo(result -> {
+
+					var savedCourier = courierRepository.findByCode(request.code()).orElseThrow(
+						() -> new CustomException(ErrorCode.COURIER_NOT_FOUND)
+					);
+					var docsResponse = ApiResponse.of(CourierResponse.from(savedCourier));
+
 					restDocsFactory.success(
 						"admin-courier-create",
 						"택배사 등록",
@@ -63,30 +62,30 @@ class AdminCourierControllerTest extends AbstractRestDocsTest {
 						"Admin-Courier",
 						request,
 						docsResponse
-					)
+					).handle(result);
+					}
 				);
 		}
 	}
 
 	@Nested
-	@DisplayName("택배사 목록 조회 API")
-	class GetCourierList {
+	class 택배사_목록_조회_API {
 		@Test
 		void 성공() throws Exception {
 			// given
-			var list = List.of(
-				new CourierResponse(1L, "CJ", "CJ대한통운", true),
-				new CourierResponse(2L, "POST", "우체국", true)
-			);
+			Courier courier1 = createCourier("CJ", "CJ대한통운");
+			Courier courier2 = createCourier("POST", "우체국");
 
-			given(courierService.getCourierList()).willReturn(list);
-
-			var docsResponse = list.stream().map(TestCourierResponse::from).toList();
+			List<Courier> courierList = List.of(courier1, courier2);
+			var docsResponse = courierList.stream()
+				.map(CourierResponse::from)
+				.toList();
+			var finalDocsResponse = ApiResponse.of(docsResponse);
 
 			// when & then
 			mockMvc.perform(
 					restDocsFactory.createRequest(
-						BASE_URL,
+						DEFAULT_URL,
 						null,
 						HttpMethod.GET,
 						objectMapper
@@ -100,30 +99,25 @@ class AdminCourierControllerTest extends AbstractRestDocsTest {
 						"전체 택배사 목록을 조회합니다.",
 						"Admin-Courier",
 						null,
-						docsResponse
+						finalDocsResponse
 					)
 				);
 		}
 	}
 
 	@Nested
-	@DisplayName("택배사 수정 API")
-	class UpdateCourier {
+	class 택배사_수정_API {
 		@Test
 		void 성공() throws Exception {
 			// given
-			Long courierId = 1L;
-			var request = new CourierRequest.Update("CJ GLS", false);
-			var realResponse = new CourierResponse(1L, "CJ", "CJ GLS", false);
+			Courier courier = createCourier("OLD", "수정 전 이름");
+			Long courierId = courier.getId();
 
-			given(courierService.updateCourier(eq(courierId), any())).willReturn(realResponse);
+			var request = new CourierRequest.Update("CJ GLS (수정됨)", false);
 
-			var docsResponse = ApiResponse.of(TestCourierResponse.from(realResponse));
-
-			// when & then
 			mockMvc.perform(
 					restDocsFactory.createRequest(
-						BASE_URL + "/{courierId}",
+						DEFAULT_URL + "/{courierId}",
 						request,
 						HttpMethod.PUT,
 						objectMapper,
@@ -131,7 +125,10 @@ class AdminCourierControllerTest extends AbstractRestDocsTest {
 					).with(jwtAdmin())
 				)
 				.andExpect(status().isOk())
-				.andDo(
+				.andDo(result -> {
+					var updatedCourier = courierRepository.findById(courierId).orElseThrow();
+					var docsResponse = ApiResponse.of(CourierResponse.from(updatedCourier));
+
 					restDocsFactory.success(
 						"admin-courier-update",
 						"택배사 수정",
@@ -139,31 +136,30 @@ class AdminCourierControllerTest extends AbstractRestDocsTest {
 						"Admin-Courier",
 						request,
 						docsResponse
-					)
-				);
+					).handle(result);
+				});
 		}
 	}
 
 	@Nested
-	@DisplayName("택배사 삭제 API")
-	class DeleteCourier {
+	class 택배사_삭제_API {
 		@Test
 		void 성공() throws Exception {
 			// given
-			Long courierId = 1L;
-			willDoNothing().given(courierService).deleteCourier(courierId);
+			Courier courier = createCourier("DELETE", "삭제 대상");
+			Long courierId = courier.getId();
 
 			// when & then
 			mockMvc.perform(
 					restDocsFactory.createRequest(
-						BASE_URL + "/{courierId}",
+						DEFAULT_URL + "/{courierId}",
 						null,
 						HttpMethod.DELETE,
 						objectMapper,
 						courierId
 					).with(jwtAdmin())
 				)
-				.andExpect(status().isNoContent()) // 204
+				.andExpect(status().isNoContent())
 				.andDo(
 					restDocsFactory.success(
 						"admin-courier-delete",
@@ -177,22 +173,8 @@ class AdminCourierControllerTest extends AbstractRestDocsTest {
 		}
 	}
 
-	// --- Shadow DTO (RestDocsFactory StackOverflow 방지용) ---
-	// CourierResponse에는 날짜 필드가 없지만,
-	// 혹시 모를 엔티티 확장(BaseTimeEntity)을 고려해 Shadow DTO 패턴을 유지하는 것이 안전합니다.
-	static class TestCourierResponse {
-		Long id;
-		String code;
-		String name;
-		Boolean isActive;
-
-		static TestCourierResponse from(CourierResponse real) {
-			TestCourierResponse dto = new TestCourierResponse();
-			dto.id = real.id();
-			dto.code = real.code();
-			dto.name = real.name();
-			dto.isActive = real.isActive();
-			return dto;
-		}
+	private Courier createCourier(String code, String name) {
+		Courier courier = Courier.create(code, name);
+		return courierRepository.save(courier);
 	}
 }

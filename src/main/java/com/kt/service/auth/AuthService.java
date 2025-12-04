@@ -35,7 +35,7 @@ public class AuthService {
     private final RedisTemplate<String, String> redisTemplate;
 
     public LoginResponse login(LoginRequest loginRequest) {
-        User user = userRepository.findByLoginId(loginRequest.loginId())
+        User user = userRepository.findByLoginIdAndDeletedAtIsNull(loginRequest.loginId())
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
 
         if(!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
@@ -80,7 +80,7 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRole().name()));
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_"+user.getRole().name()));
         Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null, authorities);
 
         TokenRequestDto tokenDto = tokenProvider.generateToken(authentication, userId);

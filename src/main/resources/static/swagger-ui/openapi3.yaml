@@ -4,7 +4,91 @@ servers:
 - {url: 'http://localhost:8080'}
 tags: []
 paths:
+  /admin/categories:
+    post:
+      tags: [Admin-Category]
+      summary: 카테고리 등록
+      description: 관리자 카테고리 생성 API
+      operationId: admin-categories-create
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/Create'}
+            examples:
+              admin-categories-create:
+                value: |-
+                  {
+                    "name" : "신규 카테고리",
+                    "parentId" : null,
+                    "sortOrder" : 0,
+                    "status" : "ACTIVE",
+                    "petType" : "DOG"
+                  }
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                admin-categories-create:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 8,
+                        "name" : "신규 카테고리",
+                        "parentId" : null,
+                        "depth" : 1,
+                        "sortOrder" : 0,
+                        "status" : "ACTIVE",
+                        "petType" : "DOG"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
   /admin/products:
+    get:
+      tags: [Admin-Product]
+      summary: 상품 리스트 조회
+      description: 관리자 상품 리스트 조회 API
+      operationId: admin-products-list
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                admin-products-list:
+                  value: |-
+                    {
+                      "data" : [ {
+                        "id" : 102,
+                        "name" : "리스트 상품1",
+                        "price" : 10000,
+                        "availableQuantity" : 0,
+                        "status" : "ACTIVE",
+                        "petType" : "DOG"
+                      }, {
+                        "id" : 103,
+                        "name" : "리스트 상품2",
+                        "price" : 20000,
+                        "availableQuantity" : 0,
+                        "status" : "ACTIVE",
+                        "petType" : "DOG"
+                      } ],
+                      "page" : {
+                        "number" : 0,
+                        "size" : 10,
+                        "totalElements" : 2,
+                        "totalPages" : 1,
+                        "hasNext" : false,
+                        "hasPrev" : false,
+                        "sort" : [ ]
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
     post:
       tags: [Admin-Product]
       summary: 상품 등록
@@ -21,7 +105,8 @@ paths:
                     "name" : "테스트 상품명",
                     "description" : "테스트 상품 설명",
                     "price" : 10000,
-                    "stockQuantity" : 10
+                    "petType" : "DOG",
+                    "activateImmediately" : false
                   }
       responses:
         '201':
@@ -34,7 +119,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 1
+                        "id" : 106
                       }
                     }
       security:
@@ -62,8 +147,8 @@ paths:
                         "rating" : 5,
                         "content" : "관리자용",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-01T17:40:22",
-                        "updatedAt" : "2025-12-01T17:40:22"
+                        "createdAt" : "2025-12-04T15:15:15",
+                        "updatedAt" : "2025-12-04T15:15:15"
                       } ],
                       "page" : {
                         "number" : 0,
@@ -75,6 +160,190 @@ paths:
                         "sort" : [ ]
                       }
                     }
+  /admin/users:
+    get:
+      tags: [Admin-User]
+      summary: 유저 목록 조회(관리자)
+      description: 관리자가 전체 유저 목록을 조회하는 API
+      operationId: admin-users-get-list
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                admin-users-get-list:
+                  value: |-
+                    {
+                      "data" : [ {
+                        "id" : 15,
+                        "loginId" : "test1234",
+                        "name" : "테스트",
+                        "email" : "example123@gmail.com",
+                        "phone" : "010-1234-5678",
+                        "gender" : "FEMALE",
+                        "birthday" : "2002-08-09"
+                      } ]
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admin/categories/tree:
+    get:
+      tags: [Admin-Category]
+      summary: 카테고리 트리 조회
+      description: 관리자 카테고리 트리 조회 API
+      operationId: admin-categories-tree
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                admin-categories-tree:
+                  value: |-
+                    {
+                      "data" : {
+                        "tree" : {
+                          "rootIds" : [ "1", "3" ],
+                          "nodesById" : {
+                            "1" : {
+                              "id" : "1",
+                              "label" : "루트",
+                              "childrenIds" : [ "2" ],
+                              "state" : {
+                                "opened" : true,
+                                "checked" : false
+                              },
+                              "keywords" : "루트",
+                              "sortOrder" : 1
+                            },
+                            "3" : {
+                              "id" : "3",
+                              "label" : "다른 루트",
+                              "childrenIds" : [ ],
+                              "state" : {
+                                "opened" : false,
+                                "checked" : false
+                              },
+                              "keywords" : "다른 루트",
+                              "sortOrder" : 2
+                            },
+                            "2" : {
+                              "id" : "2",
+                              "label" : "자식",
+                              "parentId" : "1",
+                              "childrenIds" : [ ],
+                              "state" : {
+                                "opened" : false,
+                                "checked" : false
+                              },
+                              "keywords" : "자식",
+                              "sortOrder" : 1
+                            }
+                          }
+                        }
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admin/categories/{id}:
+    get:
+      tags: [Admin-Category]
+      summary: 카테고리 상세 조회
+      description: 관리자 카테고리 상세 조회 API
+      operationId: admin-categories-detail
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                admin-categories-detail:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 7,
+                        "name" : "상세 카테고리",
+                        "parentId" : null,
+                        "depth" : 1,
+                        "sortOrder" : 1,
+                        "status" : "ACTIVE",
+                        "petType" : "CAT"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+    put:
+      tags: [Admin-Category]
+      summary: 카테고리 수정
+      description: 관리자 카테고리 수정 API
+      operationId: admin-categories-update
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/Update'}
+            examples:
+              admin-categories-update:
+                value: |-
+                  {
+                    "name" : "수정된 이름",
+                    "parentId" : 5,
+                    "sortOrder" : 3,
+                    "status" : "INACTIVE",
+                    "petType" : "DOG"
+                  }
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                admin-categories-update:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 6,
+                        "name" : "수정된 이름",
+                        "parentId" : 5,
+                        "depth" : 2,
+                        "sortOrder" : 3,
+                        "status" : "INACTIVE",
+                        "petType" : "DOG"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+    delete:
+      tags: [Admin-Category]
+      summary: 카테고리 삭제
+      description: 관리자 카테고리 삭제 API
+      operationId: admin-categories-delete
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '204': {description: '204'}
+      security:
+      - bearerAuthJWT: []
   /admin/delivery/couriers:
     get:
       tags: [Admin-Courier]
@@ -162,7 +431,7 @@ paths:
                         "trackingNumber" : "TRACK123",
                         "courierCode" : "CJ",
                         "status" : "PENDING",
-                        "createdAt" : "2025-12-01T17:40:13.818023"
+                        "createdAt" : "2025-12-04T15:15:14.032247"
                       } ],
                       "page" : {
                         "number" : 0,
@@ -174,6 +443,124 @@ paths:
                         "sort" : [ ]
                       }
                     }
+      security:
+      - bearerAuthJWT: []
+  /admin/products/sold-out:
+    post:
+      tags: [Admin-Product]
+      summary: 상품 일괄 품절 처리
+      description: 관리자 상품 일괄 품절 처리 API
+      operationId: admin-products-bulk-soldout
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/BulkSoldOut'}
+            examples:
+              admin-products-bulk-soldout:
+                value: |-
+                  {
+                    "productIds" : [ 97, 98 ]
+                  }
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/admin-products-sold-out486549215'}
+              examples:
+                admin-products-bulk-soldout: {value: '{ }'}
+      security:
+      - bearerAuthJWT: []
+  /admin/products/{id}:
+    get:
+      tags: [Admin-Product]
+      summary: 상품 상세 조회
+      description: 관리자 상품 상세 조회 API
+      operationId: admin-products-detail
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                admin-products-detail:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 105,
+                        "name" : "상세 상품",
+                        "description" : "상세 상품 설명",
+                        "price" : 10000,
+                        "availableQuantity" : 0,
+                        "reservedQuantity" : 0,
+                        "outboundProcessingQuantity" : 0,
+                        "status" : "DRAFT",
+                        "petType" : "DOG",
+                        "deleted" : false
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+    put:
+      tags: [Admin-Product]
+      summary: 상품 수정
+      description: 관리자 상품 수정 API
+      operationId: admin-products-update
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/Update'}
+            examples:
+              admin-products-update:
+                value: |-
+                  {
+                    "name" : "수정 후 상품",
+                    "description" : "수정된 설명",
+                    "price" : 20000,
+                    "petType" : "DOG"
+                  }
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                admin-products-update:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 101
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+    delete:
+      tags: [Admin-Product]
+      summary: 상품 삭제
+      description: 관리자 상품 삭제 API
+      operationId: admin-products-delete
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '204': {description: '204'}
       security:
       - bearerAuthJWT: []
   /admin/reviews/{reviewId}:
@@ -190,6 +577,85 @@ paths:
         schema: {type: string}
       responses:
         '204': {description: '204'}
+  /admin/users/13:
+    delete:
+      tags: [Admin-User]
+      summary: 유저 삭제(관리자)
+      description: 관리자가 특정 유저를 탈퇴(soft delete) 처리하는 API
+      operationId: admin-users-delete
+      responses:
+        '204': {description: '204'}
+      security:
+      - bearerAuthJWT: []
+  /admin/users/14:
+    patch:
+      tags: [Admin-User]
+      summary: 유저 정보 수정(관리자)
+      description: 관리자가 특정 유저의 정보를 수정하는 API
+      operationId: admin-users-update
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/Update'}
+            examples:
+              admin-users-update:
+                value: |-
+                  {
+                    "name" : "관리자수정이름",
+                    "email" : "updated-admin@example.com",
+                    "phone" : "010-9999-8888",
+                    "birthday" : "1995-05-05"
+                  }
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                admin-users-update:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 14,
+                        "loginId" : "test1234",
+                        "name" : "관리자수정이름",
+                        "email" : "updated-admin@example.com",
+                        "phone" : "010-9999-8888",
+                        "gender" : "FEMALE",
+                        "birthday" : "1995-05-05"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admin/users/16:
+    get:
+      tags: [Admin-User]
+      summary: 유저 단건 조회(관리자)
+      description: 관리자가 특정 유저의 정보를 조회하는 API
+      operationId: admin-users-get-one
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                admin-users-get-one:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 16,
+                        "loginId" : "test1234",
+                        "name" : "테스트",
+                        "email" : "example123@gmail.com",
+                        "phone" : "010-1234-5678",
+                        "gender" : "FEMALE",
+                        "birthday" : "2002-08-09"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
   /admin/delivery/couriers/{courierId}:
     put:
       tags: [Admin-Courier]
@@ -281,9 +747,134 @@ paths:
                         "status" : "PENDING",
                         "courierCode" : "TRACK123",
                         "trackingNumber" : "CJ",
-                        "createdAt" : "2025-12-01T17:40:13.793031"
+                        "createdAt" : "2025-12-04T15:15:14.012753"
                       }
                     }
+      security:
+      - bearerAuthJWT: []
+  /admin/products/{id}/activate:
+    post:
+      tags: [Admin-Product]
+      summary: 상품 활성화
+      description: 관리자 상품 활성화 API
+      operationId: admin-products-activate
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                admin-products-activate:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 100
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admin/products/{id}/in-activate:
+    post:
+      tags: [Admin-Product]
+      summary: 상품 비활성화
+      description: 관리자 상품 비활성화 API
+      operationId: admin-products-inactivate
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                admin-products-inactivate:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 99
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admin/products/{id}/toggle-sold-out:
+    post:
+      tags: [Admin-Product]
+      summary: 상품 품절 상태 토글
+      description: 관리자 상품 품절 상태 토글 API
+      operationId: admin-products-toggle-soldout
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                admin-products-toggle-soldout:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 96
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admin/users/11/init-password:
+    patch:
+      tags: [Admin-User]
+      summary: 회원 비밀번호 초기화(관리자)
+      description: 관리자가 특정 유저의 비밀번호를 임시 비밀번호로 초기화하는 API
+      operationId: admin-users-init-password
+      responses:
+        '204': {description: '204'}
+      security:
+      - bearerAuthJWT: []
+  /admin/users/12/change-password:
+    patch:
+      tags: [Admin-User]
+      summary: 회원 비밀번호 변경(관리자)
+      description: 관리자가 특정 유저의 비밀번호를 새 비밀번호로 변경하는 API
+      operationId: admin-users-change-password
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/AdminPasswordChange'}
+            examples:
+              admin-users-change-password:
+                value: |-
+                  {
+                    "newPassword" : "NewPassword123!",
+                    "newPasswordConfirm" : "NewPassword123!"
+                  }
+      responses:
+        '204': {description: '204'}
+      security:
+      - bearerAuthJWT: []
+  /admin/users/242/in-activate:
+    patch:
+      tags: [Admin-user]
+      summary: 유저 비활성화 (관리자)
+      description: 관리자가 특정 유저를 비활성화하는 API
+      operationId: admin-users-inactivate
+      responses:
+        '204': {description: '204'}
       security:
       - bearerAuthJWT: []
   /admin/delivery/orders/{deliveryId}/status:
@@ -332,7 +923,265 @@ paths:
                         "status" : "SHIPPING",
                         "courierCode" : "TRACK123",
                         "trackingNumber" : "CJ",
-                        "createdAt" : "2025-12-01T17:40:13.28737"
+                        "createdAt" : "2025-12-04T15:15:13.961199"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admins:
+    get:
+      tags: [Admin]
+      summary: 관리자 목록 조회
+      description: 관리자가 전체 관리자 목록을 조회하는 API
+      operationId: admin-admins-get-list
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                admin-admins-get-list:
+                  value: |-
+                    {
+                      "data" : [ {
+                        "id" : 5,
+                        "loginId" : "admin_login",
+                        "name" : "테스트관리자",
+                        "email" : "admin@test.com",
+                        "phone" : "010-9999-9999",
+                        "gender" : "FEMALE",
+                        "birthday" : "1990-01-01"
+                      } ]
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admins/2:
+    delete:
+      tags: [Admin]
+      summary: 관리자 삭제
+      description: 관리자가 특정 관리자 계정을 삭제(soft delete)하는 API
+      operationId: admin-admins-delete
+      responses:
+        '204': {description: '204'}
+      security:
+      - bearerAuthJWT: []
+  /admins/3:
+    patch:
+      tags: [Admin]
+      summary: 관리자 정보 수정
+      description: 관리자가 특정 관리자 정보를 수정하는 API
+      operationId: admin-admins-update
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/Update'}
+            examples:
+              admin-admins-update:
+                value: |-
+                  {
+                    "name" : "수정된관리자이름",
+                    "email" : "updated-admin@example.com",
+                    "phone" : "010-8888-7777",
+                    "birthday" : "1995-05-05"
+                  }
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                admin-admins-update:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 3,
+                        "loginId" : "admin_login",
+                        "name" : "수정된관리자이름",
+                        "email" : "updated-admin@example.com",
+                        "phone" : "010-8888-7777",
+                        "gender" : "FEMALE",
+                        "birthday" : "1995-05-05"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admins/4:
+    get:
+      tags: [Admin]
+      summary: 관리자 단건 조회
+      description: 관리자가 특정 관리자 정보를 조회하는 API
+      operationId: admin-admins-get-one
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                admin-admins-get-one:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 4,
+                        "loginId" : "admin_login",
+                        "name" : "테스트관리자",
+                        "email" : "admin@test.com",
+                        "phone" : "010-9999-9999",
+                        "gender" : "FEMALE",
+                        "birthday" : "1990-01-01"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admins/signup:
+    post:
+      tags: [Admin]
+      summary: 관리자 회원가입
+      description: 관리자 계정을 신규로 생성하는 API
+      operationId: admin-signup
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/Create'}
+            examples:
+              admin-signup:
+                value: |-
+                  {
+                    "loginId" : "adminTest123",
+                    "password" : "PasswordTest123!",
+                    "passwordConfirm" : "PasswordTest123!",
+                    "name" : "AdminName",
+                    "email" : "admin@example.com",
+                    "phone" : "010-1111-2222",
+                    "gender" : "FEMALE",
+                    "birthday" : "1990-01-01"
+                  }
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/admin-products-sold-out486549215'}
+              examples:
+                admin-signup: {value: '{ }'}
+      security:
+      - bearerAuthJWT: []
+  /admins/1/init-password:
+    patch:
+      tags: [Admin]
+      summary: 관리자 비밀번호 초기화
+      description: 관리자가 특정 관리자 계정의 비밀번호를 임시 비밀번호로 초기화하는 API
+      operationId: admin-admins-init-password
+      responses:
+        '204': {description: '204'}
+      security:
+      - bearerAuthJWT: []
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: 로그인
+      description: 기존 회원의 로그인 및 토큰 발급 API
+      operationId: auth-login
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/LoginRequest'}
+            examples:
+              auth-login:
+                value: |-
+                  {
+                    "loginId" : "idfortest123",
+                    "password" : "PasswordTest123!"
+                  }
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                auth-login:
+                  value: |-
+                    {
+                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMCIsImlhdCI6MTc2NDgyODkxMSwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTc2NDgyOTIxMX0.n7-Malicx4iENZQTOoXHKTuslhcd9b3S_mBBc7mfxVs",
+                      "tokenType" : "Bearer",
+                      "userId" : 10,
+                      "loginId" : "idfortest123"
+                    }
+  /auth/reissue:
+    post:
+      tags: [Auth]
+      summary: 토큰 재발급
+      description: RefreshToken으로으로 AccessToken 재발급하는 API
+      operationId: auth-reissue
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/TokenReissueRequestDto'}
+            examples:
+              auth-reissue:
+                value: |-
+                  {
+                    "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzY0ODI4OTExLCJleHAiOjE3NjQ4NzIxMTF9.JL6Rq8v7PWZ-VPNYDcNv_G4cJZZhkeue3ywuIMEKguo"
+                  }
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                auth-reissue:
+                  value: |-
+                    {
+                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzY0ODI4OTExLCJhdXRoIjoiVVNFUiIsImV4cCI6MTc2NDgyOTIxMX0.B6NfZSAAXMi7FGxVUZoUPU9D6zwh2K839YveNZFHz1I",
+                      "grantType" : "Bearer",
+                      "userId" : 9
+                    }
+  /categories/levels:
+    get:
+      tags: [Category]
+      summary: 카테고리 레벨 조회
+      description: 사용자 카테고리 레벨별 조회 API
+      operationId: categories-levels
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                categories-levels:
+                  value: |-
+                    {
+                      "data" : {
+                        "levels" : [ {
+                          "depth" : 1,
+                          "categories" : [ {
+                            "id" : 9,
+                            "name" : "루트",
+                            "parentId" : null,
+                            "petType" : "DOG",
+                            "sortOrder" : 1
+                          } ]
+                        }, {
+                          "depth" : 2,
+                          "categories" : [ {
+                            "id" : 10,
+                            "name" : "자식1",
+                            "parentId" : 9,
+                            "petType" : "DOG",
+                            "sortOrder" : 1
+                          }, {
+                            "id" : 11,
+                            "name" : "자식2",
+                            "parentId" : 9,
+                            "petType" : "DOG",
+                            "sortOrder" : 2
+                          } ]
+                        } ]
                       }
                     }
       security:
@@ -377,7 +1226,7 @@ paths:
                         "status" : "PENDING",
                         "courierCode" : "TRACK123",
                         "trackingNumber" : "CJ",
-                        "createdAt" : "2025-12-01T02:39:49.584978"
+                        "createdAt" : "2025-12-04T15:15:14.698922"
                       }
                     }
       security:
@@ -407,8 +1256,8 @@ paths:
                       "detailAddress" : "101호",
                       "isDefault" : true,
                       "isActive" : true,
-                      "createdAt" : "2025-11-29T22:51:11.50756",
-                      "updatedAt" : "2025-11-29T22:51:11.507565"
+                      "createdAt" : "2025-12-04T15:15:14.620133",
+                      "updatedAt" : "2025-12-04T15:15:14.620136"
                     }, {
                       "id" : 101,
                       "addressName" : "회사",
@@ -419,8 +1268,8 @@ paths:
                       "detailAddress" : "101호",
                       "isDefault" : false,
                       "isActive" : true,
-                      "createdAt" : "2025-11-29T22:51:11.507568",
-                      "updatedAt" : "2025-11-29T22:51:11.507569"
+                      "createdAt" : "2025-12-04T15:15:14.620139",
+                      "updatedAt" : "2025-12-04T15:15:14.620139"
                     } ]
       security:
       - bearerAuthJWT: []
@@ -464,8 +1313,8 @@ paths:
                       "detailAddress" : "101호",
                       "isDefault" : true,
                       "isActive" : true,
-                      "createdAt" : "2025-11-29T22:51:11.526623",
-                      "updatedAt" : "2025-11-29T22:51:11.526627"
+                      "createdAt" : "2025-12-04T15:15:14.636776",
+                      "updatedAt" : "2025-12-04T15:15:14.636778"
                     }
       security:
       - bearerAuthJWT: []
@@ -515,8 +1364,8 @@ paths:
                       "detailAddress" : "101호",
                       "isDefault" : true,
                       "isActive" : true,
-                      "createdAt" : "2025-11-29T22:51:11.448475",
-                      "updatedAt" : "2025-11-29T22:51:11.44848"
+                      "createdAt" : "2025-12-04T15:15:14.593587",
+                      "updatedAt" : "2025-12-04T15:15:14.593591"
                     }
       security:
       - bearerAuthJWT: []
@@ -562,7 +1411,7 @@ paths:
                         "courierCode" : "CJ",
                         "trackingNumber" : "TRACK123456",
                         "status" : "SHIPPING",
-                        "shippedAt" : "2025-12-01T02:39:49.182594",
+                        "shippedAt" : "2025-12-04T15:15:14.66308",
                         "deliveredAt" : null
                       }
                     }
@@ -602,7 +1451,87 @@ paths:
                         "status" : "PENDING",
                         "courierCode" : "TRACK123",
                         "trackingNumber" : "CJ",
-                        "createdAt" : "2025-12-01T02:39:49.55766"
+                        "createdAt" : "2025-12-04T15:15:14.684978"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /products:
+    get:
+      tags: [Product]
+      summary: 상품 리스트 조회
+      description: 사용자 상품 리스트 조회 API
+      operationId: products-list
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                products-list:
+                  value: |-
+                    {
+                      "data" : [ {
+                        "id" : 108,
+                        "name" : "공개 상품1",
+                        "price" : 5000,
+                        "availableQuantity" : 10,
+                        "status" : "ACTIVE",
+                        "petType" : "DOG"
+                      }, {
+                        "id" : 109,
+                        "name" : "공개 상품2",
+                        "price" : 15000,
+                        "availableQuantity" : 10,
+                        "status" : "ACTIVE",
+                        "petType" : "CAT"
+                      } ],
+                      "page" : {
+                        "number" : 0,
+                        "size" : 10,
+                        "totalElements" : 2,
+                        "totalPages" : 1,
+                        "hasNext" : false,
+                        "hasPrev" : false,
+                        "sort" : [ ]
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /products/{id}:
+    get:
+      tags: [Product]
+      summary: 상품 상세 조회
+      description: 사용자 상품 상세 조회 API
+      operationId: products-detail
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                products-detail:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 107,
+                        "name" : "상세용 공개 상품",
+                        "description" : "공개 상품 설명",
+                        "price" : 5000,
+                        "availableQuantity" : 10,
+                        "reservedQuantity" : 0,
+                        "outboundProcessingQuantity" : 0,
+                        "status" : "ACTIVE",
+                        "petType" : "DOG",
+                        "deleted" : false
                       }
                     }
       security:
@@ -630,8 +1559,8 @@ paths:
                         "rating" : 5,
                         "content" : "굿",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-01T06:11:00",
-                        "updatedAt" : "2025-12-01T06:11:00"
+                        "createdAt" : "2025-12-04T15:15:15",
+                        "updatedAt" : "2025-12-04T15:15:15"
                       } ],
                       "page" : {
                         "number" : 0,
@@ -678,8 +1607,8 @@ paths:
                         "rating" : 5,
                         "content" : "좋아요",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-01T06:11:00",
-                        "updatedAt" : "2025-12-01T06:11:00"
+                        "createdAt" : "2025-12-04T15:15:15",
+                        "updatedAt" : "2025-12-04T15:15:15"
                       }
                     }
   /reviews/{reviewId}:
@@ -723,8 +1652,8 @@ paths:
                         "rating" : 5,
                         "content" : "수정함",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-01T06:11:00",
-                        "updatedAt" : "2025-12-01T06:11:00"
+                        "createdAt" : "2025-12-04T15:15:15",
+                        "updatedAt" : "2025-12-04T15:15:15"
                       }
                     }
     delete:
@@ -740,20 +1669,281 @@ paths:
         schema: {type: string}
       responses:
         '204': {description: '204'}
+  /users/change-password:
+    patch:
+      tags: [User]
+      summary: 비밀번호 변경
+      description: 현재 로그인한 사용자의 비밀번호를 변경하는 API
+      operationId: users-me-password-change
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/PasswordChange'}
+            examples:
+              users-me-password-change:
+                value: |-
+                  {
+                    "oldPassword" : "Test1234!",
+                    "newPassword" : "NewPassword123!",
+                    "newPasswordConfirm" : "NewPassword123!"
+                  }
+      responses:
+        '204': {description: '204'}
+      security:
+      - bearerAuthJWT: []
+  /users/my-info:
+    get:
+      tags: [User]
+      summary: 내 정보 조회
+      description: 현재 로그인한 사용자의 정보를 조회하는 API
+      operationId: users-me
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                users-me:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 24,
+                        "loginId" : "test1234",
+                        "name" : "테스트유저",
+                        "email" : "example123@gmail.com",
+                        "phone" : "010-1234-5678",
+                        "gender" : "FEMALE",
+                        "birthday" : "2000-08-09"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+    patch:
+      tags: [User]
+      summary: 내 정보 수정
+      description: 현재 로그인한 사용자의 정보를 수정하는 API
+      operationId: users-me-update
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/Update'}
+            examples:
+              users-me-update:
+                value: |-
+                  {
+                    "name" : "수정된이름",
+                    "email" : "updated@example.com",
+                    "phone" : "010-9999-9999",
+                    "birthday" : "2000-01-01"
+                  }
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                users-me-update:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 22,
+                        "loginId" : "test1234",
+                        "name" : "수정된이름",
+                        "email" : "updated@example.com",
+                        "phone" : "010-9999-9999",
+                        "gender" : "FEMALE",
+                        "birthday" : "2000-01-01"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /users/signup:
+    post:
+      tags: [User]
+      summary: 회원가입
+      description: 신규 회원을 생성하는 API
+      operationId: user-signup
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/Create'}
+            examples:
+              user-signup:
+                value: |-
+                  {
+                    "loginId" : "idfortest123",
+                    "password" : "PasswordTest123!",
+                    "passwordConfirm" : "PasswordTest123!",
+                    "name" : "JNSJ",
+                    "email" : "example123@example.com",
+                    "phone" : "010-1234-1234",
+                    "gender" : "MALE",
+                    "birthday" : "1999-09-09"
+                  }
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/admin-products-sold-out486549215'}
+              examples:
+                user-signup: {value: '{ }'}
+  /users/withdrawal:
+    delete:
+      tags: [User]
+      summary: 내 정보 탈퇴
+      description: 현재 로그인한 사용자의 계정을 탈퇴(soft delete)하는 API
+      operationId: users-me-delete
+      responses:
+        '204': {description: '204'}
+      security:
+      - bearerAuthJWT: []
+  /users/my/orders:
+    get:
+      tags: [User-Order]
+      summary: 내 주문 목록 조회
+      description: 현재 로그인한 사용자의 주문 목록을 조회하는 API
+      operationId: users-my-orders
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                users-my-orders:
+                  value: |-
+                    {
+                      "data" : [ {
+                        "orderNumber" : "ORD-TEST-001",
+                        "orderStatus" : "PENDING",
+                        "totalPaymentAmount" : 10000,
+                        "createdAt" : "2025-12-04T15:15:16.49234"
+                      }, {
+                        "orderNumber" : "ORD-TEST-002",
+                        "orderStatus" : "PENDING",
+                        "totalPaymentAmount" : 20000,
+                        "createdAt" : "2025-12-04T15:15:16.495707"
+                      } ]
+                    }
+      security:
+      - bearerAuthJWT: []
+  /users/my/reviews:
+    get:
+      tags: [User-Review]
+      summary: 내 리뷰 목록 조회
+      description: 현재 로그인한 사용자의 리뷰 목록을 조회하는 API
+      operationId: users-my-reviews
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                users-my-reviews:
+                  value: |-
+                    {
+                      "data" : [ {
+                        "reviewId" : 2,
+                        "userId" : 17,
+                        "productId" : 2,
+                        "rating" : 4,
+                        "content" : "무난하게 쓸만해요.",
+                        "reviewImageUrl" : null,
+                        "createdAt" : "2025-12-04T15:15:16",
+                        "updatedAt" : "2025-12-04T15:15:16"
+                      }, {
+                        "reviewId" : 1,
+                        "userId" : 17,
+                        "productId" : 1,
+                        "rating" : 5,
+                        "content" : "아주 만족스러운 상품입니다.",
+                        "reviewImageUrl" : "http://image-server/review1.png",
+                        "createdAt" : "2025-12-04T15:15:16",
+                        "updatedAt" : "2025-12-04T15:15:16"
+                      } ],
+                      "page" : {
+                        "number" : 0,
+                        "size" : 10,
+                        "totalElements" : 2,
+                        "totalPages" : 1,
+                        "hasNext" : false,
+                        "hasPrev" : false,
+                        "sort" : [ {
+                          "property" : "createdAt",
+                          "direction" : "DESC"
+                        } ]
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /users/my/orders/ORD-TEST-001:
+    get:
+      tags: [User-Order]
+      summary: 내 주문 상세 조회
+      description: 현재 로그인한 사용자의 특정 주문 상세 정보를 조회하는 API
+      operationId: users-my-orders-detail
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                users-my-orders-detail:
+                  value: |-
+                    {
+                      "data" : {
+                        "orderNumber" : "ORD-TEST-001",
+                        "orderStatus" : "PENDING",
+                        "totalPaymentAmount" : 10000,
+                        "receiver" : {
+                          "name" : "테스트수령인",
+                          "address" : "서울시 강남구 테헤란로 123",
+                          "mobile" : "010-1111-2222"
+                        },
+                        "orderProducts" : [ ],
+                        "createdAt" : "2025-12-04T15:15:16.398693"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
 components:
   schemas:
-    Create:
-      title: Create
-      type: object
-      properties:
-        code: {type: string, description: code, nullable: true}
-        name: {type: string, description: name, nullable: true}
     Update:
       title: Update
       type: object
       properties:
         name: {type: string, description: name, nullable: true}
         isActive: {type: boolean, description: isActive, nullable: true}
+    ApiResponse:
+      title: ApiResponse
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id: {type: number, description: id, nullable: true}
+          description: data
+        slice: {type: object, description: slice, nullable: true}
+        page: {type: object, description: page, nullable: true}
+    BulkSoldOut:
+      title: BulkSoldOut
+      type: object
+      properties:
+        productIds:
+          type: array
+          description: productIds
+          nullable: true
+          items:
+            oneOf:
+            - {type: object}
+            - {type: boolean}
+            - {type: string}
+            - {type: number}
     TestPageResponse:
       title: TestPageResponse
       type: object
@@ -790,6 +1980,39 @@ components:
                 - {type: number}
             totalElements: {type: number, description: totalElements, nullable: true}
           description: page
+    Create:
+      title: Create
+      type: object
+      properties:
+        birthday: {type: string, description: birthday, nullable: true}
+        password: {type: string, description: password, nullable: true}
+        loginId: {type: string, description: loginId, nullable: true}
+        gender: {type: string, description: gender, nullable: true}
+        phone: {type: string, description: phone, nullable: true}
+        passwordConfirm: {type: string, description: passwordConfirm, nullable: true}
+        name: {type: string, description: name, nullable: true}
+        email: {type: string, description: email, nullable: true}
+    Class: {title: Class, type: object}
+    ListN: {title: ListN, type: object}
+    AdminPasswordChange:
+      title: AdminPasswordChange
+      type: object
+      properties:
+        newPasswordConfirm: {type: string, description: newPasswordConfirm, nullable: true}
+        newPassword: {type: string, description: newPassword, nullable: true}
+    UpdateStatus:
+      title: UpdateStatus
+      type: object
+      properties:
+        trackingNumber: {type: string, description: trackingNumber, nullable: true}
+        courierCode: {type: string, description: courierCode, nullable: true}
+        status: {type: string, description: status, nullable: true}
+    admin-products-sold-out486549215: {type: object}
+    TokenReissueRequestDto:
+      title: TokenReissueRequestDto
+      type: object
+      properties:
+        refreshToken: {type: string, description: refreshToken, nullable: true}
     TestDeliveryAddressResponse:
       title: TestDeliveryAddressResponse
       type: object
@@ -805,25 +2028,19 @@ components:
         id: {type: number, description: id, nullable: true}
         isActive: {type: boolean, description: isActive, nullable: true}
         updatedAt: {type: string, description: updatedAt, nullable: true}
-    ApiResponse:
-      title: ApiResponse
+    PasswordChange:
+      title: PasswordChange
       type: object
       properties:
-        data:
-          type: object
-          properties:
-            id: {type: number, description: id, nullable: true}
-          description: data
-        slice: {type: object, description: slice, nullable: true}
-        page: {type: object, description: page, nullable: true}
-    ListN: {title: ListN, type: object}
-    UpdateStatus:
-      title: UpdateStatus
+        newPasswordConfirm: {type: string, description: newPasswordConfirm, nullable: true}
+        oldPassword: {type: string, description: oldPassword, nullable: true}
+        newPassword: {type: string, description: newPassword, nullable: true}
+    LoginRequest:
+      title: LoginRequest
       type: object
       properties:
-        trackingNumber: {type: string, description: trackingNumber, nullable: true}
-        courierCode: {type: string, description: courierCode, nullable: true}
-        status: {type: string, description: status, nullable: true}
+        password: {type: string, description: password, nullable: true}
+        loginId: {type: string, description: loginId, nullable: true}
   securitySchemes:
     bearerAuthJWT: {type: http, scheme: bearer, bearerFormat: JWT}
     bearerAuth: {type: http, scheme: bearer, bearerFormat: JWT}

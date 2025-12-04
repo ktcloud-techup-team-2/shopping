@@ -52,6 +52,9 @@ public class Inventory extends BaseAuditEntity {
 	// 생성자는 항상 상품과 초기 재고 상태(0)로 시작
 	private Inventory(Product product) {
 		this.product = product;
+		this.physicalStockTotal = 0L;
+		this.reserved = 0L;
+		this.outboundProcessing = 0L;
 		recalculateAvailability();
 	}
 

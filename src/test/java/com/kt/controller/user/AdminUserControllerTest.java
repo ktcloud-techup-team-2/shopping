@@ -29,6 +29,9 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
 
     private static final String ADMIN_USERS_URL = "/admin/users";
 
+    private static final String ADMIN_LOGIN_ID  = "adminUser123";
+    private static final String ADMIN_PASSWORD  = "AdminTest123!";
+
     @Autowired
     private RestDocsFactory restDocsFactory;
     @Autowired
@@ -43,9 +46,9 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
     void setUp() {
         userRepository.deleteAll();
 
-        User user = User.user(
-                "test1234",
-                "encoded-password",
+        User user = User.admin(
+                ADMIN_LOGIN_ID,
+                passwordEncoder.encode(ADMIN_PASSWORD),
                 "테스트",
                 "example123@gmail.com",
                 "010-1234-5678",
@@ -65,15 +68,16 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
         void 성공() throws Exception {
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_USERS_URL + "/" + userId,
+                                    ADMIN_USERS_URL + "/{id}",
                                     null,
                                     HttpMethod.GET,
-                                    objectMapper
+                                    objectMapper,
+                                    userId
                             ).with(jwtAdmin())
                     )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.id").value(userId))
-                    .andExpect(jsonPath("$.data.loginId").value("test1234"))
+                    .andExpect(jsonPath("$.data.loginId").value(ADMIN_LOGIN_ID))
                     .andExpect(jsonPath("$.data.name").value("테스트"))
                     .andExpect(jsonPath("$.data.email").value("example123@gmail.com"))
                     .andExpect(jsonPath("$.data.phone").value("010-1234-5678"))
@@ -134,10 +138,11 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
 
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_USERS_URL + "/" + userId,
+                                    ADMIN_USERS_URL + "/{id}",
                                     request,
                                     HttpMethod.PATCH,
-                                    objectMapper
+                                    objectMapper,
+                                    userId
                             ).with(jwtAdmin())
                     )
                     .andExpect(status().isOk())
@@ -166,10 +171,11 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
         void 성공() throws Exception {
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_USERS_URL + "/" + userId,
+                                    ADMIN_USERS_URL + "/{id}",
                                     null,
                                     HttpMethod.DELETE,
-                                    objectMapper
+                                    objectMapper,
+                                    userId
                             ).with(jwtAdmin())
                     )
                     .andExpect(status().isNoContent())
@@ -198,10 +204,11 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
 
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_USERS_URL + "/" + userId + "/change-password",
+                                    ADMIN_USERS_URL + "/{id}/change-password",
                                     request,
                                     HttpMethod.PATCH,
-                                    objectMapper
+                                    objectMapper,
+                                    userId
                             ).with(jwtAdmin())
                     )
                     .andExpect(status().isNoContent())
@@ -229,10 +236,11 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
         void 성공() throws Exception {
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_USERS_URL + "/" + userId + "/init-password",
+                                    ADMIN_USERS_URL + "/{id}/init-password",
                                     null,
                                     HttpMethod.PATCH,
-                                    objectMapper
+                                    objectMapper,
+                                    userId
                             ).with(jwtAdmin())
                     )
                     .andExpect(status().isNoContent())
@@ -254,5 +262,32 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
             assertThat(passwordEncoder.matches("Temp1234!", updated.getPassword())).isTrue();
         }
 
+    }
+
+    @Nested
+    class 관리자_유저_비활성화_API {
+        @Test
+        void 성공() throws Exception {
+            mockMvc.perform(
+                    restDocsFactory.createRequest(
+                            ADMIN_USERS_URL+"/{id}/in-activate",
+                            null,
+                            HttpMethod.PATCH,
+                            objectMapper,
+                            userId
+                    ).with(jwtAdmin())
+            )
+                    .andExpect(status().isNoContent())
+                    .andDo(
+                            restDocsFactory.success(
+                                    "admin-users-inactivate",
+                                    "유저 비활성화 (관리자)",
+                                    "관리자가 특정 유저를 비활성화하는 API",
+                                    "Admin-User",
+                                    null,
+                                    null
+                            )
+                    );
+        }
     }
 }

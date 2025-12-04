@@ -2,9 +2,8 @@ package com.kt.controller.delivery;
 
 import java.util.List;
 
+import com.kt.common.api.ApiResponseEntity;
 import com.kt.security.AuthUser;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,54 +29,54 @@ public class DeliveryAddressController {
     private final DeliveryAddressService deliveryAddressService;
 
     @PostMapping
-    public ResponseEntity<DeliveryAddressResponse> createAddress(
+    public ApiResponseEntity<DeliveryAddressResponse> createAddress(
             @AuthenticationPrincipal AuthUser authUser,
             @RequestBody @Valid DeliveryAddressRequest.Create request
     ) {
         var response = deliveryAddressService.createAddress(authUser.id(), request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+				return ApiResponseEntity.created(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<DeliveryAddressResponse>> getAddressList(@AuthenticationPrincipal AuthUser authUser) {
+    public ApiResponseEntity<List<DeliveryAddressResponse>> getAddressList(@AuthenticationPrincipal AuthUser authUser) {
         var response = deliveryAddressService.getAddressList(authUser.id());
-        return ResponseEntity.ok(response);
+        return ApiResponseEntity.success(response);
     }
 
     @GetMapping("/{addressId}")
-    public ResponseEntity<DeliveryAddressResponse> getAddress(
+    public ApiResponseEntity<DeliveryAddressResponse> getAddress(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long addressId
     ) {
         var response = deliveryAddressService.getAddress(authUser.id(), addressId);
-        return ResponseEntity.ok(response);
+        return ApiResponseEntity.success(response);
     }
 
     @PutMapping("/{addressId}")
-    public ResponseEntity<DeliveryAddressResponse> updateAddress(
+    public ApiResponseEntity<DeliveryAddressResponse> updateAddress(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long addressId,
             @RequestBody @Valid DeliveryAddressRequest.Update request
     ) {
         var response = deliveryAddressService.updateAddress(authUser.id(), addressId, request);
-        return ResponseEntity.ok(response);
+        return ApiResponseEntity.success(response);
     }
 
     @PatchMapping("/{addressId}/set-default")
-    public ResponseEntity<Void> setDefaultAddress(
+    public ApiResponseEntity<Void> setDefaultAddress(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long addressId
     ) {
         deliveryAddressService.setDefaultAddress(authUser.id(), addressId);
-        return ResponseEntity.noContent().build();
+        return ApiResponseEntity.empty();
     }
 
     @DeleteMapping("/{addressId}")
-    public ResponseEntity<Void> deleteAddress(
+    public ApiResponseEntity<Void> deleteAddress(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long addressId
     ) {
         deliveryAddressService.deleteAddress(authUser.id(), addressId);
-        return ResponseEntity.noContent().build();
+        return ApiResponseEntity.empty();
     }
 }

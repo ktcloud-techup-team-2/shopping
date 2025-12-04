@@ -7,6 +7,7 @@ import com.kt.common.RestDocsFactory;
 import com.kt.common.api.ApiResponse;
 import com.kt.common.api.PageBlock;
 import com.kt.domain.inventory.Inventory;
+import com.kt.domain.pet.PetType;
 import com.kt.domain.product.Product;
 import com.kt.dto.product.ProductResponse;
 import com.kt.repository.inventory.InventoryRepository;
@@ -39,8 +40,8 @@ class ProductControllerTest extends AbstractRestDocsTest {
 		@Test
 		void 성공() throws Exception {
 			PageRequest pageable = PageRequest.of(0, 10);
-			Product first = createActiveProduct("공개 상품1", "공개 상품 설명1", 5_000);
-			Product second = createActiveProduct("공개 상품2", "공개 상품 설명2", 15_000);
+			Product first = createActiveProduct("공개 상품1", "공개 상품 설명1", 5_000, PetType.DOG);
+			Product second = createActiveProduct("공개 상품2", "공개 상품 설명2", 15_000, PetType.CAT);
 
 			Page<Product> page = new PageImpl<>(java.util.List.of(first, second), pageable, 2);
 			var summaries = page.map(p -> ProductResponse.Summary.from(
@@ -51,10 +52,10 @@ class ProductControllerTest extends AbstractRestDocsTest {
 			var docsResponse = ApiResponse.ofPage(summaries, toPageBlock(page));
 
 			mockMvc.perform(
-					restDocsFactory.createRequest(
+					restDocsFactory.createParamRequest(
 						DEFAULT_URL,
 						null,
-						HttpMethod.GET,
+						pageable,
 						objectMapper
 					).with(jwtUser())
 				)
@@ -76,7 +77,7 @@ class ProductControllerTest extends AbstractRestDocsTest {
 	class 상품_상세_API {
 		@Test
 		void 성공() throws Exception {
-			Product product = createActiveProduct("상세용 공개 상품", "공개 상품 설명", 5_000);
+			Product product = createActiveProduct("상세용 공개 상품", "공개 상품 설명", 5_000, PetType.DOG);
 			var inventory = inventoryRepository.findByProductId(product.getId()).orElseThrow();
 			var docsResponse = ApiResponse.of(ProductResponse.Detail.from(product, inventory));
 
@@ -117,9 +118,8 @@ class ProductControllerTest extends AbstractRestDocsTest {
 		);
 	}
 
-	private Product createActiveProduct(String name, String description, int price) {
-		Product product = productRepository.save(Product.create(name, description, price));
-
+	private Product createActiveProduct(String name, String description, int price, PetType petType) {
+		Product product = productRepository.save(Product.create(name, description, price, petType));
 		Inventory inventory = Inventory.initialize(product);
 		inventory.applyWmsInbound(10);
 		inventoryRepository.save(inventory);

@@ -1,65 +1,74 @@
 package com.kt.controller.delivery;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
 import com.kt.common.api.ApiResponse;
-import com.kt.domain.delivery.DeliveryStatus;
+import com.kt.domain.delivery.Delivery;
+import com.kt.domain.delivery.DeliveryAddress;
+import com.kt.dto.delivery.DeliveryAddressRequest;
 import com.kt.dto.delivery.DeliveryRequest;
 import com.kt.dto.delivery.DeliveryResponse;
+import com.kt.repository.delivery.DeliveryAddressRepository;
+import com.kt.repository.delivery.DeliveryRepository;
 import com.kt.service.delivery.DeliveryService;
 
+@Transactional
 class DeliveryControllerTest extends AbstractRestDocsTest {
 
-	private static final String BASE_URL = "/delivery";
+	private static final String DEFAULT_URL = "/delivery";
+	private static final Long TEST_USER_ID = 1L;
 
 	@Autowired
 	private RestDocsFactory restDocsFactory;
 
-	@MockitoBean // @MockBean (버전에 따라 선택)
+	@Autowired
 	private DeliveryService deliveryService;
 
+	@Autowired
+	private DeliveryRepository deliveryRepository;
+
+	@Autowired
+	private DeliveryAddressRepository deliveryAddressRepository;
+
 	@Nested
-	@DisplayName("배송 생성 API")
-	class CreateDelivery {
+	class 배송_생성_API {
 		@Test
 		void 성공() throws Exception {
 			// given
 			Long orderId = 1L;
-			var request = new DeliveryRequest.Create(orderId, 100L, 3000);
-
-			// 실제 서비스 반환값 (LocalDateTime 포함)
-			var realResponse = createDetailResponse(orderId);
-
-			given(deliveryService.createDelivery(any(DeliveryRequest.Create.class)))
-				.willReturn(realResponse);
-
-			// 문서화용 Shadow DTO (LocalDateTime -> String 변환 + ApiResponse 포장)
-			var docsResponse = ApiResponse.of(TestDeliveryDetail.from(realResponse));
+			DeliveryAddress address = createAddress(TEST_USER_ID, "테스트 배송지");
+			var request = new DeliveryRequest.Create(orderId, address.getId(), 3000);
 
 			// when & then
 			mockMvc.perform(
 					restDocsFactory.createRequest(
-						BASE_URL,
+						DEFAULT_URL,
 						request,
 						HttpMethod.POST,
 						objectMapper
-					).with(jwtUser()) // 인증 토큰 (시스템 내부 호출이라도 보안 통과용)
+					).with(jwtUser())
 				)
 				.andExpect(status().isCreated())
-				.andDo(
+				.andDo(result -> {
+					var response = objectMapper.readValue(result.getResponse().getContentAsString(), ApiResponse.class);
+					var responseData = (LinkedHashMap) response.getData();
+					Long deliveryId = Long.valueOf(responseData.get("deliveryId").toString());
+
+					Delivery createdDelivery = deliveryRepository.findById(deliveryId).orElseThrow();
+					DeliveryAddress createdAddress = deliveryAddressRepository.findById(createdDelivery.getDeliveryAddressId()).orElseThrow();
+
+					var docsResponse = ApiResponse.of(DeliveryResponse.Detail.from(createdDelivery, createdAddress));
+
 					restDocsFactory.success(
 						"delivery-create",
 						"배송 생성",
@@ -67,28 +76,26 @@ class DeliveryControllerTest extends AbstractRestDocsTest {
 						"Delivery",
 						request,
 						docsResponse
-					)
-				);
+					).handle(result);
+				});
 		}
 	}
 
 	@Nested
-	@DisplayName("배송 상태 조회 API")
-	class GetDeliveryStatus {
+	class 배송_상태_조회_API {
 		@Test
 		void 성공() throws Exception {
 			// given
 			Long orderId = 1L;
-			var realResponse = createDetailResponse(orderId);
+			Delivery delivery = createDeliveryWithHistory(orderId, TEST_USER_ID, "조회용 주소");
+			DeliveryAddress address = deliveryAddressRepository.findById(delivery.getDeliveryAddressId()).orElseThrow();
 
-			given(deliveryService.getDeliveryByOrderId(orderId)).willReturn(realResponse);
-
-			var docsResponse = ApiResponse.of(TestDeliveryDetail.from(realResponse));
+			var docsResponse = ApiResponse.of(DeliveryResponse.Detail.from(delivery, address));
 
 			// when & then
 			mockMvc.perform(
 					restDocsFactory.createRequest(
-						BASE_URL + "/orders/{orderId}/status",
+						DEFAULT_URL + "/orders/{orderId}/status",
 						null,
 						HttpMethod.GET,
 						objectMapper,
@@ -110,30 +117,32 @@ class DeliveryControllerTest extends AbstractRestDocsTest {
 	}
 
 	@Nested
-	@DisplayName("배송 추적 API")
-	class TrackDelivery {
+	class 배송_추적_API {
 		@Test
 		void 성공() throws Exception {
 			// given
 			String trackingNumber = "TRACK123456";
-			var realResponse = new DeliveryResponse.Tracking(
-				100L, "CJ", trackingNumber,
-				DeliveryStatus.SHIPPING, LocalDateTime.now(), null
-			);
 
-			given(deliveryService.trackDelivery(trackingNumber)).willReturn(realResponse);
+			Delivery delivery = createDeliveryWithHistory(99L, TEST_USER_ID, "추적용 주소");
 
-			var docsResponse = ApiResponse.of(TestDeliveryTracking.from(realResponse));
+			delivery.startPreparing();
+			delivery.readyForShipment();
+
+			delivery.updateTrackingInfo("CJ", trackingNumber);
+			delivery.ship();
+			deliveryRepository.saveAndFlush(delivery);
+
+			var docsResponse = ApiResponse.of(DeliveryResponse.Tracking.from(delivery));
 
 			// when & then
 			mockMvc.perform(
 					restDocsFactory.createRequest(
-						BASE_URL + "/tracking/{trackingNumber}",
+						DEFAULT_URL + "/tracking/{trackingNumber}",
 						null,
 						HttpMethod.GET,
 						objectMapper,
 						trackingNumber
-					).with(jwtUser()) // 비회원 허용 시 .with(jwtUser()) 생략 가능하나, 테스트 통과를 위해 넣음
+					).with(jwtUser())
 				)
 				.andExpect(status().isOk())
 				.andDo(
@@ -149,68 +158,29 @@ class DeliveryControllerTest extends AbstractRestDocsTest {
 		}
 	}
 
-	// --- Helper Method ---
-	private DeliveryResponse.Detail createDetailResponse(Long orderId) {
-		return new DeliveryResponse.Detail(
-			100L, orderId, "홍길동", "010-1234-5678",
-			"12345", "서울", "상세", 3000,
-			DeliveryStatus.PENDING, "TRACK123", "CJ", LocalDateTime.now()
+	private Delivery createDeliveryWithHistory(Long orderId, Long userId, String addressName) {
+		DeliveryAddress address = createAddress(userId, addressName);
+		DeliveryRequest.Create createRequest = new DeliveryRequest.Create(
+			orderId,
+			address.getId(),
+			3000
 		);
+		DeliveryResponse.Detail detail = deliveryService.createDelivery(createRequest);
+
+		return deliveryRepository.findById(detail.deliveryId()).orElseThrow();
 	}
 
-	// --- Shadow DTOs (문서화용) ---
-
-	// 1. Detail용 Shadow DTO
-	static class TestDeliveryDetail {
-		Long deliveryId;
-		Long orderId;
-		String receiverName;
-		String receiverMobile;
-		String postalCode;
-		String roadAddress;
-		String detailAddress;
-		Integer deliveryFee;
-		DeliveryStatus status;
-		String trackingNumber;
-		String courierCode;
-		String createdAt;
-
-		static TestDeliveryDetail from(DeliveryResponse.Detail real) {
-			var dto = new TestDeliveryDetail();
-			dto.deliveryId = real.deliveryId();
-			dto.orderId = real.orderId();
-			dto.receiverName = real.receiverName();
-			dto.receiverMobile = real.receiverMobile();
-			dto.postalCode = real.postalCode();
-			dto.roadAddress = real.roadAddress();
-			dto.detailAddress = real.detailAddress();
-			dto.deliveryFee = real.deliveryFee();
-			dto.status = real.status();
-			dto.trackingNumber = real.trackingNumber();
-			dto.courierCode = real.courierCode();
-			dto.createdAt = real.createdAt().toString();
-			return dto;
-		}
-	}
-
-	// 2. Tracking용 Shadow DTO
-	static class TestDeliveryTracking {
-		Long deliveryId;
-		String courierCode;
-		String trackingNumber;
-		DeliveryStatus status;
-		String shippedAt;
-		String deliveredAt;
-
-		static TestDeliveryTracking from(DeliveryResponse.Tracking real) {
-			var dto = new TestDeliveryTracking();
-			dto.deliveryId = real.deliveryId();
-			dto.courierCode = real.courierCode();
-			dto.trackingNumber = real.trackingNumber();
-			dto.status = real.status();
-			dto.shippedAt = real.shippedAt() != null ? real.shippedAt().toString() : null;
-			dto.deliveredAt = real.deliveredAt() != null ? real.deliveredAt().toString() : null;
-			return dto;
-		}
+	private DeliveryAddress createAddress(Long userId, String addressName) {
+		DeliveryAddressRequest.Create request = new DeliveryAddressRequest.Create(
+			addressName,
+			"홍길동",
+			"010-1234-5678",
+			"12345",
+			"서울시 강남구",
+			"101호",
+			true
+		);
+		DeliveryAddress address = DeliveryAddress.from(userId, request);
+		return deliveryAddressRepository.save(address);
 	}
 }

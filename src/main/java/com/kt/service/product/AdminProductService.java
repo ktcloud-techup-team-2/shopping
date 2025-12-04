@@ -15,7 +15,9 @@ import com.kt.domain.product.Product;
 import com.kt.domain.product.ProductStatus;
 import com.kt.dto.product.ProductRequest;
 import com.kt.dto.product.ProductResponse;
+import com.kt.repository.product.ProductQueryRepository;
 import com.kt.repository.product.ProductRepository;
+import com.kt.security.AuthUser;
 import com.kt.service.inventory.InventoryService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,14 +28,15 @@ import lombok.RequiredArgsConstructor;
 public class AdminProductService {
 
 	private final ProductRepository productRepository;
+	private final ProductQueryRepository productQueryRepository;
 	private final InventoryService inventoryService;
-	private final org.springframework.data.domain.AuditorAware<Long> auditorAware;
 
 	public ProductResponse.Create create(ProductRequest.Create request) {
 		var product = Product.create(
 			request.name(),
 			request.description(),
-			request.price()
+			request.price(),
+			request.petType()
 		);
 		var saved = productRepository.save(product);
 		inventoryService.initialize(saved);
@@ -48,32 +51,27 @@ public class AdminProductService {
 
 	@Transactional(readOnly = true)
 	public ProductResponse.Detail getDetail(Long id) {
-		var product = getProductOrThrow(id);
-		var inventory = inventoryService.getInventoryOrThrow(id);
-		return ProductResponse.Detail.from(product, inventory);
+		return productQueryRepository.findDetailById(id)
+			.orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 	}
 
 	@Transactional(readOnly = true)
-	public Page<ProductResponse.Summary> getPage(Pageable pageable) {
-		return productRepository.findNonDeleted(pageable)
-			.map(product -> ProductResponse.Summary.from(
-				product,
-				inventoryService.getInventoryOrThrow(product.getId())
-			));
+	public Page<ProductResponse.Summary> getSummaries(ProductRequest.SearchCond cond, Pageable pageable) {
+		return productQueryRepository.findSummaries(cond, pageable);
 	}
 
-	public ProductResponse.Detail update(Long id, ProductRequest.Update request) {
+	public ProductResponse.CommandResult update(Long id, ProductRequest.Update request) {
 		var product = getProductOrThrow(id);
 		product.update(
 			request.name(),
 			request.description(),
-			request.price()
+			request.price(),
+			request.petType()
 		);
-		var inventory = inventoryService.getInventoryOrThrow(id);
-		return ProductResponse.Detail.from(product, inventory);
+		return ProductResponse.CommandResult.from(product);
 	}
 
-	public void delete(Long id) {
+	public void delete(Long id, AuthUser authUser) {
 		var product = productRepository.findById(id)
 			.orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
@@ -82,44 +80,36 @@ public class AdminProductService {
 			productRepository.delete(product);
 			return;
 		}
-
-		Long deleterId = auditorAware.getCurrentAuditor().orElse(null);
-		product.softDelete(deleterId);
+		product.softDelete(authUser.id());
 	}
 
-	public ProductResponse.Detail activate(Long id) {
+	public ProductResponse.CommandResult activate(Long id) {
 		var product = getProductOrThrow(id);
 		validateActivationStock(id);
 		product.activate();
-		var inventory = inventoryService.getInventoryOrThrow(id);
-		return ProductResponse.Detail.from(product, inventory);
+		return ProductResponse.CommandResult.from(product);
 	}
 
-	public ProductResponse.Detail inactivate(Long id) {
+	public ProductResponse.CommandResult inactivate(Long id) {
 		var product = getProductOrThrow(id);
 		product.inactivate();
-		var inventory = inventoryService.getInventoryOrThrow(id);
-		return ProductResponse.Detail.from(product, inventory);
+		return ProductResponse.CommandResult.from(product);
 	}
 
-	public List<ProductResponse.Detail> markSoldOut(ProductRequest.BulkSoldOut request) {
-		var products = productRepository.findAllForUpdateByIds(request.productIds());
+	public void markSoldOut(ProductRequest.BulkSoldOut request, AuthUser authUser) {
+		var products = productRepository.findByIdInAndDeletedFalse(request.productIds());
 		validateAllProductsFound(request.productIds(), products);
-		products.forEach(Product::markSoldOut);
-		return products.stream()
-			.map(product -> ProductResponse.Detail.from(product, inventoryService.getInventoryOrThrow(product.getId())))
-			.toList();
+		productRepository.bulkMarkSoldOut(request.productIds(), authUser.id());
 	}
 
-	public ProductResponse.Detail toggleSoldOut(Long id) {
+	public ProductResponse.CommandResult toggleSoldOut(Long id) {
 		var product = getProductOrThrow(id);
 		product.toggleSoldOut();
-		var inventory = inventoryService.getInventoryOrThrow(id);
-		return ProductResponse.Detail.from(product, inventory);
+		return ProductResponse.CommandResult.from(product);
 	}
 
 	private Product getProductOrThrow(Long id) {
-		return productRepository.findNonDeletedById(id)
+		return productRepository.findByIdAndDeletedFalse(id)
 			.orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 	}
 
