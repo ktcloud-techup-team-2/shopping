@@ -2,6 +2,7 @@ package com.kt.controller.payment;
 
 import java.util.List;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,7 @@ import com.kt.common.api.ApiResponseEntity;
 import com.kt.domain.payment.Payment;
 import com.kt.dto.payment.PaymentRequest;
 import com.kt.dto.payment.PaymentResponse;
+import com.kt.security.AuthUser;
 import com.kt.service.payment.AdminPaymentService;
 
 import jakarta.validation.Valid;
@@ -25,9 +27,11 @@ public class AdminPaymentController {
 
 	private final AdminPaymentService adminPaymentService;
 
-	//결제 내역 전체 조회
+	// 결제 내역 전체 조회
 	@GetMapping
-	public ApiResponseEntity<List<PaymentResponse.AdminList>> allPayments() {
+	public ApiResponseEntity<List<PaymentResponse.AdminList>> allPayments(
+		@AuthenticationPrincipal AuthUser authUser
+	) {
 		List<Payment> payments = adminPaymentService.allPayments();
 		List<PaymentResponse.AdminList> response = payments.stream()
 			.map(PaymentResponse.AdminList::from)
@@ -35,9 +39,10 @@ public class AdminPaymentController {
 		return ApiResponseEntity.success(response);
 	}
 
-	//결제 상태 변경
+	// 결제 상태 변경
 	@PatchMapping("/{paymentId}/status")
 	public ApiResponseEntity<PaymentResponse.AdminDetail> changeStatus(
+		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long paymentId,
 		@RequestBody @Valid PaymentRequest.ChangeStatus request
 	) {
@@ -45,4 +50,3 @@ public class AdminPaymentController {
 		return ApiResponseEntity.success(PaymentResponse.AdminDetail.from(payment));
 	}
 }
-
