@@ -40,6 +40,11 @@ public final class ApiResponseEntity<T> extends ResponseEntity<ApiResponse<T>> {
 		return new ApiResponseEntity<>(ApiResponse.of(body), HttpStatus.OK);
 	}
 
+	/** 200 OK (body 없음) */
+	public static ApiResponseEntity<Void> success() {
+		return new ApiResponseEntity<>(ApiResponse.of(null), HttpStatus.OK);
+	}
+
 	/** 임의의 상태코드 + { "data": ... } */
 	public static <T> ApiResponseEntity<T> withStatus(HttpStatus status, T body) {
 		return new ApiResponseEntity<>(ApiResponse.of(body), status);
