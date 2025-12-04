@@ -21,24 +21,9 @@ public class InventoryRepositoryImpl implements InventoryRepositoryCustom {
 		QProduct product = QProduct.product;
 
 		Inventory result = queryFactory
-			.select(inventory)
-			.from(inventory)
+			.selectFrom(inventory)
+			.join(inventory.product, product).fetchJoin()
 			.where(product.id.eq(productId))
-			.fetchOne();
-
-		return Optional.ofNullable(result);
-	}
-
-	@Override
-	public Optional<Inventory> findByProductIdForUpdate(Long productId) {
-		QInventory inventory = QInventory.inventory;
-		QProduct product = QProduct.product;
-
-		Inventory result = queryFactory
-			.select(inventory)
-			.from(inventory)
-			.where(product.id.eq(productId))
-			.setLockMode(LockModeType.PESSIMISTIC_WRITE)
 			.fetchOne();
 
 		return Optional.ofNullable(result);
