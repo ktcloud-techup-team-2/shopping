@@ -133,6 +133,31 @@ public class DeliveryService {
 		return DeliveryResponse.Detail.from(delivery, address);
 	}
 
+	public DeliveryResponse.Detail registerTrackingNumber(Long deliveryId, DeliveryRequest.RegisterTracking request){
+		var delivery = deliveryRepository.findById(deliveryId)
+			.orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUND));
+
+		boolean isValidCourier = courierRepository.existsByCode(request.courierCode());
+		Preconditions.validate(isValidCourier, ErrorCode.COURIER_NOT_FOUND);
+
+		delivery.updateTrackingInfo(request.courierCode(), request.trackingNumber());
+		delivery.ship();
+		saveHistory(deliveryId, DeliveryStatus.SHIPPING);
+
+		eventPublisher.publishEvent(DeliveryStatusEvent.of(
+			delivery.getId(),
+			delivery.getOrderId(),
+			delivery.getStatus(),
+			delivery.getTrackingNumber(),
+			delivery.getCourierCode()
+		));
+
+		var address =  deliveryAddressRepository.findById(delivery.getDeliveryAddressId())
+			.orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_ADDRESS_NOT_FOUND));
+
+		return DeliveryResponse.Detail.from(delivery, address);
+	}
+
 	private void saveHistory(Long deliveryId, DeliveryStatus status) {
 		var history = DeliveryStatusHistory.create(deliveryId, status);
 		deliveryStatusHistoryRepository.save(history);
