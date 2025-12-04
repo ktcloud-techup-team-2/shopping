@@ -114,4 +114,8 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(tempPassword);
         user.updatePassword(encodedPassword);
     }
+
+    public void inactivateUser(Long userId) {
+        deleteUser(userId);
+    }
 }

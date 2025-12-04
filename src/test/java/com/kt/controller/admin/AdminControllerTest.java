@@ -28,6 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AdminControllerTest extends AbstractRestDocsTest {
 
     private static final String ADMIN_URL_PREFIX = "/admins";
+    private static final String ADMIN_LOGIN_ID  = "PasswordTest123";
+    private static final String ADMIN_PASSWORD  = "PasswordTest123!";
 
     @Autowired
     private RestDocsFactory restDocsFactory;
@@ -45,8 +47,8 @@ public class AdminControllerTest extends AbstractRestDocsTest {
         userRepository.deleteAll();
 
         User admin = User.admin(
-                "admin_login",
-                "encoded-password",
+                ADMIN_LOGIN_ID,
+                passwordEncoder.encode(ADMIN_PASSWORD),
                 "테스트관리자",
                 "admin@test.com",
                 "010-9999-9999",
@@ -65,11 +67,12 @@ public class AdminControllerTest extends AbstractRestDocsTest {
 
         @Test
         void 성공() throws Exception {
+            userRepository.deleteAll();
             // given
             UserRequest.Create request = new UserRequest.Create(
-                    "adminTest123",
-                    "PasswordTest123!",
-                    "PasswordTest123!",
+                    ADMIN_LOGIN_ID,
+                    ADMIN_PASSWORD,
+                    ADMIN_PASSWORD,
                     "AdminName",
                     "admin@example.com",
                     "010-1111-2222",
@@ -114,7 +117,7 @@ public class AdminControllerTest extends AbstractRestDocsTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data").isArray())
                     .andExpect(jsonPath("$.data[0].id").value(adminId))
-                    .andExpect(jsonPath("$.data[0].loginId").value("admin_login"))
+                    .andExpect(jsonPath("$.data[0].loginId").value(ADMIN_LOGIN_ID))
                     .andExpect(jsonPath("$.data[0].name").value("테스트관리자"))
                     .andExpect(jsonPath("$.data[0].email").value("admin@test.com"))
                     .andExpect(jsonPath("$.data[0].phone").value("010-9999-9999"))
@@ -138,15 +141,16 @@ public class AdminControllerTest extends AbstractRestDocsTest {
         void 성공() throws Exception {
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_URL_PREFIX + "/" + adminId,
+                                    ADMIN_URL_PREFIX + "/{id}",
                                     null,
                                     HttpMethod.GET,
-                                    objectMapper
+                                    objectMapper,
+                                    adminId
                             ).with(jwtAdmin())
                     )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.id").value(adminId))
-                    .andExpect(jsonPath("$.data.loginId").value("admin_login"))
+                    .andExpect(jsonPath("$.data.loginId").value(ADMIN_LOGIN_ID))
                     .andExpect(jsonPath("$.data.name").value("테스트관리자"))
                     .andExpect(jsonPath("$.data.email").value("admin@test.com"))
                     .andExpect(jsonPath("$.data.phone").value("010-9999-9999"))
@@ -178,10 +182,11 @@ public class AdminControllerTest extends AbstractRestDocsTest {
 
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_URL_PREFIX + "/" + adminId,
+                                    ADMIN_URL_PREFIX + "/{id}",
                                     request,
                                     HttpMethod.PATCH,
-                                    objectMapper
+                                    objectMapper,
+                                    adminId
                             ).with(jwtAdmin())
                     )
                     .andExpect(status().isOk())
@@ -210,10 +215,11 @@ public class AdminControllerTest extends AbstractRestDocsTest {
         void 성공() throws Exception {
             mockMvc.perform(
                             restDocsFactory.createRequest(
-                                    ADMIN_URL_PREFIX + "/" + adminId,
+                                    ADMIN_URL_PREFIX + "/{id}",
                                     null,
                                     HttpMethod.DELETE,
-                                    objectMapper
+                                    objectMapper,
+                                    adminId
                             ).with(jwtAdmin())
                     )
                     .andExpect(status().isNoContent())
@@ -236,10 +242,11 @@ public class AdminControllerTest extends AbstractRestDocsTest {
         void 성공()  throws Exception {
             mockMvc.perform(
                     restDocsFactory.createRequest(
-                            ADMIN_URL_PREFIX+"/"+adminId+"/init-password",
+                            ADMIN_URL_PREFIX+"/{id}/init-password",
                             null,
                             HttpMethod.PATCH,
-                            objectMapper
+                            objectMapper,
+                            adminId
                     ).with(jwtAdmin())
             )
                     .andExpect(status().isNoContent())
