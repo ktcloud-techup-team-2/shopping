@@ -50,7 +50,7 @@ public class PetService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Pet pet = petRepository.findById(petId)
+        Pet pet = petRepository.findByIdAndDeletedAtIsNull(petId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PET_NOT_FOUND));
 
         Preconditions.validate(pet.getUser().getId().equals(userId), ErrorCode.PET_NOT_FOUND);
@@ -67,7 +67,7 @@ public class PetService {
 
     @Transactional(readOnly = true)
     public PetResponse getMyPet(Long userId, Long petId) {
-        Pet pet = petRepository.findById(petId)
+        Pet pet = petRepository.findByIdAndDeletedAtIsNull(petId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PET_NOT_FOUND));
 
         Preconditions.validate(pet.getUser().getId().equals(userId), ErrorCode.PET_NOT_FOUND);
@@ -80,7 +80,7 @@ public class PetService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        return petRepository.findAllByUser_Id(userId, pageable)
+        return petRepository.findAllByUser_IdAndDeletedAtIsNull(userId, pageable)
                 .map(PetResponse::from);
     }
 
