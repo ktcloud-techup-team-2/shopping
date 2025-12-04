@@ -13,14 +13,14 @@ public interface OrderResponse {
 	record Create(
 		String orderNumber,
 		OrderStatus orderStatus,
-		long totalPaymentAmount,
+		Long orderAmount,
 		LocalDateTime createdAt
 	){
 		public static Create from(Order order){
 			return new Create(
 				order.getOrderNumber(),
 				order.getOrderStatus(),
-				order.getTotalPaymentAmount(),
+				order.getOrderAmount(),
 				order.getCreatedAt()
 			);
 		}
@@ -30,14 +30,14 @@ public interface OrderResponse {
 	record OrderList(
 		String orderNumber,
 		OrderStatus orderStatus,
-		long totalPaymentAmount,
+		Long orderAmount,
 		LocalDateTime createdAt
 	){
 		public static OrderList from(Order order){
 			return new OrderList(
 				order.getOrderNumber(),
 				order.getOrderStatus(),
-				order.getTotalPaymentAmount(),
+				order.getOrderAmount(),
 				order.getCreatedAt()
 			);
 		}
@@ -46,7 +46,7 @@ public interface OrderResponse {
 	record MyOrder(
 		String orderNumber,
 		OrderStatus orderStatus,
-		long totalPaymentAmount,
+		Long orderAmount,
 		Receiver receiver,
 		List<OrderedProduct> orderProducts,
 		LocalDateTime createdAt
@@ -59,7 +59,7 @@ public interface OrderResponse {
 			return new MyOrder(
 				order.getOrderNumber(),
 				order.getOrderStatus(),
-				order.getTotalPaymentAmount(),
+				order.getOrderAmount(),
 				order.getReceiver(),
 				products,
 				order.getCreatedAt()
@@ -89,7 +89,7 @@ public interface OrderResponse {
 		Long userId,
 		String orderNumber,
 		OrderStatus orderStatus,
-		long totalPaymentAmount,
+		Long orderAmount,
 		LocalDateTime createdAt
 	){
 		public static AdminList from(Order order){
@@ -98,7 +98,7 @@ public interface OrderResponse {
 				order.getUserId(),
 				order.getOrderNumber(),
 				order.getOrderStatus(),
-				order.getTotalPaymentAmount(),
+				order.getOrderAmount(),
 				order.getCreatedAt()
 			);
 		}
@@ -110,7 +110,7 @@ public interface OrderResponse {
 		Long userId,
 		String orderNumber,
 		OrderStatus orderStatus,
-		long totalPaymentAmount,
+		long orderAmount,
 		Receiver receiver,
 		List<OrderedProduct> orderProducts,
 		LocalDateTime createdAt
@@ -125,7 +125,7 @@ public interface OrderResponse {
 				order.getUserId(),
 				order.getOrderNumber(),
 				order.getOrderStatus(),
-				order.getTotalPaymentAmount(),
+				order.getOrderAmount(),
 				order.getReceiver(),
 				products,
 				order.getCreatedAt()
