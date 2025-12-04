@@ -1,52 +1,52 @@
 package com.kt.controller.delivery;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.bean.override.mockito.MockitoBean; // Boot 3.4+
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
+import com.kt.common.api.ApiResponse;
+import com.kt.domain.delivery.DeliveryAddress;
 import com.kt.dto.delivery.DeliveryAddressRequest;
 import com.kt.dto.delivery.DeliveryAddressResponse;
-import com.kt.service.delivery.DeliveryAddressService;
+import com.kt.repository.delivery.DeliveryAddressRepository;
 
+@Transactional
 class DeliveryAddressControllerTest extends AbstractRestDocsTest {
 
 	private static final String DEFAULT_URL = "/delivery/addresses";
+	private static final Long TEST_USER_ID = 1L;
 
 	@Autowired
 	private RestDocsFactory restDocsFactory;
 
-	@MockitoBean // or @MockBean
-	private DeliveryAddressService deliveryAddressService;
+	@Autowired
+	private DeliveryAddressRepository deliveryAddressRepository;
 
 	@Nested
 	class 배송지_생성_API {
 		@Test
 		void 성공() throws Exception {
 			// given
-			Long userId = 1L; // AbstractRestDocsTest의 jwtUser()가 1L로 세팅됨
 			var request = new DeliveryAddressRequest.Create(
-				"집", "홍길동", "010-1234-5678", "12345", "서울시 강남구", "101호", true
+				"집",
+				"홍길동",
+				"010-1234-5678",
+				"12345",
+				"서울시 강남구",
+				"101호",
+				true
 			);
-
-			var realResponse = createMockResponse(100L, "집", true);
-
-			// Service Mocking
-			given(deliveryAddressService.createAddress(eq(userId), any(DeliveryAddressRequest.Create.class)))
-				.willReturn(realResponse);
-
-			// Shadow DTO (StackOverflow 방지)
-			var docsResponse = TestDeliveryAddressResponse.from(realResponse);
 
 			// when & then
 			mockMvc.perform(
@@ -56,11 +56,17 @@ class DeliveryAddressControllerTest extends AbstractRestDocsTest {
 							HttpMethod.POST,
 							objectMapper
 						)
-						.param("userId", String.valueOf(userId)) // 파라미터 추가
-						.with(jwtUser()) // 인증 토큰 주입 (csrf는 AbstractRestDocsTest 설정에 따라 다를 수 있으나 보통 통합 테스트엔 포함됨)
+						.with(jwtUser())
 				)
 				.andExpect(status().isCreated())
-				.andDo(
+				.andDo(result -> {
+					var response = objectMapper.readValue(result.getResponse().getContentAsString(), ApiResponse.class);
+					var responseData = (LinkedHashMap) response.getData();
+					var id = Long.valueOf(responseData.get("id").toString());
+
+					var createdAddress = deliveryAddressRepository.findById(id).orElseThrow();
+					var docsResponse = ApiResponse.of(DeliveryAddressResponse.from(createdAddress));
+
 					restDocsFactory.success(
 						"delivery-address-create",
 						"배송지 생성",
@@ -68,8 +74,8 @@ class DeliveryAddressControllerTest extends AbstractRestDocsTest {
 						"Delivery-Address",
 						request,
 						docsResponse
-					)
-				);
+					).handle(result);
+				});
 		}
 	}
 
@@ -78,16 +84,15 @@ class DeliveryAddressControllerTest extends AbstractRestDocsTest {
 		@Test
 		void 성공() throws Exception {
 			// given
-			Long userId = 1L;
-			var realList = List.of(
-				createMockResponse(100L, "집", true),
-				createMockResponse(101L, "회사", false)
+			DeliveryAddress addr1 = createAddress("집", true, TEST_USER_ID);
+			DeliveryAddress addr2 = createAddress("회사", false, TEST_USER_ID);
+
+			List<DeliveryAddressResponse> realList = List.of(
+				DeliveryAddressResponse.from(addr1),
+				DeliveryAddressResponse.from(addr2)
 			);
 
-			given(deliveryAddressService.getAddressList(userId)).willReturn(realList);
-
-			// Shadow DTO List 변환
-			var docsResponse = realList.stream().map(TestDeliveryAddressResponse::from).toList();
+			var docsResponse = ApiResponse.of(realList);
 
 			// when & then
 			mockMvc.perform(
@@ -97,7 +102,6 @@ class DeliveryAddressControllerTest extends AbstractRestDocsTest {
 							HttpMethod.GET,
 							objectMapper
 						)
-						.param("userId", String.valueOf(userId))
 						.with(jwtUser())
 				)
 				.andExpect(status().isOk())
@@ -115,22 +119,54 @@ class DeliveryAddressControllerTest extends AbstractRestDocsTest {
 	}
 
 	@Nested
+	class 배송지_상세_조회_API {
+		@Test
+		void 성공() throws Exception {
+			// given
+			DeliveryAddress address = createAddress("상세조회", false, TEST_USER_ID);
+			Long addressId = address.getId();
+
+			var docsResponse = ApiResponse.of(DeliveryAddressResponse.from(address));
+
+			// when & then
+			mockMvc.perform(
+					restDocsFactory.createRequest(
+							DEFAULT_URL + "/{addressId}",
+							null,
+							HttpMethod.GET,
+							objectMapper,
+							addressId
+						)
+						.with(jwtUser())
+				)
+				.andExpect(status().isOk())
+				.andDo(
+					restDocsFactory.success(
+						"delivery-address-detail",
+						"배송지 상세 조회",
+						"특정 ID의 배송지 상세 정보를 조회합니다.",
+						"Delivery-Address",
+						null,
+						docsResponse
+					)
+				);
+		}
+	}
+
+	@Nested
 	class 배송지_수정_API {
 		@Test
 		void 성공() throws Exception {
 			// given
-			Long userId = 1L;
-			Long addressId = 100L;
+			Long addressId = createAddress("수정전", true, TEST_USER_ID).getId();
 			var request = new DeliveryAddressRequest.Update(
-				"회사", "김대리", "010-9876-5432", "54321", "판교", "사옥"
+				"회사",
+				"김대리",
+				"010-9876-5432",
+				"54321",
+				"판교로",
+				"사옥 1층"
 			);
-
-			var realResponse = createMockResponse(addressId, "회사", true);
-
-			given(deliveryAddressService.updateAddress(eq(userId), eq(addressId), any(DeliveryAddressRequest.Update.class)))
-				.willReturn(realResponse);
-
-			var docsResponse = TestDeliveryAddressResponse.from(realResponse);
 
 			// when & then
 			mockMvc.perform(
@@ -141,11 +177,13 @@ class DeliveryAddressControllerTest extends AbstractRestDocsTest {
 							objectMapper,
 							addressId
 						)
-						.param("userId", String.valueOf(userId))
 						.with(jwtUser())
 				)
 				.andExpect(status().isOk())
-				.andDo(
+				.andDo(result -> {
+					var updatedAddress = deliveryAddressRepository.findById(addressId).orElseThrow();
+					var docsResponse = ApiResponse.of(DeliveryAddressResponse.from(updatedAddress));
+
 					restDocsFactory.success(
 						"delivery-address-update",
 						"배송지 수정",
@@ -153,8 +191,51 @@ class DeliveryAddressControllerTest extends AbstractRestDocsTest {
 						"Delivery-Address",
 						request,
 						docsResponse
-					)
-				);
+					).handle(result);
+				});
+		}
+	}
+
+	@Nested
+	class 기본_배송지_설정_API {
+		@Test
+		void 성공() throws Exception {
+			// given
+			DeliveryAddress currentDefault = createAddress("기존_기본", true, TEST_USER_ID);
+			DeliveryAddress newDefault = createAddress("새로운_기본", false, TEST_USER_ID);
+
+			Long currentDefaultId = currentDefault.getId();
+			Long newDefaultId = newDefault.getId();
+
+			// when
+			ResultActions perform = mockMvc.perform(
+					restDocsFactory.createRequest(
+							DEFAULT_URL + "/{addressId}/set-default",
+							null,
+							HttpMethod.PATCH,
+							objectMapper,
+							newDefaultId
+						)
+						.with(jwtUser())
+				)
+				.andExpect(status().isNoContent());
+
+			DeliveryAddress oldAddress = deliveryAddressRepository.findById(currentDefaultId).orElseThrow();
+			assertThat(oldAddress.getIsDefault()).isFalse();
+
+			DeliveryAddress newAddress = deliveryAddressRepository.findById(newDefaultId).orElseThrow();
+			assertThat(newAddress.getIsDefault()).isTrue();
+
+			perform.andDo(
+				restDocsFactory.success(
+					"delivery-address-set-default",
+					"기본 배송지 설정",
+					"특정 배송지를 사용자의 기본 배송지로 설정합니다. (기존 기본 배송지는 해제됨)",
+					"Delivery-Address",
+					null,
+					null
+				)
+			);
 		}
 	}
 
@@ -163,10 +244,7 @@ class DeliveryAddressControllerTest extends AbstractRestDocsTest {
 		@Test
 		void 성공() throws Exception {
 			// given
-			Long userId = 1L;
-			Long addressId = 100L;
-
-			willDoNothing().given(deliveryAddressService).deleteAddress(userId, addressId);
+			Long addressId = createAddress("삭제대상", true, TEST_USER_ID).getId();
 
 			// when & then
 			mockMvc.perform(
@@ -177,7 +255,6 @@ class DeliveryAddressControllerTest extends AbstractRestDocsTest {
 							objectMapper,
 							addressId
 						)
-						.param("userId", String.valueOf(userId))
 						.with(jwtUser())
 				)
 				.andExpect(status().isNoContent())
@@ -188,51 +265,26 @@ class DeliveryAddressControllerTest extends AbstractRestDocsTest {
 						"배송지를 삭제(비활성화) 처리합니다.",
 						"Delivery-Address",
 						null,
-						null // 응답 바디 없음
+						null
 					)
 				);
+
+			DeliveryAddress deleted = deliveryAddressRepository.findById(addressId).orElseThrow();
+			assertThat(deleted.getIsActive()).isFalse();
 		}
 	}
 
-	// --- Helper Methods & Shadow DTO ---
-
-	private DeliveryAddressResponse createMockResponse(Long id, String name, boolean isDefault) {
-		return new DeliveryAddressResponse(
-			id, name, "홍길동", "010-1234-5678",
-			"12345", "서울시 강남구", "101호",
-			isDefault, true,
-			LocalDateTime.now(), LocalDateTime.now()
+	private DeliveryAddress createAddress(String addressName, boolean isDefault, Long userId) {
+		DeliveryAddressRequest.Create request = new DeliveryAddressRequest.Create(
+			addressName,
+			"홍길동",
+			"010-1234-5678",
+			"12345",
+			"서울시 강남구",
+			"101호",
+			isDefault
 		);
-	}
-
-	// 문서화용 Shadow DTO (LocalDateTime -> String)
-	static class TestDeliveryAddressResponse {
-		Long id;
-		String addressName;
-		String receiverName;
-		String receiverMobile;
-		String postalCode;
-		String roadAddress;
-		String detailAddress;
-		Boolean isDefault;
-		Boolean isActive;
-		String createdAt;
-		String updatedAt;
-
-		static TestDeliveryAddressResponse from(DeliveryAddressResponse real) {
-			var dto = new TestDeliveryAddressResponse();
-			dto.id = real.id();
-			dto.addressName = real.addressName();
-			dto.receiverName = real.receiverName();
-			dto.receiverMobile = real.receiverMobile();
-			dto.postalCode = real.postalCode();
-			dto.roadAddress = real.roadAddress();
-			dto.detailAddress = real.detailAddress();
-			dto.isDefault = real.isDefault();
-			dto.isActive = real.isActive();
-			dto.createdAt = real.createdAt().toString();
-			dto.updatedAt = real.updatedAt().toString();
-			return dto;
-		}
+		DeliveryAddress address = DeliveryAddress.from(userId, request);
+		return deliveryAddressRepository.save(address);
 	}
 }

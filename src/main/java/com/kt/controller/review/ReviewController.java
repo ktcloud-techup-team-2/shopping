@@ -3,7 +3,6 @@ package com.kt.controller.review;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -43,7 +42,7 @@ public class ReviewController {
 	@GetMapping
 	public ApiResponseEntity<List<ReviewResponse>> getReviewListByProduct(
 		@RequestParam Long productId,
-		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+		@PageableDefault(size = 10) Pageable pageable
 	) {
 		return ApiResponseEntity.pageOf(reviewService.getReviewListByProduct(productId, pageable));
 	}
