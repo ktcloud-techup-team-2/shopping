@@ -61,21 +61,21 @@ class AdminDeliveryControllerTest extends AbstractRestDocsTest {
 
 			// when & then
 			mockMvc.perform(
-					restDocsFactory.createRequest(
-						DEFAULT_URL + "?page=0&size=10",
+					restDocsFactory.createParamRequest(
+						DEFAULT_URL,
 						null,
-						HttpMethod.GET,
+						pageable,
 						objectMapper
 					).with(jwtAdmin())
 				)
 				.andExpect(status().isOk())
 				.andDo(result -> {
-						Page<Delivery> page = deliveryRepository.findAll(pageable);
-						var simpleResponses = page.getContent().stream()
+						var page = deliveryRepository.findAll(pageable);
+						var docsResponseContent = page.getContent().stream()
 							.map(DeliveryResponse.Simple::from)
 							.toList();
 
-						var docsResponse = ApiResponse.ofPage(simpleResponses, toPageBlock(page));
+						var docsResponse = ApiResponse.ofPage(docsResponseContent, toPageBlock(page));
 
 						restDocsFactory.success(
 							"admin-delivery-list",
