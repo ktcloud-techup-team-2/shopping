@@ -113,4 +113,8 @@ public class Pet extends BaseSoftDeleteEntity {
         this.allergy = allergy;
         this.photoUrl = photoUrl;
     }
+
+    public void delete(Long deleterId) {
+        markDeleted(deleterId);
+    }
 }

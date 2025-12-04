@@ -84,5 +84,16 @@ public class PetService {
                 .map(PetResponse::from);
     }
 
+    public void deletePet(Long userId, Long petId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Pet pet = petRepository.findByIdAndDeletedAtIsNull(petId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PET_NOT_FOUND));
+
+        Preconditions.validate(pet.getUser().getId().equals(userId), ErrorCode.PET_NOT_FOUND);
+
+        pet.delete(userId);
+    }
 }
 

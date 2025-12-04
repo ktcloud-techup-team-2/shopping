@@ -48,5 +48,14 @@ public class PetController {
         PetResponse response = petService.getMyPet(authUser.id(), id);
         return ApiResponseEntity.success(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ApiResponseEntity<Void> deletePet(
+            @AuthenticationPrincipal AuthUser authUser,
+            @PathVariable Long id
+    ) {
+        petService.deletePet(authUser.id(), id);
+        return ApiResponseEntity.empty();
+    }
 }
 
