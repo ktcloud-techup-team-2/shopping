@@ -1,5 +1,6 @@
 package com.kt.repository.product;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import org.apache.logging.log4j.util.Strings;
@@ -14,7 +15,7 @@ import com.kt.domain.product.ProductStatus;
 import com.kt.domain.product.QProduct;
 import com.kt.dto.product.ProductRequest;
 import com.kt.dto.product.ProductResponse;
-import com.querydsl.core.types.Projections;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -30,9 +31,8 @@ public class ProductQueryRepository {
 		QProduct product = QProduct.product;
 		QInventory inventory = QInventory.inventory;
 
-		var result = queryFactory
-			.select(Projections.constructor(
-				ProductResponse.Detail.class,
+		Tuple tuple = queryFactory
+			.select(
 				product.id,
 				product.name,
 				product.description,
@@ -43,14 +43,27 @@ public class ProductQueryRepository {
 				product.status,
 				product.petType,
 				product.deleted
-			))
+			)
 			.from(product)
 			.leftJoin(inventory).on(inventory.product.eq(product))
 			.where(product.id.eq(id)
 				.and(product.deleted.isFalse()))
 			.fetchOne();
 
-		return Optional.ofNullable(result);
+		return Optional.ofNullable(tuple)
+			.map(t -> new ProductResponse.Detail(
+				t.get(product.id),
+				t.get(product.name),
+				t.get(product.description),
+				t.get(product.price),
+				t.get(inventory.available),
+				t.get(inventory.reserved),
+				t.get(inventory.outboundProcessing),
+				t.get(product.status),
+				t.get(product.petType),
+				Boolean.TRUE.equals(t.get(product.deleted)),
+				Collections.emptyList()
+			));
 	}
 
 	public Page<ProductResponse.Summary> findSummaries(ProductRequest.SearchCond cond, Pageable pageable) {
@@ -59,22 +72,33 @@ public class ProductQueryRepository {
 
 		var conditions = buildConditions(cond);
 
-		var content = queryFactory
-			.select(Projections.constructor(
-				ProductResponse.Summary.class,
+		var tuples = queryFactory
+			.select(
 				product.id,
 				product.name,
 				product.price,
 				inventory.available,
 				product.status,
 				product.petType
-			))
+			)
 			.from(product)
 			.leftJoin(inventory).on(inventory.product.eq(product))
 			.where(conditions)
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
+
+		var content = tuples.stream()
+			.map(tuple -> new ProductResponse.Summary(
+				tuple.get(product.id),
+				tuple.get(product.name),
+				tuple.get(product.price),
+				tuple.get(inventory.available),
+				tuple.get(product.status),
+				tuple.get(product.petType),
+				Collections.emptyList()
+			))
+			.toList();
 
 		var total = queryFactory
 			.select(product.count())

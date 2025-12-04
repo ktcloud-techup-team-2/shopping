@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.kt.domain.pet.PetType;
 import com.kt.domain.product.Product;
 import com.kt.domain.product.ProductStatus;
 

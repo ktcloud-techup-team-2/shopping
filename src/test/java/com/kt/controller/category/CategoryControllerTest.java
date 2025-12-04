@@ -7,9 +7,17 @@ import com.kt.common.RestDocsFactory;
 import com.kt.common.api.ApiResponse;
 import com.kt.domain.category.Category;
 import com.kt.domain.category.CategoryStatus;
+import com.kt.domain.category.ProductCategory;
+import com.kt.domain.inventory.Inventory;
 import com.kt.domain.pet.PetType;
+import com.kt.domain.product.Product;
 import com.kt.dto.category.CategoryResponse;
 import com.kt.repository.category.CategoryRepository;
+import com.kt.repository.category.ProductCategoryRepository;
+import com.kt.repository.inventory.InventoryRepository;
+import com.kt.repository.product.ProductRepository;
+import com.kt.service.category.CategoryQueryService;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,6 +37,18 @@ class CategoryControllerTest extends AbstractRestDocsTest {
 
 	@Autowired
 	private CategoryRepository categoryRepository;
+
+	@Autowired
+	private ProductRepository productRepository;
+
+	@Autowired
+	private InventoryRepository inventoryRepository;
+
+	@Autowired
+	private ProductCategoryRepository productCategoryRepository;
+
+	@Autowired
+	private CategoryQueryService categoryQueryService;
 
 	@Test
 	void 분류_레벨_리스트_API_성공() throws Exception {
@@ -51,22 +71,67 @@ class CategoryControllerTest extends AbstractRestDocsTest {
 
 		// when & then
 		mockMvc.perform(
-				restDocsFactory.createRequest(
-						DEFAULT_URL + "/levels",
-						null,
-						HttpMethod.GET,
-						objectMapper
-					).param("petType", PetType.DOG.name())
-					.with(jwtUser())
+				restDocsFactory.createParamRequest(
+					DEFAULT_URL + "/levels",
+					new PetTypeParam(PetType.DOG),
+					null,
+					objectMapper
+				).with(jwtUser())
 			)
 			.andExpect(status().isOk())
 			.andDo(
-				restDocsFactory.success(
+				restDocsFactory.successWithRequestParameters(
 					"categories-levels",
 					"카테고리 레벨 조회",
 					"사용자 카테고리 레벨별 조회 API",
 					"Category",
+					new PetTypeParam(PetType.DOG),
 					null,
+					objectMapper,
+					docsResponse
+				)
+			);
+	}
+
+	@Test
+	void 카테고리_트리_API_성공() throws Exception {
+		Category root = categoryRepository.save(
+			Category.createRoot("루트", 1, CategoryStatus.ACTIVE, PetType.DOG)
+		);
+		Category child = categoryRepository.save(
+			Category.createChild(root, "자식", 1, CategoryStatus.ACTIVE, PetType.DOG)
+		);
+
+		Product product = productRepository.save(Product.create("상품", "상품 설명", 10_000, PetType.DOG));
+		Inventory inventory = inventoryRepository.save(Inventory.initialize(product));
+		inventory.applyWmsInbound(3);
+		inventoryRepository.save(inventory);
+		product.activate();
+		productRepository.save(product);
+
+		productCategoryRepository.save(ProductCategory.create(product, child));
+
+		var tree = categoryQueryService.getUserTree(PetType.DOG);
+		var docsResponse = ApiResponse.of(tree);
+
+		mockMvc.perform(
+				restDocsFactory.createParamRequest(
+					DEFAULT_URL + "/tree",
+					new PetTypeParam(PetType.DOG),
+					null,
+					objectMapper
+				).with(jwtUser())
+			)
+			.andExpect(status().isOk())
+			.andDo(
+				restDocsFactory.successWithRequestParameters(
+					"categories-tree",
+					"카테고리 트리 조회",
+					"사용자 카테고리 트리 조회 API",
+					"Category",
+					new PetTypeParam(PetType.DOG),
+					null,
+					objectMapper,
 					docsResponse
 				)
 			);
@@ -92,4 +157,6 @@ class CategoryControllerTest extends AbstractRestDocsTest {
 			.map(entry -> new CategoryResponse.UserLevels.Level(entry.getKey(), entry.getValue()))
 			.toList();
 	}
+
+	private record PetTypeParam(PetType petType) {}
 }

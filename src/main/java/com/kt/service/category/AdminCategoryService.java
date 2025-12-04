@@ -8,6 +8,8 @@ import com.kt.dto.category.CategoryRequest;
 import com.kt.dto.category.CategoryResponse;
 import com.kt.dto.tree.TreeMapper;
 import com.kt.repository.category.CategoryRepository;
+import com.kt.repository.category.ProductCategoryRepository;
+import com.kt.security.AuthUser;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminCategoryService {
 
 	private final CategoryRepository categoryRepository;
-	private final AuditorAware<Long> auditorAware;
+	private final ProductCategoryRepository productCategoryRepository;
 
 	public CategoryResponse.Detail create(CategoryRequest.Create request) {
 
@@ -68,11 +70,10 @@ public class AdminCategoryService {
 		return CategoryResponse.Detail.from(category);
 	}
 
-	public void delete(Long id) {
+	public void delete(Long id, AuthUser authUser) {
 		Category category = getExistingCategory(id);
-		// TODO :: auditorAware 파라미터로 변경 예정
-		Long deleterId = auditorAware.getCurrentAuditor().orElse(null);
-		category.softDelete(deleterId);
+		validateNoProductsInHierarchy(category);
+		category.softDelete(authUser.id());
 	}
 
 	@Transactional(readOnly = true)
@@ -108,5 +109,29 @@ public class AdminCategoryService {
 	private Category getExistingCategory(Long id) {
 		return categoryRepository.findByIdAndDeletedFalse(id)
 			.orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOT_FOUND));
+	}
+
+	private void validateNoProductsInHierarchy(Category category) {
+		List<Category> categories = categoryRepository.findAllForAdmin(category.getPetType());
+		List<Long> descendantIds = categories.stream()
+			.filter(c -> isDescendantOrSelf(category, c))
+			.map(Category::getId)
+			.toList();
+
+		long productCount = productCategoryRepository.countByCategoryIdIn(descendantIds);
+		if (productCount > 0) {
+			throw new CustomException(ErrorCode.CATEGORY_HAS_PRODUCTS);
+		}
+	}
+
+	private boolean isDescendantOrSelf(Category root, Category target) {
+		Category current = target;
+		while (current != null) {
+			if (current.getId().equals(root.getId())) {
+				return true;
+			}
+			current = current.getParent();
+		}
+		return false;
 	}
 }

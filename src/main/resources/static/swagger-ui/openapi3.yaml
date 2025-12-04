@@ -35,7 +35,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 8,
+                        "id" : 151,
                         "name" : "신규 카테고리",
                         "parentId" : null,
                         "depth" : 1,
@@ -46,12 +46,70 @@ paths:
                     }
       security:
       - bearerAuthJWT: []
+  /admin/orders:
+    get:
+      tags: [Admin-Order]
+      summary: 관리자 주문 전체 조회
+      description: 관리자 주문 전체 조회 API
+      operationId: admin-order-search
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/admins-signup486549215'}
+              examples:
+                admin-order-search:
+                  value: |-
+                    {
+                      "data" : [ {
+                        "id" : 212,
+                        "userId" : 1,
+                        "orderNumber" : "ORD-20251202-TESTA",
+                        "orderStatus" : "PENDING",
+                        "orderAmount" : 20000,
+                        "createdAt" : "2025-12-05T01:20:44.879119"
+                      } ]
+                    }
+      security:
+      - bearerAuthJWT: []
   /admin/products:
     get:
       tags: [Admin-Product]
       summary: 상품 리스트 조회
       description: 관리자 상품 리스트 조회 API
       operationId: admin-products-list
+      parameters:
+      - name: name
+        in: query
+        description: name
+        required: false
+        schema: {type: string}
+      - name: petType
+        in: query
+        description: petType
+        required: false
+        schema: {type: string}
+      - name: status
+        in: query
+        description: status
+        required: false
+        schema: {type: string}
+      - name: page
+        in: query
+        description: page
+        required: false
+        schema: {type: string}
+      - name: size
+        in: query
+        description: size
+        required: false
+        schema: {type: string}
+      - name: sort
+        in: query
+        description: sort
+        required: false
+        schema: {type: string}
       responses:
         '200':
           description: '200'
@@ -63,19 +121,21 @@ paths:
                   value: |-
                     {
                       "data" : [ {
-                        "id" : 102,
+                        "id" : 199,
                         "name" : "리스트 상품1",
                         "price" : 10000,
                         "availableQuantity" : 0,
                         "status" : "ACTIVE",
-                        "petType" : "DOG"
+                        "petType" : "DOG",
+                        "categories" : [ ]
                       }, {
-                        "id" : 103,
+                        "id" : 200,
                         "name" : "리스트 상품2",
                         "price" : 20000,
                         "availableQuantity" : 0,
                         "status" : "ACTIVE",
-                        "petType" : "DOG"
+                        "petType" : "DOG",
+                        "categories" : [ ]
                       } ],
                       "page" : {
                         "number" : 0,
@@ -106,6 +166,7 @@ paths:
                     "description" : "테스트 상품 설명",
                     "price" : 10000,
                     "petType" : "DOG",
+                    "categoryIds" : [ 159 ],
                     "activateImmediately" : false
                   }
       responses:
@@ -119,7 +180,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 106
+                        "id" : 203
                       }
                     }
       security:
@@ -135,31 +196,42 @@ paths:
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/TestPageResponse'}
+              schema: {$ref: '#/components/schemas/ApiResponse'}
               examples:
                 admin-review-list:
                   value: |-
                     {
                       "data" : [ {
-                        "reviewId" : 1,
-                        "userId" : 1,
-                        "productId" : 100,
+                        "reviewId" : 212,
+                        "userId" : 451,
+                        "productId" : 208,
                         "rating" : 5,
-                        "content" : "관리자용",
+                        "content" : "최고의 상품",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-04T15:15:15",
-                        "updatedAt" : "2025-12-04T15:15:15"
+                        "createdAt" : "2025-12-05T01:20:45",
+                        "updatedAt" : "2025-12-05T01:20:45"
+                      }, {
+                        "reviewId" : 213,
+                        "userId" : 451,
+                        "productId" : 208,
+                        "rating" : 4,
+                        "content" : "좋아요",
+                        "reviewImageUrl" : null,
+                        "createdAt" : "2025-12-05T01:20:45",
+                        "updatedAt" : "2025-12-05T01:20:45"
                       } ],
                       "page" : {
                         "number" : 0,
-                        "size" : 1,
-                        "totalElements" : 1,
+                        "size" : 10,
+                        "totalElements" : 2,
                         "totalPages" : 1,
                         "hasNext" : false,
                         "hasPrev" : false,
                         "sort" : [ ]
                       }
                     }
+      security:
+      - bearerAuthJWT: []
   /admin/users:
     get:
       tags: [Admin-User]
@@ -177,8 +249,8 @@ paths:
                   value: |-
                     {
                       "data" : [ {
-                        "id" : 15,
-                        "loginId" : "test1234",
+                        "id" : 460,
+                        "loginId" : "adminUser123",
                         "name" : "테스트",
                         "email" : "example123@gmail.com",
                         "phone" : "010-1234-5678",
@@ -206,12 +278,12 @@ paths:
                     {
                       "data" : {
                         "tree" : {
-                          "rootIds" : [ "1", "3" ],
+                          "rootIds" : [ "142", "144" ],
                           "nodesById" : {
-                            "1" : {
-                              "id" : "1",
+                            "142" : {
+                              "id" : "142",
                               "label" : "루트",
-                              "childrenIds" : [ "2" ],
+                              "childrenIds" : [ "143" ],
                               "state" : {
                                 "opened" : true,
                                 "checked" : false
@@ -219,8 +291,8 @@ paths:
                               "keywords" : "루트",
                               "sortOrder" : 1
                             },
-                            "3" : {
-                              "id" : "3",
+                            "144" : {
+                              "id" : "144",
                               "label" : "다른 루트",
                               "childrenIds" : [ ],
                               "state" : {
@@ -230,10 +302,10 @@ paths:
                               "keywords" : "다른 루트",
                               "sortOrder" : 2
                             },
-                            "2" : {
-                              "id" : "2",
+                            "143" : {
+                              "id" : "143",
                               "label" : "자식",
-                              "parentId" : "1",
+                              "parentId" : "142",
                               "childrenIds" : [ ],
                               "state" : {
                                 "opened" : false,
@@ -271,7 +343,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 7,
+                        "id" : 150,
                         "name" : "상세 카테고리",
                         "parentId" : null,
                         "depth" : 1,
@@ -302,7 +374,7 @@ paths:
                 value: |-
                   {
                     "name" : "수정된 이름",
-                    "parentId" : 5,
+                    "parentId" : 148,
                     "sortOrder" : 3,
                     "status" : "INACTIVE",
                     "petType" : "DOG"
@@ -318,9 +390,9 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 6,
+                        "id" : 149,
                         "name" : "수정된 이름",
-                        "parentId" : 5,
+                        "parentId" : 148,
                         "depth" : 2,
                         "sortOrder" : 3,
                         "status" : "INACTIVE",
@@ -355,18 +427,18 @@ paths:
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/ListN'}
+              schema: {$ref: '#/components/schemas/ApiResponse'}
               examples:
                 admin-courier-list:
                   value: |-
                     {
                       "data" : [ {
-                        "id" : 1,
+                        "id" : 59,
                         "code" : "CJ",
                         "name" : "CJ대한통운",
                         "isActive" : true
                       }, {
-                        "id" : 2,
+                        "id" : 60,
                         "code" : "POST",
                         "name" : "우체국",
                         "isActive" : true
@@ -401,7 +473,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 1,
+                        "id" : 61,
                         "code" : "CJ",
                         "name" : "CJ대한통운",
                         "isActive" : true
@@ -420,27 +492,129 @@ paths:
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/TestPageResponse'}
+              schema: {$ref: '#/components/schemas/ApiResponse'}
               examples:
                 admin-delivery-list:
                   value: |-
                     {
                       "data" : [ {
-                        "deliveryId" : 100,
+                        "deliveryId" : 148,
                         "orderId" : 1,
-                        "trackingNumber" : "TRACK123",
-                        "courierCode" : "CJ",
+                        "trackingNumber" : null,
+                        "courierCode" : null,
                         "status" : "PENDING",
-                        "createdAt" : "2025-12-04T15:15:14.032247"
+                        "createdAt" : "2025-12-05T01:20:44.552166"
+                      }, {
+                        "deliveryId" : 149,
+                        "orderId" : 2,
+                        "trackingNumber" : null,
+                        "courierCode" : null,
+                        "status" : "PENDING",
+                        "createdAt" : "2025-12-05T01:20:44.554217"
+                      }, {
+                        "deliveryId" : 150,
+                        "orderId" : 3,
+                        "trackingNumber" : null,
+                        "courierCode" : null,
+                        "status" : "PENDING",
+                        "createdAt" : "2025-12-05T01:20:44.555948"
+                      }, {
+                        "deliveryId" : 151,
+                        "orderId" : 4,
+                        "trackingNumber" : null,
+                        "courierCode" : null,
+                        "status" : "PENDING",
+                        "createdAt" : "2025-12-05T01:20:44.557575"
+                      }, {
+                        "deliveryId" : 152,
+                        "orderId" : 5,
+                        "trackingNumber" : null,
+                        "courierCode" : null,
+                        "status" : "PENDING",
+                        "createdAt" : "2025-12-05T01:20:44.55956"
+                      }, {
+                        "deliveryId" : 153,
+                        "orderId" : 6,
+                        "trackingNumber" : null,
+                        "courierCode" : null,
+                        "status" : "PENDING",
+                        "createdAt" : "2025-12-05T01:20:44.561439"
+                      }, {
+                        "deliveryId" : 154,
+                        "orderId" : 7,
+                        "trackingNumber" : null,
+                        "courierCode" : null,
+                        "status" : "PENDING",
+                        "createdAt" : "2025-12-05T01:20:44.563438"
+                      }, {
+                        "deliveryId" : 155,
+                        "orderId" : 8,
+                        "trackingNumber" : null,
+                        "courierCode" : null,
+                        "status" : "PENDING",
+                        "createdAt" : "2025-12-05T01:20:44.565537"
+                      }, {
+                        "deliveryId" : 156,
+                        "orderId" : 9,
+                        "trackingNumber" : null,
+                        "courierCode" : null,
+                        "status" : "PENDING",
+                        "createdAt" : "2025-12-05T01:20:44.567647"
+                      }, {
+                        "deliveryId" : 157,
+                        "orderId" : 10,
+                        "trackingNumber" : null,
+                        "courierCode" : null,
+                        "status" : "PENDING",
+                        "createdAt" : "2025-12-05T01:20:44.570264"
                       } ],
                       "page" : {
                         "number" : 0,
-                        "size" : 1,
-                        "totalElements" : 1,
-                        "totalPages" : 1,
-                        "hasNext" : false,
+                        "size" : 10,
+                        "totalElements" : 11,
+                        "totalPages" : 2,
+                        "hasNext" : true,
                         "hasPrev" : false,
                         "sort" : [ ]
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admin/orders/{id}:
+    get:
+      tags: [Admin-Order]
+      summary: 관리자 주문 상세 조회
+      description: 관리자 주문 상세 조회 API
+      operationId: admin-order-detail
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/admins-signup486549215'}
+              examples:
+                admin-order-detail:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 211,
+                        "userId" : 1,
+                        "orderNumber" : "ORD-20251202-TESTA",
+                        "orderStatus" : "PENDING",
+                        "orderAmount" : 20000,
+                        "receiver" : {
+                          "name" : "abc",
+                          "address" : "서울",
+                          "mobile" : "010-0000-0000"
+                        },
+                        "orderProducts" : [ ],
+                        "createdAt" : "2025-12-05T01:20:44.862826"
                       }
                     }
       security:
@@ -459,14 +633,14 @@ paths:
               admin-products-bulk-soldout:
                 value: |-
                   {
-                    "productIds" : [ 97, 98 ]
+                    "productIds" : [ 194, 195 ]
                   }
       responses:
         '200':
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/admin-products-sold-out486549215'}
+              schema: {$ref: '#/components/schemas/admins-signup486549215'}
               examples:
                 admin-products-bulk-soldout: {value: '{ }'}
       security:
@@ -494,7 +668,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 105,
+                        "id" : 202,
                         "name" : "상세 상품",
                         "description" : "상세 상품 설명",
                         "price" : 10000,
@@ -503,7 +677,8 @@ paths:
                         "outboundProcessingQuantity" : 0,
                         "status" : "DRAFT",
                         "petType" : "DOG",
-                        "deleted" : false
+                        "deleted" : false,
+                        "categories" : [ ]
                       }
                     }
       security:
@@ -530,7 +705,8 @@ paths:
                     "name" : "수정 후 상품",
                     "description" : "수정된 설명",
                     "price" : 20000,
-                    "petType" : "DOG"
+                    "petType" : "DOG",
+                    "categoryIds" : [ 158 ]
                   }
       responses:
         '200':
@@ -543,7 +719,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 101
+                        "id" : 198
                       }
                     }
       security:
@@ -577,22 +753,68 @@ paths:
         schema: {type: string}
       responses:
         '204': {description: '204'}
-  /admin/users/13:
+      security:
+      - bearerAuthJWT: []
+  /admin/users/{id}:
+    get:
+      tags: [Admin-User]
+      summary: 유저 단건 조회(관리자)
+      description: 관리자가 특정 유저의 정보를 조회하는 API
+      operationId: admin-users-get-one
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                admin-users-get-one:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 461,
+                        "loginId" : "adminUser123",
+                        "name" : "테스트",
+                        "email" : "example123@gmail.com",
+                        "phone" : "010-1234-5678",
+                        "gender" : "FEMALE",
+                        "birthday" : "2002-08-09"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
     delete:
       tags: [Admin-User]
       summary: 유저 삭제(관리자)
       description: 관리자가 특정 유저를 탈퇴(soft delete) 처리하는 API
       operationId: admin-users-delete
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
       responses:
         '204': {description: '204'}
       security:
       - bearerAuthJWT: []
-  /admin/users/14:
     patch:
       tags: [Admin-User]
       summary: 유저 정보 수정(관리자)
       description: 관리자가 특정 유저의 정보를 수정하는 API
       operationId: admin-users-update
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
       requestBody:
         content:
           application/json;charset=UTF-8:
@@ -617,41 +839,13 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 14,
-                        "loginId" : "test1234",
+                        "id" : 459,
+                        "loginId" : "adminUser123",
                         "name" : "관리자수정이름",
                         "email" : "updated-admin@example.com",
                         "phone" : "010-9999-8888",
                         "gender" : "FEMALE",
                         "birthday" : "1995-05-05"
-                      }
-                    }
-      security:
-      - bearerAuthJWT: []
-  /admin/users/16:
-    get:
-      tags: [Admin-User]
-      summary: 유저 단건 조회(관리자)
-      description: 관리자가 특정 유저의 정보를 조회하는 API
-      operationId: admin-users-get-one
-      responses:
-        '200':
-          description: '200'
-          content:
-            application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/Class'}
-              examples:
-                admin-users-get-one:
-                  value: |-
-                    {
-                      "data" : {
-                        "id" : 16,
-                        "loginId" : "test1234",
-                        "name" : "테스트",
-                        "email" : "example123@gmail.com",
-                        "phone" : "010-1234-5678",
-                        "gender" : "FEMALE",
-                        "birthday" : "2002-08-09"
                       }
                     }
       security:
@@ -676,7 +870,7 @@ paths:
               admin-courier-update:
                 value: |-
                   {
-                    "name" : "CJ GLS",
+                    "name" : "CJ GLS (수정됨)",
                     "isActive" : false
                   }
       responses:
@@ -690,9 +884,9 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 1,
-                        "code" : "CJ",
-                        "name" : "CJ GLS",
+                        "id" : 58,
+                        "code" : "OLD",
+                        "name" : "CJ GLS (수정됨)",
                         "isActive" : false
                       }
                     }
@@ -736,18 +930,106 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "deliveryId" : 100,
+                        "deliveryId" : 147,
                         "orderId" : 1,
-                        "receiverName" : "홍길동",
-                        "receiverMobile" : "010-1234-5678",
+                        "receiverName" : "홍길동100",
+                        "receiverMobile" : "010-1111-2222",
                         "postalCode" : "12345",
-                        "roadAddress" : "서울",
-                        "detailAddress" : "상세",
+                        "roadAddress" : "서울 강남로 100",
+                        "detailAddress" : "101호",
                         "deliveryFee" : 3000,
                         "status" : "PENDING",
-                        "courierCode" : "TRACK123",
-                        "trackingNumber" : "CJ",
-                        "createdAt" : "2025-12-04T15:15:14.012753"
+                        "courierCode" : null,
+                        "trackingNumber" : null,
+                        "createdAt" : "2025-12-05T01:20:44.530452"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admin/orders/{id}/cancel:
+    delete:
+      tags: [Admin-Order]
+      summary: 관리자 주문 취소
+      description: 관리자 주문 취소 API
+      operationId: admin-order-cancel
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/admins-signup486549215'}
+              examples:
+                admin-order-cancel:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 210,
+                        "userId" : 1,
+                        "orderNumber" : "ORD-20251202-TESTA",
+                        "orderStatus" : "CANCELLED",
+                        "orderAmount" : 20000,
+                        "receiver" : {
+                          "name" : "abc",
+                          "address" : "서울",
+                          "mobile" : "010-0000-0000"
+                        },
+                        "orderProducts" : [ ],
+                        "createdAt" : "2025-12-05T01:20:44.847475"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admin/orders/{id}/change-status:
+    patch:
+      tags: [Admin-Order]
+      summary: 관리자 주문 상태 변경
+      description: 관리자 주문 상태 변경 API
+      operationId: admin-order-change
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/ChangeStatus'}
+            examples:
+              admin-order-change:
+                value: |-
+                  {
+                    "status" : "SHIPPED"
+                  }
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/admins-signup486549215'}
+              examples:
+                admin-order-change:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 209,
+                        "userId" : 1,
+                        "orderNumber" : "ORD-20251202-TESTA",
+                        "orderStatus" : "SHIPPED",
+                        "orderAmount" : 20000,
+                        "receiver" : {
+                          "name" : "abc",
+                          "address" : "서울",
+                          "mobile" : "010-0000-0000"
+                        },
+                        "orderProducts" : [ ],
+                        "createdAt" : "2025-12-05T01:20:44.818912"
                       }
                     }
       security:
@@ -775,7 +1057,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 100
+                        "id" : 197
                       }
                     }
       security:
@@ -803,7 +1085,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 99
+                        "id" : 196
                       }
                     }
       security:
@@ -831,27 +1113,23 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 96
+                        "id" : 193
                       }
                     }
       security:
       - bearerAuthJWT: []
-  /admin/users/11/init-password:
-    patch:
-      tags: [Admin-User]
-      summary: 회원 비밀번호 초기화(관리자)
-      description: 관리자가 특정 유저의 비밀번호를 임시 비밀번호로 초기화하는 API
-      operationId: admin-users-init-password
-      responses:
-        '204': {description: '204'}
-      security:
-      - bearerAuthJWT: []
-  /admin/users/12/change-password:
+  /admin/users/{id}/change-password:
     patch:
       tags: [Admin-User]
       summary: 회원 비밀번호 변경(관리자)
       description: 관리자가 특정 유저의 비밀번호를 새 비밀번호로 변경하는 API
       operationId: admin-users-change-password
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
       requestBody:
         content:
           application/json;charset=UTF-8:
@@ -867,12 +1145,34 @@ paths:
         '204': {description: '204'}
       security:
       - bearerAuthJWT: []
-  /admin/users/242/in-activate:
+  /admin/users/{id}/in-activate:
     patch:
-      tags: [Admin-user]
+      tags: [Admin-User]
       summary: 유저 비활성화 (관리자)
       description: 관리자가 특정 유저를 비활성화하는 API
       operationId: admin-users-inactivate
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '204': {description: '204'}
+      security:
+      - bearerAuthJWT: []
+  /admin/users/{id}/init-password:
+    patch:
+      tags: [Admin-User]
+      summary: 회원 비밀번호 초기화(관리자)
+      description: 관리자가 특정 유저의 비밀번호를 임시 비밀번호로 초기화하는 API
+      operationId: admin-users-init-password
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
       responses:
         '204': {description: '204'}
       security:
@@ -912,18 +1212,68 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "deliveryId" : 100,
+                        "deliveryId" : 146,
                         "orderId" : 1,
-                        "receiverName" : "홍길동",
-                        "receiverMobile" : "010-1234-5678",
+                        "receiverName" : "홍길동100",
+                        "receiverMobile" : "010-1111-2222",
                         "postalCode" : "12345",
-                        "roadAddress" : "서울",
-                        "detailAddress" : "상세",
+                        "roadAddress" : "서울 강남로 100",
+                        "detailAddress" : "101호",
                         "deliveryFee" : 3000,
                         "status" : "SHIPPING",
-                        "courierCode" : "TRACK123",
-                        "trackingNumber" : "CJ",
-                        "createdAt" : "2025-12-04T15:15:13.961199"
+                        "courierCode" : "CJ",
+                        "trackingNumber" : "TRACK999",
+                        "createdAt" : "2025-12-05T01:20:44.496653"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /admin/delivery/orders/{deliveryId}/tracking-number:
+    post:
+      tags: [Admin-Delivery]
+      summary: 송장 번호 등록
+      description: 관리자가 배송 건에 대해 송장 번호를 등록하고 상태를 SHIPPING으로 변경합니다. (상태는 READY여야 성공)
+      operationId: admin-delivery-register-tracking-number
+      parameters:
+      - name: deliveryId
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/RegisterTracking'}
+            examples:
+              admin-delivery-register-tracking-number:
+                value: |-
+                  {
+                    "courierCode" : "CJ",
+                    "trackingNumber" : "TRACK123456"
+                  }
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                admin-delivery-register-tracking-number:
+                  value: |-
+                    {
+                      "data" : {
+                        "deliveryId" : 145,
+                        "orderId" : 10,
+                        "receiverName" : "홍길동1000",
+                        "receiverMobile" : "010-1111-2222",
+                        "postalCode" : "12345",
+                        "roadAddress" : "서울 강남로 100",
+                        "detailAddress" : "101호",
+                        "deliveryFee" : 3000,
+                        "status" : "SHIPPING",
+                        "courierCode" : "CJ",
+                        "trackingNumber" : "TRACK123456",
+                        "createdAt" : "2025-12-05T01:20:44.442831"
                       }
                     }
       security:
@@ -945,8 +1295,8 @@ paths:
                   value: |-
                     {
                       "data" : [ {
-                        "id" : 5,
-                        "loginId" : "admin_login",
+                        "id" : 424,
+                        "loginId" : "PasswordTest123",
                         "name" : "테스트관리자",
                         "email" : "admin@test.com",
                         "phone" : "010-9999-9999",
@@ -956,22 +1306,99 @@ paths:
                     }
       security:
       - bearerAuthJWT: []
-  /admins/2:
+  /admins/signup:
+    post:
+      tags: [Admin]
+      summary: 관리자 회원가입
+      description: 관리자 계정을 신규로 생성하는 API
+      operationId: admin-signup
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/Create'}
+            examples:
+              admin-signup:
+                value: |-
+                  {
+                    "loginId" : "PasswordTest123",
+                    "password" : "PasswordTest123!",
+                    "passwordConfirm" : "PasswordTest123!",
+                    "name" : "AdminName",
+                    "email" : "admin@example.com",
+                    "phone" : "010-1111-2222",
+                    "gender" : "FEMALE",
+                    "birthday" : "1990-01-01"
+                  }
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/admins-signup486549215'}
+              examples:
+                admin-signup: {value: '{ }'}
+      security:
+      - bearerAuthJWT: []
+  /admins/{id}:
+    get:
+      tags: [Admin]
+      summary: 관리자 단건 조회
+      description: 관리자가 특정 관리자 정보를 조회하는 API
+      operationId: admin-admins-get-one
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/Class'}
+              examples:
+                admin-admins-get-one:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 423,
+                        "loginId" : "PasswordTest123",
+                        "name" : "테스트관리자",
+                        "email" : "admin@test.com",
+                        "phone" : "010-9999-9999",
+                        "gender" : "FEMALE",
+                        "birthday" : "1990-01-01"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
     delete:
       tags: [Admin]
       summary: 관리자 삭제
       description: 관리자가 특정 관리자 계정을 삭제(soft delete)하는 API
       operationId: admin-admins-delete
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
       responses:
         '204': {description: '204'}
       security:
       - bearerAuthJWT: []
-  /admins/3:
     patch:
       tags: [Admin]
       summary: 관리자 정보 수정
       description: 관리자가 특정 관리자 정보를 수정하는 API
       operationId: admin-admins-update
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
       requestBody:
         content:
           application/json;charset=UTF-8:
@@ -996,8 +1423,8 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 3,
-                        "loginId" : "admin_login",
+                        "id" : 422,
+                        "loginId" : "PasswordTest123",
                         "name" : "수정된관리자이름",
                         "email" : "updated-admin@example.com",
                         "phone" : "010-8888-7777",
@@ -1007,73 +1434,18 @@ paths:
                     }
       security:
       - bearerAuthJWT: []
-  /admins/4:
-    get:
-      tags: [Admin]
-      summary: 관리자 단건 조회
-      description: 관리자가 특정 관리자 정보를 조회하는 API
-      operationId: admin-admins-get-one
-      responses:
-        '200':
-          description: '200'
-          content:
-            application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/Class'}
-              examples:
-                admin-admins-get-one:
-                  value: |-
-                    {
-                      "data" : {
-                        "id" : 4,
-                        "loginId" : "admin_login",
-                        "name" : "테스트관리자",
-                        "email" : "admin@test.com",
-                        "phone" : "010-9999-9999",
-                        "gender" : "FEMALE",
-                        "birthday" : "1990-01-01"
-                      }
-                    }
-      security:
-      - bearerAuthJWT: []
-  /admins/signup:
-    post:
-      tags: [Admin]
-      summary: 관리자 회원가입
-      description: 관리자 계정을 신규로 생성하는 API
-      operationId: admin-signup
-      requestBody:
-        content:
-          application/json;charset=UTF-8:
-            schema: {$ref: '#/components/schemas/Create'}
-            examples:
-              admin-signup:
-                value: |-
-                  {
-                    "loginId" : "adminTest123",
-                    "password" : "PasswordTest123!",
-                    "passwordConfirm" : "PasswordTest123!",
-                    "name" : "AdminName",
-                    "email" : "admin@example.com",
-                    "phone" : "010-1111-2222",
-                    "gender" : "FEMALE",
-                    "birthday" : "1990-01-01"
-                  }
-      responses:
-        '201':
-          description: '201'
-          content:
-            application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/admin-products-sold-out486549215'}
-              examples:
-                admin-signup: {value: '{ }'}
-      security:
-      - bearerAuthJWT: []
-  /admins/1/init-password:
+  /admins/{id}/init-password:
     patch:
       tags: [Admin]
       summary: 관리자 비밀번호 초기화
       description: 관리자가 특정 관리자 계정의 비밀번호를 임시 비밀번호로 초기화하는 API
       operationId: admin-admins-init-password
+      parameters:
+      - name: id
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
       responses:
         '204': {description: '204'}
       security:
@@ -1092,8 +1464,14 @@ paths:
               auth-login:
                 value: |-
                   {
-                    "loginId" : "idfortest123",
+                    "loginId" : "loginUser123",
                     "password" : "PasswordTest123!"
+                  }
+              auth-login-admin:
+                value: |-
+                  {
+                    "loginId" : "adminUser123",
+                    "password" : "AdminTest123!"
                   }
       responses:
         '200':
@@ -1105,16 +1483,34 @@ paths:
                 auth-login:
                   value: |-
                     {
-                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMCIsImlhdCI6MTc2NDgyODkxMSwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTc2NDgyOTIxMX0.n7-Malicx4iENZQTOoXHKTuslhcd9b3S_mBBc7mfxVs",
+                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0MzUiLCJpYXQiOjE3NjQ4NjUyNDMsImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE3NjQ4NjU1NDN9.pqo8MRB1rqwhjhdvMv81vWXdMyjC4h_hQEFfslfBBdo",
                       "tokenType" : "Bearer",
-                      "userId" : 10,
-                      "loginId" : "idfortest123"
+                      "userId" : 435,
+                      "loginId" : "loginUser123"
                     }
+                auth-login-admin:
+                  value: |-
+                    {
+                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0NDIiLCJpYXQiOjE3NjQ4NjUyNDMsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNzY0ODY1NTQzfQ.CoUz0JdToUAlG02RVvc9yB1wO_VDXDe3DJO9Eme5DZg",
+                      "tokenType" : "Bearer",
+                      "userId" : 442,
+                      "loginId" : "adminUser123"
+                    }
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: 로그아웃
+      description: AccessToken 블랙리스트 등록 및 RefreshToken 삭제 API
+      operationId: auth-logout
+      responses:
+        '204': {description: '204'}
+      security:
+      - bearerAuthJWT: []
   /auth/reissue:
     post:
       tags: [Auth]
       summary: 토큰 재발급
-      description: RefreshToken으로으로 AccessToken 재발급하는 API
+      description: RefreshToken으로 AccessToken 재발급하는 API
       operationId: auth-reissue
       requestBody:
         content:
@@ -1124,7 +1520,7 @@ paths:
               auth-reissue:
                 value: |-
                   {
-                    "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzY0ODI4OTExLCJleHAiOjE3NjQ4NzIxMTF9.JL6Rq8v7PWZ-VPNYDcNv_G4cJZZhkeue3ywuIMEKguo"
+                    "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0MzEiLCJpYXQiOjE3NjQ4NjUyNDMsImV4cCI6MTc2NDkwODQ0M30.iI-c_u0Sx7gNVj1vIBIiet0bkS-kqxGvjUnNSBL4PD4"
                   }
       responses:
         '200':
@@ -1136,9 +1532,9 @@ paths:
                 auth-reissue:
                   value: |-
                     {
-                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5IiwiaWF0IjoxNzY0ODI4OTExLCJhdXRoIjoiVVNFUiIsImV4cCI6MTc2NDgyOTIxMX0.B6NfZSAAXMi7FGxVUZoUPU9D6zwh2K839YveNZFHz1I",
+                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0MzEiLCJpYXQiOjE3NjQ4NjUyNDMsImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE3NjQ4NjU1NDN9.YCvuHbRbHYnAEKTKUcYypV2lwqOMWwllE_clJNDu39Q",
                       "grantType" : "Bearer",
-                      "userId" : 9
+                      "userId" : 431
                     }
   /categories/levels:
     get:
@@ -1146,6 +1542,12 @@ paths:
       summary: 카테고리 레벨 조회
       description: 사용자 카테고리 레벨별 조회 API
       operationId: categories-levels
+      parameters:
+      - name: petType
+        in: query
+        description: petType
+        required: false
+        schema: {type: string}
       responses:
         '200':
           description: '200'
@@ -1160,7 +1562,7 @@ paths:
                         "levels" : [ {
                           "depth" : 1,
                           "categories" : [ {
-                            "id" : 9,
+                            "id" : 154,
                             "name" : "루트",
                             "parentId" : null,
                             "petType" : "DOG",
@@ -1169,19 +1571,86 @@ paths:
                         }, {
                           "depth" : 2,
                           "categories" : [ {
-                            "id" : 10,
+                            "id" : 155,
                             "name" : "자식1",
-                            "parentId" : 9,
+                            "parentId" : 154,
                             "petType" : "DOG",
                             "sortOrder" : 1
                           }, {
-                            "id" : 11,
+                            "id" : 156,
                             "name" : "자식2",
-                            "parentId" : 9,
+                            "parentId" : 154,
                             "petType" : "DOG",
                             "sortOrder" : 2
                           } ]
                         } ]
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /categories/tree:
+    get:
+      tags: [Category]
+      summary: 카테고리 트리 조회
+      description: 사용자 카테고리 트리 조회 API
+      operationId: categories-tree
+      parameters:
+      - name: petType
+        in: query
+        description: petType
+        required: false
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                categories-tree:
+                  value: |-
+                    {
+                      "data" : {
+                        "tree" : {
+                          "rootIds" : [ "152" ],
+                          "nodesById" : {
+                            "152" : {
+                              "id" : "152",
+                              "label" : "루트",
+                              "childrenIds" : [ "153" ],
+                              "state" : {
+                                "opened" : true,
+                                "checked" : false
+                              },
+                              "keywords" : "루트",
+                              "sortOrder" : 1
+                            },
+                            "153" : {
+                              "id" : "153",
+                              "label" : "자식",
+                              "parentId" : "152",
+                              "childrenIds" : [ "P190-C153" ],
+                              "state" : {
+                                "opened" : true,
+                                "checked" : false
+                              },
+                              "keywords" : "자식",
+                              "sortOrder" : 1
+                            },
+                            "P190-C153" : {
+                              "id" : "P190-C153",
+                              "label" : "상품",
+                              "parentId" : "153",
+                              "childrenIds" : [ ],
+                              "state" : {
+                                "opened" : false,
+                                "checked" : false
+                              },
+                              "keywords" : "상품 설명",
+                              "sortOrder" : 2147483647
+                            }
+                          }
+                        }
                       }
                     }
       security:
@@ -1201,7 +1670,7 @@ paths:
                 value: |-
                   {
                     "orderId" : 1,
-                    "deliveryAddressId" : 100,
+                    "deliveryAddressId" : 233,
                     "deliveryFee" : 3000
                   }
       responses:
@@ -1215,18 +1684,18 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "deliveryId" : 100,
+                        "deliveryId" : 161,
                         "orderId" : 1,
                         "receiverName" : "홍길동",
                         "receiverMobile" : "010-1234-5678",
                         "postalCode" : "12345",
-                        "roadAddress" : "서울",
-                        "detailAddress" : "상세",
+                        "roadAddress" : "서울시 강남구",
+                        "detailAddress" : "101호",
                         "deliveryFee" : 3000,
                         "status" : "PENDING",
-                        "courierCode" : "TRACK123",
-                        "trackingNumber" : "CJ",
-                        "createdAt" : "2025-12-04T15:15:14.698922"
+                        "courierCode" : null,
+                        "trackingNumber" : null,
+                        "createdAt" : "2025-12-05T01:20:44.785926"
                       }
                     }
       security:
@@ -1242,35 +1711,37 @@ paths:
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/ListN'}
+              schema: {$ref: '#/components/schemas/ApiResponse'}
               examples:
                 delivery-address-list:
                   value: |-
-                    [ {
-                      "id" : 100,
-                      "addressName" : "집",
-                      "receiverName" : "홍길동",
-                      "receiverMobile" : "010-1234-5678",
-                      "postalCode" : "12345",
-                      "roadAddress" : "서울시 강남구",
-                      "detailAddress" : "101호",
-                      "isDefault" : true,
-                      "isActive" : true,
-                      "createdAt" : "2025-12-04T15:15:14.620133",
-                      "updatedAt" : "2025-12-04T15:15:14.620136"
-                    }, {
-                      "id" : 101,
-                      "addressName" : "회사",
-                      "receiverName" : "홍길동",
-                      "receiverMobile" : "010-1234-5678",
-                      "postalCode" : "12345",
-                      "roadAddress" : "서울시 강남구",
-                      "detailAddress" : "101호",
-                      "isDefault" : false,
-                      "isActive" : true,
-                      "createdAt" : "2025-12-04T15:15:14.620139",
-                      "updatedAt" : "2025-12-04T15:15:14.620139"
-                    } ]
+                    {
+                      "data" : [ {
+                        "id" : 228,
+                        "addressName" : "집",
+                        "receiverName" : "홍길동",
+                        "receiverMobile" : "010-1234-5678",
+                        "postalCode" : "12345",
+                        "roadAddress" : "서울시 강남구",
+                        "detailAddress" : "101호",
+                        "isDefault" : true,
+                        "isActive" : true,
+                        "createdAt" : "2025-12-05T01:20:44.688994",
+                        "updatedAt" : "2025-12-05T01:20:44.688994"
+                      }, {
+                        "id" : 229,
+                        "addressName" : "회사",
+                        "receiverName" : "홍길동",
+                        "receiverMobile" : "010-1234-5678",
+                        "postalCode" : "12345",
+                        "roadAddress" : "서울시 강남구",
+                        "detailAddress" : "101호",
+                        "isDefault" : false,
+                        "isActive" : true,
+                        "createdAt" : "2025-12-05T01:20:44.690583",
+                        "updatedAt" : "2025-12-05T01:20:44.690583"
+                      } ]
+                    }
       security:
       - bearerAuthJWT: []
     post:
@@ -1299,26 +1770,65 @@ paths:
           description: '201'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/TestDeliveryAddressResponse'}
+              schema: {$ref: '#/components/schemas/ApiResponse'}
               examples:
                 delivery-address-create:
                   value: |-
                     {
-                      "id" : 100,
-                      "addressName" : "집",
-                      "receiverName" : "홍길동",
-                      "receiverMobile" : "010-1234-5678",
-                      "postalCode" : "12345",
-                      "roadAddress" : "서울시 강남구",
-                      "detailAddress" : "101호",
-                      "isDefault" : true,
-                      "isActive" : true,
-                      "createdAt" : "2025-12-04T15:15:14.636776",
-                      "updatedAt" : "2025-12-04T15:15:14.636778"
+                      "data" : {
+                        "id" : 230,
+                        "addressName" : "집",
+                        "receiverName" : "홍길동",
+                        "receiverMobile" : "010-1234-5678",
+                        "postalCode" : "12345",
+                        "roadAddress" : "서울시 강남구",
+                        "detailAddress" : "101호",
+                        "isDefault" : true,
+                        "isActive" : true,
+                        "createdAt" : "2025-12-05T01:20:44.720023",
+                        "updatedAt" : "2025-12-05T01:20:44.720023"
+                      }
                     }
       security:
       - bearerAuthJWT: []
   /delivery/addresses/{addressId}:
+    get:
+      tags: [Delivery-Address]
+      summary: 배송지 상세 조회
+      description: 특정 ID의 배송지 상세 정보를 조회합니다.
+      operationId: delivery-address-detail
+      parameters:
+      - name: addressId
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                delivery-address-detail:
+                  value: |-
+                    {
+                      "data" : {
+                        "id" : 227,
+                        "addressName" : "상세조회",
+                        "receiverName" : "홍길동",
+                        "receiverMobile" : "010-1234-5678",
+                        "postalCode" : "12345",
+                        "roadAddress" : "서울시 강남구",
+                        "detailAddress" : "101호",
+                        "isDefault" : false,
+                        "isActive" : true,
+                        "createdAt" : "2025-12-05T01:20:44.671004",
+                        "updatedAt" : "2025-12-05T01:20:44.671004"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
     put:
       tags: [Delivery-Address]
       summary: 배송지 수정
@@ -1342,30 +1852,32 @@ paths:
                     "receiverName" : "김대리",
                     "receiverMobile" : "010-9876-5432",
                     "postalCode" : "54321",
-                    "roadAddress" : "판교",
-                    "detailAddress" : "사옥"
+                    "roadAddress" : "판교로",
+                    "detailAddress" : "사옥 1층"
                   }
       responses:
         '200':
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/TestDeliveryAddressResponse'}
+              schema: {$ref: '#/components/schemas/ApiResponse'}
               examples:
                 delivery-address-update:
                   value: |-
                     {
-                      "id" : 100,
-                      "addressName" : "회사",
-                      "receiverName" : "홍길동",
-                      "receiverMobile" : "010-1234-5678",
-                      "postalCode" : "12345",
-                      "roadAddress" : "서울시 강남구",
-                      "detailAddress" : "101호",
-                      "isDefault" : true,
-                      "isActive" : true,
-                      "createdAt" : "2025-12-04T15:15:14.593587",
-                      "updatedAt" : "2025-12-04T15:15:14.593591"
+                      "data" : {
+                        "id" : 226,
+                        "addressName" : "회사",
+                        "receiverName" : "김대리",
+                        "receiverMobile" : "010-9876-5432",
+                        "postalCode" : "54321",
+                        "roadAddress" : "판교로",
+                        "detailAddress" : "사옥 1층",
+                        "isDefault" : true,
+                        "isActive" : true,
+                        "createdAt" : "2025-12-05T01:20:44.646408",
+                        "updatedAt" : "2025-12-05T01:20:44.646408"
+                      }
                     }
       security:
       - bearerAuthJWT: []
@@ -1407,14 +1919,30 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "deliveryId" : 100,
+                        "deliveryId" : 159,
                         "courierCode" : "CJ",
                         "trackingNumber" : "TRACK123456",
                         "status" : "SHIPPING",
-                        "shippedAt" : "2025-12-04T15:15:14.66308",
+                        "shippedAt" : "2025-12-05T01:20:44.743546",
                         "deliveredAt" : null
                       }
                     }
+      security:
+      - bearerAuthJWT: []
+  /delivery/addresses/{addressId}/set-default:
+    patch:
+      tags: [Delivery-Address]
+      summary: 기본 배송지 설정
+      description: 특정 배송지를 사용자의 기본 배송지로 설정합니다. (기존 기본 배송지는 해제됨)
+      operationId: delivery-address-set-default
+      parameters:
+      - name: addressId
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '204': {description: '204'}
       security:
       - bearerAuthJWT: []
   /delivery/orders/{orderId}/status:
@@ -1440,18 +1968,157 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "deliveryId" : 100,
+                        "deliveryId" : 160,
                         "orderId" : 1,
                         "receiverName" : "홍길동",
                         "receiverMobile" : "010-1234-5678",
                         "postalCode" : "12345",
-                        "roadAddress" : "서울",
-                        "detailAddress" : "상세",
+                        "roadAddress" : "서울시 강남구",
+                        "detailAddress" : "101호",
                         "deliveryFee" : 3000,
                         "status" : "PENDING",
-                        "courierCode" : "TRACK123",
-                        "trackingNumber" : "CJ",
-                        "createdAt" : "2025-12-04T15:15:14.684978"
+                        "courierCode" : null,
+                        "trackingNumber" : null,
+                        "createdAt" : "2025-12-05T01:20:44.764138"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /orders:
+    get:
+      tags: [Order]
+      summary: 사용자 주문 전체 조회
+      description: 사용자 주문 전체 조회 API
+      operationId: order-search-all
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/admins-signup486549215'}
+              examples:
+                order-search-all:
+                  value: |-
+                    {
+                      "data" : [ {
+                        "orderNumber" : "ORD-20251202-TESTA",
+                        "orderStatus" : "PENDING",
+                        "orderAmount" : 20000,
+                        "createdAt" : "2025-12-05T01:20:44.977898"
+                      } ]
+                    }
+      security:
+      - bearerAuthJWT: []
+    post:
+      tags: [Order]
+      summary: 사용자 주문 생성
+      description: 사용자 주문 생성 API
+      operationId: order-create
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/Create'}
+            examples:
+              order-create:
+                value: |-
+                  {
+                    "productId" : 191,
+                    "receiverName" : "abc",
+                    "receiverAddress" : "서울",
+                    "receiverMobile" : "010-0000-0000",
+                    "quantity" : 2,
+                    "deliveryAddressId" : 234,
+                    "deliveryFee" : 3000
+                  }
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/admins-signup486549215'}
+              examples:
+                order-create:
+                  value: |-
+                    {
+                      "data" : {
+                        "orderNumber" : "ORD-20251205ICD4V",
+                        "orderStatus" : "PENDING",
+                        "orderAmount" : 20000,
+                        "createdAt" : "2025-12-05T01:20:44.94099"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /orders/{orderNumber}:
+    get:
+      tags: [Order]
+      summary: 사용자 주문 상세 조회
+      description: 사용자 주문 상세 조회 API
+      operationId: order-detail
+      parameters:
+      - name: orderNumber
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/admins-signup486549215'}
+              examples:
+                order-detail:
+                  value: |-
+                    {
+                      "data" : {
+                        "orderNumber" : "ORD-20251202-TESTA",
+                        "orderStatus" : "PENDING",
+                        "orderAmount" : 20000,
+                        "receiver" : {
+                          "name" : "abc",
+                          "address" : "서울",
+                          "mobile" : "010-0000-0000"
+                        },
+                        "orderProducts" : [ ],
+                        "createdAt" : "2025-12-05T01:20:44.960745"
+                      }
+                    }
+      security:
+      - bearerAuthJWT: []
+  /orders/{orderNumber}/cancel:
+    patch:
+      tags: [Order]
+      summary: 사용자 주문 취소
+      description: 사용자 주문 취소 API
+      operationId: order-cancel
+      parameters:
+      - name: orderNumber
+        in: path
+        description: ''
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/admins-signup486549215'}
+              examples:
+                order-cancel:
+                  value: |-
+                    {
+                      "data" : {
+                        "orderNumber" : "ORD-20251202-TESTA",
+                        "orderStatus" : "CANCELLED",
+                        "orderAmount" : 20000,
+                        "receiver" : {
+                          "name" : "abc",
+                          "address" : "서울",
+                          "mobile" : "010-0000-0000"
+                        },
+                        "orderProducts" : [ ],
+                        "createdAt" : "2025-12-05T01:20:44.902513"
                       }
                     }
       security:
@@ -1462,6 +2129,22 @@ paths:
       summary: 상품 리스트 조회
       description: 사용자 상품 리스트 조회 API
       operationId: products-list
+      parameters:
+      - name: page
+        in: query
+        description: page
+        required: false
+        schema: {type: string}
+      - name: size
+        in: query
+        description: size
+        required: false
+        schema: {type: string}
+      - name: sort
+        in: query
+        description: sort
+        required: false
+        schema: {type: string}
       responses:
         '200':
           description: '200'
@@ -1473,19 +2156,29 @@ paths:
                   value: |-
                     {
                       "data" : [ {
-                        "id" : 108,
+                        "id" : 205,
                         "name" : "공개 상품1",
                         "price" : 5000,
                         "availableQuantity" : 10,
                         "status" : "ACTIVE",
-                        "petType" : "DOG"
+                        "petType" : "DOG",
+                        "categories" : [ {
+                          "id" : 161,
+                          "name" : "강아지 카테고리",
+                          "depth" : 1
+                        } ]
                       }, {
-                        "id" : 109,
+                        "id" : 206,
                         "name" : "공개 상품2",
                         "price" : 15000,
                         "availableQuantity" : 10,
                         "status" : "ACTIVE",
-                        "petType" : "CAT"
+                        "petType" : "CAT",
+                        "categories" : [ {
+                          "id" : 162,
+                          "name" : "고양이 카테고리",
+                          "depth" : 1
+                        } ]
                       } ],
                       "page" : {
                         "number" : 0,
@@ -1522,7 +2215,7 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 107,
+                        "id" : 204,
                         "name" : "상세용 공개 상품",
                         "description" : "공개 상품 설명",
                         "price" : 5000,
@@ -1531,7 +2224,12 @@ paths:
                         "outboundProcessingQuantity" : 0,
                         "status" : "ACTIVE",
                         "petType" : "DOG",
-                        "deleted" : false
+                        "deleted" : false,
+                        "categories" : [ {
+                          "id" : 160,
+                          "name" : "상세 카테고리",
+                          "depth" : 1
+                        } ]
                       }
                     }
       security:
@@ -1547,31 +2245,42 @@ paths:
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/TestPageResponse'}
+              schema: {$ref: '#/components/schemas/ApiResponse'}
               examples:
                 review-list-by-product:
                   value: |-
                     {
                       "data" : [ {
-                        "reviewId" : 1,
-                        "userId" : 1,
-                        "productId" : 100,
+                        "reviewId" : 216,
+                        "userId" : 454,
+                        "productId" : 211,
                         "rating" : 5,
-                        "content" : "굿",
+                        "content" : "최고",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-04T15:15:15",
-                        "updatedAt" : "2025-12-04T15:15:15"
+                        "createdAt" : "2025-12-05T01:20:45",
+                        "updatedAt" : "2025-12-05T01:20:45"
+                      }, {
+                        "reviewId" : 217,
+                        "userId" : 454,
+                        "productId" : 211,
+                        "rating" : 4,
+                        "content" : "좋아요",
+                        "reviewImageUrl" : null,
+                        "createdAt" : "2025-12-05T01:20:45",
+                        "updatedAt" : "2025-12-05T01:20:45"
                       } ],
                       "page" : {
                         "number" : 0,
-                        "size" : 1,
-                        "totalElements" : 1,
+                        "size" : 10,
+                        "totalElements" : 2,
                         "totalPages" : 1,
                         "hasNext" : false,
                         "hasPrev" : false,
                         "sort" : [ ]
                       }
                     }
+      security:
+      - bearerAuthJWT: []
     post:
       tags: [Review]
       summary: 리뷰 작성
@@ -1585,7 +2294,7 @@ paths:
               review-create:
                 value: |-
                   {
-                    "productId" : 100,
+                    "productId" : 212,
                     "rating" : 5,
                     "content" : "좋아요",
                     "reviewImageUrl" : null
@@ -1601,16 +2310,18 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "reviewId" : 1,
+                        "reviewId" : 218,
                         "userId" : 1,
-                        "productId" : 100,
+                        "productId" : 212,
                         "rating" : 5,
                         "content" : "좋아요",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-04T15:15:15",
-                        "updatedAt" : "2025-12-04T15:15:15"
+                        "createdAt" : "2025-12-05T01:20:45",
+                        "updatedAt" : "2025-12-05T01:20:45"
                       }
                     }
+      security:
+      - bearerAuthJWT: []
   /reviews/{reviewId}:
     put:
       tags: [Review]
@@ -1646,16 +2357,18 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "reviewId" : 1,
-                        "userId" : 1,
-                        "productId" : 100,
-                        "rating" : 5,
+                        "reviewId" : 215,
+                        "userId" : 453,
+                        "productId" : 210,
+                        "rating" : 4,
                         "content" : "수정함",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-04T15:15:15",
-                        "updatedAt" : "2025-12-04T15:15:15"
+                        "createdAt" : "2025-12-05T01:20:45",
+                        "updatedAt" : "2025-12-05T01:20:45"
                       }
                     }
+      security:
+      - bearerAuthJWT: []
     delete:
       tags: [Review]
       summary: 리뷰 삭제
@@ -1669,6 +2382,8 @@ paths:
         schema: {type: string}
       responses:
         '204': {description: '204'}
+      security:
+      - bearerAuthJWT: []
   /users/change-password:
     patch:
       tags: [User]
@@ -1683,7 +2398,7 @@ paths:
               users-me-password-change:
                 value: |-
                   {
-                    "oldPassword" : "Test1234!",
+                    "oldPassword" : "PasswordTest123!",
                     "newPassword" : "NewPassword123!",
                     "newPasswordConfirm" : "NewPassword123!"
                   }
@@ -1708,8 +2423,8 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 24,
-                        "loginId" : "test1234",
+                        "id" : 469,
+                        "loginId" : "loginUser123",
                         "name" : "테스트유저",
                         "email" : "example123@gmail.com",
                         "phone" : "010-1234-5678",
@@ -1748,8 +2463,8 @@ paths:
                   value: |-
                     {
                       "data" : {
-                        "id" : 22,
-                        "loginId" : "test1234",
+                        "id" : 467,
+                        "loginId" : "loginUser123",
                         "name" : "수정된이름",
                         "email" : "updated@example.com",
                         "phone" : "010-9999-9999",
@@ -1773,7 +2488,7 @@ paths:
               user-signup:
                 value: |-
                   {
-                    "loginId" : "idfortest123",
+                    "loginId" : "loginUser123",
                     "password" : "PasswordTest123!",
                     "passwordConfirm" : "PasswordTest123!",
                     "name" : "JNSJ",
@@ -1787,7 +2502,7 @@ paths:
           description: '201'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/admin-products-sold-out486549215'}
+              schema: {$ref: '#/components/schemas/admins-signup486549215'}
               examples:
                 user-signup: {value: '{ }'}
   /users/withdrawal:
@@ -1819,13 +2534,13 @@ paths:
                       "data" : [ {
                         "orderNumber" : "ORD-TEST-001",
                         "orderStatus" : "PENDING",
-                        "totalPaymentAmount" : 10000,
-                        "createdAt" : "2025-12-04T15:15:16.49234"
+                        "orderAmount" : 10000,
+                        "createdAt" : "2025-12-05T01:20:46.956879"
                       }, {
                         "orderNumber" : "ORD-TEST-002",
                         "orderStatus" : "PENDING",
-                        "totalPaymentAmount" : 20000,
-                        "createdAt" : "2025-12-04T15:15:16.495707"
+                        "orderAmount" : 20000,
+                        "createdAt" : "2025-12-05T01:20:46.957906"
                       } ]
                     }
       security:
@@ -1847,23 +2562,23 @@ paths:
                   value: |-
                     {
                       "data" : [ {
-                        "reviewId" : 2,
-                        "userId" : 17,
+                        "reviewId" : 220,
+                        "userId" : 462,
                         "productId" : 2,
                         "rating" : 4,
                         "content" : "무난하게 쓸만해요.",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-04T15:15:16",
-                        "updatedAt" : "2025-12-04T15:15:16"
+                        "createdAt" : "2025-12-05T01:20:46",
+                        "updatedAt" : "2025-12-05T01:20:46"
                       }, {
-                        "reviewId" : 1,
-                        "userId" : 17,
+                        "reviewId" : 219,
+                        "userId" : 462,
                         "productId" : 1,
                         "rating" : 5,
                         "content" : "아주 만족스러운 상품입니다.",
                         "reviewImageUrl" : "http://image-server/review1.png",
-                        "createdAt" : "2025-12-04T15:15:16",
-                        "updatedAt" : "2025-12-04T15:15:16"
+                        "createdAt" : "2025-12-05T01:20:46",
+                        "updatedAt" : "2025-12-05T01:20:46"
                       } ],
                       "page" : {
                         "number" : 0,
@@ -1899,14 +2614,14 @@ paths:
                       "data" : {
                         "orderNumber" : "ORD-TEST-001",
                         "orderStatus" : "PENDING",
-                        "totalPaymentAmount" : 10000,
+                        "orderAmount" : 10000,
                         "receiver" : {
                           "name" : "테스트수령인",
                           "address" : "서울시 강남구 테헤란로 123",
                           "mobile" : "010-1111-2222"
                         },
                         "orderProducts" : [ ],
-                        "createdAt" : "2025-12-04T15:15:16.398693"
+                        "createdAt" : "2025-12-05T01:20:46.878759"
                       }
                     }
       security:
@@ -1917,26 +2632,9 @@ components:
       title: Update
       type: object
       properties:
-        name: {type: string, description: name, nullable: true}
-        isActive: {type: boolean, description: isActive, nullable: true}
-    ApiResponse:
-      title: ApiResponse
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            id: {type: number, description: id, nullable: true}
-          description: data
-        slice: {type: object, description: slice, nullable: true}
-        page: {type: object, description: page, nullable: true}
-    BulkSoldOut:
-      title: BulkSoldOut
-      type: object
-      properties:
-        productIds:
+        categoryIds:
           type: array
-          description: productIds
+          description: categoryIds
           nullable: true
           items:
             oneOf:
@@ -1944,8 +2642,12 @@ components:
             - {type: boolean}
             - {type: string}
             - {type: number}
-    TestPageResponse:
-      title: TestPageResponse
+        price: {type: number, description: price, nullable: true}
+        petType: {type: string, description: petType, nullable: true}
+        name: {type: string, description: name, nullable: true}
+        description: {type: string, description: description, nullable: true}
+    ApiResponse:
+      title: ApiResponse
       type: object
       properties:
         data:
@@ -1954,12 +2656,22 @@ components:
           items:
             type: object
             properties:
-              createdAt: {type: string, description: createdAt, nullable: true}
-              deliveryId: {type: number, description: deliveryId, nullable: true}
-              orderId: {type: number, description: orderId, nullable: true}
-              trackingNumber: {type: string, description: trackingNumber, nullable: true}
-              courierCode: {type: string, description: courierCode, nullable: true}
+              availableQuantity: {type: number, description: availableQuantity, nullable: true}
+              price: {type: number, description: price, nullable: true}
+              petType: {type: string, description: petType, nullable: true}
+              name: {type: string, description: name, nullable: true}
+              categories:
+                type: array
+                description: categories
+                items:
+                  type: object
+                  properties:
+                    depth: {type: number, description: depth, nullable: true}
+                    name: {type: string, description: name, nullable: true}
+                    id: {type: number, description: id, nullable: true}
+              id: {type: number, description: id, nullable: true}
               status: {type: string, description: status, nullable: true}
+        slice: {type: object, description: slice, nullable: true}
         page:
           type: object
           properties:
@@ -1980,6 +2692,20 @@ components:
                 - {type: number}
             totalElements: {type: number, description: totalElements, nullable: true}
           description: page
+    BulkSoldOut:
+      title: BulkSoldOut
+      type: object
+      properties:
+        productIds:
+          type: array
+          description: productIds
+          nullable: true
+          items:
+            oneOf:
+            - {type: object}
+            - {type: boolean}
+            - {type: string}
+            - {type: number}
     Create:
       title: Create
       type: object
@@ -1993,7 +2719,11 @@ components:
         name: {type: string, description: name, nullable: true}
         email: {type: string, description: email, nullable: true}
     Class: {title: Class, type: object}
-    ListN: {title: ListN, type: object}
+    ChangeStatus:
+      title: ChangeStatus
+      type: object
+      properties:
+        status: {type: string, description: status, nullable: true}
     AdminPasswordChange:
       title: AdminPasswordChange
       type: object
@@ -2007,27 +2737,18 @@ components:
         trackingNumber: {type: string, description: trackingNumber, nullable: true}
         courierCode: {type: string, description: courierCode, nullable: true}
         status: {type: string, description: status, nullable: true}
-    admin-products-sold-out486549215: {type: object}
+    RegisterTracking:
+      title: RegisterTracking
+      type: object
+      properties:
+        trackingNumber: {type: string, description: trackingNumber, nullable: true}
+        courierCode: {type: string, description: courierCode, nullable: true}
+    admins-signup486549215: {type: object}
     TokenReissueRequestDto:
       title: TokenReissueRequestDto
       type: object
       properties:
         refreshToken: {type: string, description: refreshToken, nullable: true}
-    TestDeliveryAddressResponse:
-      title: TestDeliveryAddressResponse
-      type: object
-      properties:
-        createdAt: {type: string, description: createdAt, nullable: true}
-        isDefault: {type: boolean, description: isDefault, nullable: true}
-        receiverName: {type: string, description: receiverName, nullable: true}
-        roadAddress: {type: string, description: roadAddress, nullable: true}
-        postalCode: {type: string, description: postalCode, nullable: true}
-        receiverMobile: {type: string, description: receiverMobile, nullable: true}
-        detailAddress: {type: string, description: detailAddress, nullable: true}
-        addressName: {type: string, description: addressName, nullable: true}
-        id: {type: number, description: id, nullable: true}
-        isActive: {type: boolean, description: isActive, nullable: true}
-        updatedAt: {type: string, description: updatedAt, nullable: true}
     PasswordChange:
       title: PasswordChange
       type: object

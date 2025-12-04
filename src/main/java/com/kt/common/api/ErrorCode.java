@@ -54,6 +54,7 @@ public enum ErrorCode {
 	CATEGORY_PET_TYPE_REQUIRED(HttpStatus.BAD_REQUEST, "카테고리 반려동물 분류는 필수입니다."),
 	CATEGORY_STATUS_REQUIRED(HttpStatus.BAD_REQUEST, "카테고리 상태는 필수입니다."),
 	CATEGORY_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 삭제된 카테고리입니다."),
+	CATEGORY_HAS_PRODUCTS(HttpStatus.CONFLICT, "하위에 연결된 상품이 있어 삭제할 수 없습니다."),
 
 	// ---------------- PRODUCT -------------------
 	PRODUCT_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "상품명은 필수 입력 값입니다."),
