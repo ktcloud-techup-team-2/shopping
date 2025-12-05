@@ -7,6 +7,7 @@ import com.kt.common.RestDocsFactory;
 import com.kt.common.api.ApiResponse;
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
+import com.kt.common.api.PageBlock;
 import com.kt.domain.delivery.Courier;
 import com.kt.dto.delivery.CourierRequest;
 import com.kt.dto.delivery.CourierResponse;
@@ -15,6 +16,8 @@ import com.kt.repository.delivery.CourierRepository;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,22 +75,31 @@ class AdminCourierControllerTest extends AbstractRestDocsTest {
 	class 택배사_목록_조회_API {
 		@Test
 		void 성공() throws Exception {
-			// given
-			Courier courier1 = createCourier("CJ", "CJ대한통운");
-			Courier courier2 = createCourier("POST", "우체국");
 
-			List<Courier> courierList = List.of(courier1, courier2);
-			var docsResponse = courierList.stream()
+			PageRequest pageable = PageRequest.of(0, 10);
+
+			// given
+			createCourier("CJ", "CJ대한통운");
+			createCourier("POST", "우체국");
+			createCourier("HAPEX", "한진택배");
+			createCourier("KDEXP", "경동택배");
+			createCourier("LOTTE", "롯데택배");
+			createCourier("FEDEX", "페덱스");
+
+			Page<Courier> page = courierRepository.findAll(pageable);
+
+			var docsResponseContent = page.getContent().stream()
 				.map(CourierResponse::from)
 				.toList();
-			var finalDocsResponse = ApiResponse.of(docsResponse);
+
+			var docsResponse = ApiResponse.ofPage(docsResponseContent, toPageBlock(page));
 
 			// when & then
 			mockMvc.perform(
-					restDocsFactory.createRequest(
+					restDocsFactory.createParamRequest(
 						DEFAULT_URL,
 						null,
-						HttpMethod.GET,
+						pageable,
 						objectMapper
 					).with(jwtAdmin())
 				)
@@ -99,7 +111,7 @@ class AdminCourierControllerTest extends AbstractRestDocsTest {
 						"전체 택배사 목록을 조회합니다.",
 						"Admin-Courier",
 						null,
-						finalDocsResponse
+						docsResponse
 					)
 				);
 		}
@@ -176,5 +188,19 @@ class AdminCourierControllerTest extends AbstractRestDocsTest {
 	private Courier createCourier(String code, String name) {
 		Courier courier = Courier.create(code, name);
 		return courierRepository.save(courier);
+	}
+
+	private PageBlock toPageBlock(Page<?> page) {
+		return new PageBlock(
+			page.getNumber(),
+			page.getSize(),
+			page.getTotalElements(),
+			page.getTotalPages(),
+			page.hasNext(),
+			page.hasPrevious(),
+			page.getSort().stream()
+				.map(order -> new PageBlock.SortOrder(order.getProperty(), order.getDirection().name()))
+				.toList()
+		);
 	}
 }
