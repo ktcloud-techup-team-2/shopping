@@ -89,7 +89,9 @@ public enum ErrorCode {
 	PAYMENT_APPROVE_NOT_ALLOWED(HttpStatus.CONFLICT, "결제 승인이 불가능한 상태입니다."),
 	PAYMENT_ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소된 결제입니다."),
 	PAYMENT_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT, "결제 취소가 불가능한 상태입니다."),
-
+    // ---------------- MAIL -------------------
+    MAIL_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 전송 중 오류가 발생했습니다."),
+    MAIL_CONTENT_BUILD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 내용을 생성하는 중 오류가 발생했습니다."),
     // ---------------- PET -------------------
     PET_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 반려동물을 찾을 수 없습니다.");
 
