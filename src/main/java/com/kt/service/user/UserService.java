@@ -7,13 +7,16 @@ import com.kt.domain.user.User;
 import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
 import com.kt.repository.user.UserRepository;
+import com.kt.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
@@ -22,6 +25,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenProvider tokenProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
     public void signup(UserRequest.Create request) {
         Preconditions.validate(request.password().equals(request.passwordConfirm()), ErrorCode.INVALID_PASSWORD_CHECK);
@@ -73,15 +78,30 @@ public class UserService {
         return UserResponse.from(user);
     }
 
-    public void deleteUser(Long userId) {
+    public void deleteUser(Long userId, String accessToken) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (user.isDeleted()) {
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        }
+        Preconditions.validate(!user.isDeleted(), ErrorCode.USER_NOT_FOUND);
 
         user.softDelete();
+
+        Preconditions.validate(tokenProvider.validateToken(accessToken), ErrorCode.UNAUTHORIZED_CLIENT);
+
+        String refreshKey = "refreshToken:" + userId;
+        redisTemplate.delete(refreshKey);
+
+        long remainingTime = tokenProvider.getRemainingValidity(accessToken);
+
+        if(remainingTime > 0) {
+            String blacklistKey = "blacklist:" + accessToken;
+            redisTemplate.opsForValue().set(
+                    blacklistKey,
+                    "deactivated",
+                    remainingTime,
+                    TimeUnit.MILLISECONDS
+            );
+        }
     }
 
     public void changePassword(Long userId, UserRequest.PasswordChange request) {
@@ -116,6 +136,14 @@ public class UserService {
     }
 
     public void inactivateUser(Long userId) {
-        deleteUser(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Preconditions.validate(!user.isDeleted(), ErrorCode.USER_NOT_FOUND);
+
+        user.softDelete();
+
+        String refreshKey = "refreshToken:" + userId;
+        redisTemplate.delete(refreshKey);
     }
 }

@@ -41,9 +41,11 @@ public class AdminUserController {
 
     @DeleteMapping("/{id}")
     public ApiResponseEntity<Void> deleteMyInfo(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String authorizationHeader
     ) {
-        userService.deleteUser(id);
+        String accessToken = authorizationHeader.replace("Bearer ", "");
+        userService.deleteUser(id, accessToken);
         return ApiResponseEntity.empty();
     }
 
