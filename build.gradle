@@ -79,7 +79,8 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // mail
-    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' // 이메일을 템플릿으로 전송
+    implementation 'software.amazon.awssdk:ses:2.29.46' // AWS SDK
 }
 
 // 테스트 후 → OAS 생성 + JWT merge + swagger-ui로 복사까지 한 번에
