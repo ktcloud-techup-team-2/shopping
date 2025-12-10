@@ -1,8 +1,7 @@
 package com.kt.dto.auth;
 
-public record MailResponse(
+public record EmailResponse(
         boolean success,
         String message,
-        int verificationCode
-) {
-}
+        String verificationCode
+) {}
