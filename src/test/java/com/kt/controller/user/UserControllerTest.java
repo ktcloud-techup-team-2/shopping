@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
@@ -31,6 +32,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -71,6 +73,10 @@ public class UserControllerTest extends AbstractRestDocsTest {
 
     @BeforeEach
     void setUpUser() {
+        ValueOperations<String, String> stringValueOperations = mock(ValueOperations.class);
+        when(stringRedisTemplate.opsForValue()).thenReturn(stringValueOperations);
+        doNothing().when(stringValueOperations).set(anyString(), anyString(), anyLong(), any());
+
         petRepository.deleteAll();
         userRepository.deleteAll();
         orderRepository.deleteAll();

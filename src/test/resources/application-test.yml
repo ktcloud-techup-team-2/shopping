@@ -28,3 +28,9 @@ jwt:
 delivery:
   policy:
     max-address-count: 10
+aws:
+  ses:
+    access-key: dummy-test-access-key
+    secret-key: dummy-test-secret-key
+    send-mail-from: no-reply@example.com
+  region: ap-northeast-2
