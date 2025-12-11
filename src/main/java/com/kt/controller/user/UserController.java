@@ -53,9 +53,11 @@ public class UserController {
 
     @DeleteMapping("/withdrawal")
     public ApiResponseEntity<Void> deleteMyInfo(
-            @AuthenticationPrincipal AuthUser authUser
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestHeader("Authorization") String authorizationHeader
     ) {
-        userService.deleteUser(authUser.id());
+        String accessToken = authorizationHeader.replace("Bearer ", "");
+        userService.deleteUser(authUser.id(), accessToken);
         return ApiResponseEntity.empty();
     }
 

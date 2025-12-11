@@ -1,5 +1,6 @@
 package com.kt.service.auth;
 
+import com.kt.common.Preconditions;
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.domain.user.User;
@@ -91,9 +92,8 @@ public class AuthService {
     }
 
     public void logout(Long userId, String accessToken) {
-        if (!tokenProvider.validateToken(accessToken)) {
-            throw new JwtException(ErrorCode.UNAUTHORIZED_CLIENT.getMessage());
-        }
+
+        Preconditions.validate(tokenProvider.validateToken(accessToken), ErrorCode.UNAUTHORIZED_CLIENT);
 
         String refreshKey = "refreshToken:" + userId;
         redisTemplate.delete(refreshKey);
