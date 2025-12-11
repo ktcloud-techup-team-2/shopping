@@ -14,16 +14,22 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,12 +48,20 @@ public class AuthControllerTest extends AbstractRestDocsTest {
     private static final String ADMIN_LOGIN_ID  = "adminUser123";
     private static final String ADMIN_PASSWORD  = "AdminTest123!";
 
+    @MockitoBean
+    private StringRedisTemplate stringRedisTemplate;
+
+    @MockitoBean
+    private RedissonClient redissonClient;
+
+    @Mock
+    private ValueOperations<String, String> valueOperations;
+
     @Autowired
     private RestDocsFactory restDocsFactory;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -58,13 +72,12 @@ public class AuthControllerTest extends AbstractRestDocsTest {
 
     @BeforeEach
     void setUp() {
+        given(stringRedisTemplate.opsForValue()).willReturn(valueOperations);
+        given(valueOperations.get(any())).willReturn("loginUser123");
+
         SecurityContextHolder.clearContext();
         petRepository.deleteAll();
         userRepository.deleteAll();
-        stringRedisTemplate.getConnectionFactory()
-                .getConnection()
-                .serverCommands()
-                .flushAll();
 
         User user = User.user(
                 LOGIN_ID,
@@ -195,67 +208,65 @@ public class AuthControllerTest extends AbstractRestDocsTest {
     class 토큰_재발급_API {
         @Test
         void 성공() throws Exception {
-
             LoginRequest loginRequest = new LoginRequest(LOGIN_ID, PASSWORD);
 
             String loginResponseBody = mockMvc.perform(
-                            restDocsFactory.createRequest(
-                                    LOGIN_URL,
-                                    loginRequest,
-                                    HttpMethod.POST,
-                                    objectMapper
-                            )
-                    )
-                    .andExpect(status().isOk())
-                    .andReturn()
-                    .getResponse()
-                    .getContentAsString();
+                restDocsFactory.createRequest(
+                  LOGIN_URL,
+                  loginRequest,
+                  HttpMethod.POST,
+                  objectMapper
+                )
+              )
+              .andExpect(status().isOk())
+              .andReturn()
+              .getResponse()
+              .getContentAsString();
 
             LoginResponse loginResponse =
-                    objectMapper.readValue(loginResponseBody, LoginResponse.class);
+              objectMapper.readValue(loginResponseBody, LoginResponse.class);
 
+            String validJwtToken = loginResponse.accessToken();
             Long loginUserId = loginResponse.userId();
 
-            String redisKey = "refreshToken:" + loginUserId;
-            String refreshToken = stringRedisTemplate.opsForValue().get(redisKey);
+            given(valueOperations.get("refreshToken:" + loginUserId)).willReturn(validJwtToken);
 
-            TokenReissueRequestDto request = new TokenReissueRequestDto(refreshToken);
+            TokenReissueRequestDto request = new TokenReissueRequestDto(validJwtToken);
 
             mockMvc.perform(
-                            restDocsFactory.createRequest(
-                                    REISSUE_URL,
-                                    request,
-                                    HttpMethod.POST,
-                                    objectMapper
-                            )
-                    )
-                    .andDo(print())
-                    .andExpect(status().isOk())
-                    .andDo(
-                            restDocsFactory.success(
-                                    "auth-reissue",
-                                    "토큰 재발급",
-                                    "RefreshToken으로 AccessToken 재발급하는 API",
-                                    "Auth",
-                                    request,
-                                    TokenResponseDto.class
-                            )
-                    );
+                restDocsFactory.createRequest(
+                  REISSUE_URL,
+                  request,
+                  HttpMethod.POST,
+                  objectMapper
+                )
+              )
+              .andDo(print())
+              .andExpect(status().isOk())
+              .andDo(
+                restDocsFactory.success(
+                  "auth-reissue",
+                  "토큰 재발급",
+                  "RefreshToken으로 AccessToken 재발급하는 API",
+                  "Auth",
+                  request,
+                  TokenResponseDto.class
+                )
+              );
         }
 
         @Test
         void 실패_유효하지_않은_refreshToken() throws Exception {
-
             TokenReissueRequestDto request = new TokenReissueRequestDto("invalid-refresh-token");
             mockMvc.perform(
-                    restDocsFactory.createRequest(
-                            REISSUE_URL,
-                            request,
-                            HttpMethod.POST,
-                            objectMapper
-                    )
-            )
-                    .andExpect(status().isUnauthorized());
+                restDocsFactory.createRequest(
+                  REISSUE_URL,
+                  request,
+                  HttpMethod.POST,
+                  objectMapper
+                )
+              )
+              .andExpect(status().isUnauthorized());
         }
     }
 

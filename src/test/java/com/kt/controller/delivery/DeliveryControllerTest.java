@@ -6,8 +6,11 @@ import java.util.LinkedHashMap;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpMethod;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.common.AbstractRestDocsTest;
@@ -27,6 +30,12 @@ class DeliveryControllerTest extends AbstractRestDocsTest {
 
 	private static final String DEFAULT_URL = "/delivery";
 	private static final Long TEST_USER_ID = 1L;
+
+	@MockitoBean
+	private StringRedisTemplate stringRedisTemplate;
+
+	@MockitoBean
+	private RedissonClient redissonClient;
 
 	@Autowired
 	private RestDocsFactory restDocsFactory;
