@@ -7,7 +7,6 @@ import com.kt.common.RestDocsFactory;
 import com.kt.common.api.ApiResponse;
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
-import com.kt.common.api.PageBlock;
 import com.kt.domain.delivery.Courier;
 import com.kt.dto.delivery.CourierRequest;
 import com.kt.dto.delivery.CourierResponse;
@@ -15,10 +14,11 @@ import com.kt.repository.delivery.CourierRepository;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpMethod;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -27,6 +27,12 @@ import java.util.List;
 class AdminCourierControllerTest extends AbstractRestDocsTest {
 
 	private static final String DEFAULT_URL = "/admin/delivery/couriers";
+
+	@MockitoBean
+	private StringRedisTemplate stringRedisTemplate;
+
+	@MockitoBean
+	private RedissonClient redissonClient;
 
 	@Autowired
 	private RestDocsFactory restDocsFactory;
@@ -75,31 +81,22 @@ class AdminCourierControllerTest extends AbstractRestDocsTest {
 	class 택배사_목록_조회_API {
 		@Test
 		void 성공() throws Exception {
-
-			PageRequest pageable = PageRequest.of(0, 10);
-
 			// given
-			createCourier("CJ", "CJ대한통운");
-			createCourier("POST", "우체국");
-			createCourier("HAPEX", "한진택배");
-			createCourier("KDEXP", "경동택배");
-			createCourier("LOTTE", "롯데택배");
-			createCourier("FEDEX", "페덱스");
+			Courier courier1 = createCourier("CJ", "CJ대한통운");
+			Courier courier2 = createCourier("POST", "우체국");
 
-			Page<Courier> page = courierRepository.findAll(pageable);
-
-			var docsResponseContent = page.getContent().stream()
+			List<Courier> courierList = List.of(courier1, courier2);
+			var docsResponse = courierList.stream()
 				.map(CourierResponse::from)
 				.toList();
-
-			var docsResponse = ApiResponse.ofPage(docsResponseContent, toPageBlock(page));
+			var finalDocsResponse = ApiResponse.of(docsResponse);
 
 			// when & then
 			mockMvc.perform(
-					restDocsFactory.createParamRequest(
+					restDocsFactory.createRequest(
 						DEFAULT_URL,
 						null,
-						pageable,
+						HttpMethod.GET,
 						objectMapper
 					).with(jwtAdmin())
 				)
@@ -111,7 +108,7 @@ class AdminCourierControllerTest extends AbstractRestDocsTest {
 						"전체 택배사 목록을 조회합니다.",
 						"Admin-Courier",
 						null,
-						docsResponse
+						finalDocsResponse
 					)
 				);
 		}
@@ -188,19 +185,5 @@ class AdminCourierControllerTest extends AbstractRestDocsTest {
 	private Courier createCourier(String code, String name) {
 		Courier courier = Courier.create(code, name);
 		return courierRepository.save(courier);
-	}
-
-	private PageBlock toPageBlock(Page<?> page) {
-		return new PageBlock(
-			page.getNumber(),
-			page.getSize(),
-			page.getTotalElements(),
-			page.getTotalPages(),
-			page.hasNext(),
-			page.hasPrevious(),
-			page.getSort().stream()
-				.map(order -> new PageBlock.SortOrder(order.getProperty(), order.getDirection().name()))
-				.toList()
-		);
 	}
 }

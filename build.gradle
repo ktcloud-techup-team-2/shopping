@@ -45,6 +45,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    implementation 'io.netty:netty-resolver-dns-native-macos:4.1.117.Final:osx-aarch_64'
+    implementation 'io.netty:netty-resolver-dns:4.1.117.Final'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "org.redisson:redisson-spring-boot-starter:3.32.0"
 
@@ -176,9 +178,35 @@ tasks.register('copyOasToSwagger', Copy) {
 
 // ./gradlew build / bootJar 시에도 문서 포함
 tasks.named('build') {
-    dependsOn 'copyOasToSwagger'
 }
 
 tasks.named('bootJar') {
     dependsOn 'copyOasToSwagger'
+    enabled = true
+    archiveFileName = "shopping.jar"
+
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    from("build/api-spec/openapi3.yaml") {
+        into 'BOOT-INF/classes/static/swagger-ui'
+    }
+}
+
+tasks.register("zip", Zip.class) {
+    dependsOn('generateOasZip')
+    group("build")
+    archiveFileName = "shopping.zip"
+
+    from("build/libs/shopping.jar") { into("") }
+    from(".ebextensions") { into(".ebextensions") }
+}
+
+tasks.register('generateOasZip') {
+    dependsOn 'bootJar'
+    dependsOn 'copyOasToSwagger'
+}
+afterEvaluate {
+    tasks.named('openapi3') {
+        dependsOn 'test'
+    }
 }
