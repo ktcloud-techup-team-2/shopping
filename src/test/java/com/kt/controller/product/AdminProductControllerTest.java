@@ -6,6 +6,8 @@ import java.util.List;
 
 import com.kt.common.api.ApiResponse;
 import com.kt.common.api.PageBlock;
+import com.kt.domain.category.Category;
+import com.kt.domain.category.CategoryStatus;
 import com.kt.domain.inventory.Inventory;
 import com.kt.domain.pet.PetType;
 import com.kt.domain.product.Product;
@@ -14,6 +16,7 @@ import com.kt.dto.product.ProductRequest;
 import com.kt.dto.product.ProductResponse;
 import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
+import com.kt.repository.category.CategoryRepository;
 import com.kt.repository.inventory.InventoryRepository;
 import com.kt.repository.product.ProductQueryRepository;
 import com.kt.repository.product.ProductRepository;
@@ -43,17 +46,22 @@ class AdminProductControllerTest extends AbstractRestDocsTest {
 	@Autowired
 	private InventoryRepository inventoryRepository;
 
+	@Autowired
+	private CategoryRepository categoryRepository;
+
 	@Nested
 	class 상품_생성_API {
 
 		@Test
 		void 성공() throws Exception {
+			Category category = createCategory("생성 카테고리");
 			// given
 			ProductRequest.Create request = new ProductRequest.Create(
 				"테스트 상품명",
 				"테스트 상품 설명",
 				10_000,
 				PetType.DOG,
+				List.of(category.getId()),
 				false
 			);
 
@@ -140,12 +148,14 @@ class AdminProductControllerTest extends AbstractRestDocsTest {
 				)
 				.andExpect(status().isOk())
 				.andDo(
-					restDocsFactory.success(
+					restDocsFactory.successWithRequestParameters(
 						"admin-products-list",
 						"상품 리스트 조회",
 						"관리자 상품 리스트 조회 API",
 						"Admin-Product",
-						null,
+						cond,
+						pageable,
+						objectMapper,
 						docsResponse
 					)
 				);
@@ -158,11 +168,13 @@ class AdminProductControllerTest extends AbstractRestDocsTest {
 		@Test
 		void 성공() throws Exception {
 			Product product = createProduct("수정 전 상품", "수정 전 설명", 10_000, PetType.DOG, ProductStatus.DRAFT);
+			Category category = createCategory("수정 카테고리");
 			ProductRequest.Update request = new ProductRequest.Update(
 				"수정 후 상품",
 				"수정된 설명",
 				20_000,
-				PetType.DOG
+				PetType.DOG,
+				List.of(category.getId())
 			);
 
 			var perform = mockMvc.perform(
@@ -379,6 +391,10 @@ class AdminProductControllerTest extends AbstractRestDocsTest {
 		var inventory = inventoryRepository.findByProductId(product.getId()).orElseThrow();
 		inventory.applyWmsInbound(quantity);
 		inventoryRepository.save(inventory);
+	}
+
+	private Category createCategory(String name) {
+		return categoryRepository.save(Category.createRoot(name, 1, CategoryStatus.ACTIVE, PetType.DOG));
 	}
 
 	private PageBlock toPageBlock(Page<?> page) {

@@ -112,7 +112,7 @@ class OrderControllerTest extends AbstractRestDocsTest {
 		@Test
 		void 성공() throws Exception {
 			// given
-			Product product = createProduct("테스트 상품", "테스트", 10000);
+			Product product = createProduct("테스트 상품", "테스트", 10000, PetType.DOG);
 			DeliveryAddress address = createDeliveryAddress(DEFAULT_USER_ID);
 
 			OrderRequest.Create request = new OrderRequest.Create(
@@ -183,8 +183,8 @@ class OrderControllerTest extends AbstractRestDocsTest {
 	}
 
 
-	private Product createProduct(String name, String description, int price) {
-		Product product = productRepository.save(Product.create(name, description, price, PetType.DOG));
+	private Product createProduct(String name, String description, int price, PetType petType) {
+		Product product = productRepository.save(Product.create(name, description, price, petType));
 
 		Inventory inventory = Inventory.initialize(product);
 		inventory.applyWmsInbound(100);

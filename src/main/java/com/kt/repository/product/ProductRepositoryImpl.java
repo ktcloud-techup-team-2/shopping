@@ -1,5 +1,6 @@
 package com.kt.repository.product;
 
+import com.kt.domain.pet.PetType;
 import com.kt.domain.product.Product;
 import com.kt.domain.product.ProductStatus;
 import com.kt.domain.product.QProduct;
@@ -66,5 +67,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			.where(p.id.in(ids)
 				.and(p.deleted.isFalse()))
 			.execute();
+	}
+
+	@Override
+	public List<Product> findNonDeletedByStatusesAndPetType(Collection<ProductStatus> statuses, PetType petType) {
+		QProduct product = QProduct.product;
+
+		return queryFactory.selectFrom(product)
+			.where(product.deleted.isFalse()
+				.and(product.status.in(statuses))
+				.and(product.petType.eq(petType)))
+			.fetch();
 	}
 }

@@ -16,7 +16,6 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -25,6 +24,8 @@ import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
 import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.payload.PayloadDocumentation;
+import org.springframework.restdocs.request.ParameterDescriptor;
+import org.springframework.restdocs.request.RequestDocumentation;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.util.LinkedMultiValueMap;
@@ -49,10 +50,7 @@ public class RestDocsFactory {
 		Object... pathParams
 	) throws Exception {
 
-		String content = requestDto != null
-			? objectMapper.writeValueAsString(requestDto)
-			: "";
-
+		String content = requestDto != null ? objectMapper.writeValueAsString(requestDto) : "";
 		return buildRequest(url, content, method, pathParams);
 	}
 
@@ -63,70 +61,58 @@ public class RestDocsFactory {
 	 */
 	public MockHttpServletRequestBuilder createParamRequest(
 		String url,
-		Object queryDto,                 // 검색 조건 DTO (ex. SearchCond)
-		Pageable pageable,              // PageRequest.of(...)
+		Object queryDto,
+		Pageable pageable,
 		ObjectMapper objectMapper,
 		Object... pathParams
 	) {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
-		// 검색 조건 DTO → 쿼리 스트링
 		if (queryDto != null) {
-			params.addAll(
-				MultiValueMapConverter.convert(objectMapper, queryDto)
-			);
+			params.addAll(MultiValueMapConverter.convert(objectMapper, queryDto));
 		}
 
-		// 2) Pageable → page / size / sort
 		if (pageable != null) {
 			params.add("page", String.valueOf(pageable.getPageNumber()));
 			params.add("size", String.valueOf(pageable.getPageSize()));
-
-			pageable.getSort().forEach(order -> {
-				String sortParam = order.getProperty() + "," + order.getDirection().name();
-				params.add("sort", sortParam); // ex) sort=createdAt,DESC
-			});
+			pageable.getSort().forEach(order -> params.add("sort", order.getProperty() + "," + order.getDirection().name()));
 		}
 
-		// GET 요청 빌더 생성
 		return RestDocumentationRequestBuilders.get(url, pathParams)
 			.params(params)
 			.accept(MediaType.APPLICATION_JSON);
 	}
 
-	private MockHttpServletRequestBuilder buildRequest(
-		String url,
-		String content,
-		HttpMethod method,
-		Object... pathParams
+	/**
+	 * 성공 케이스용 공통 문서 생성 (쿼리 파라미터 포함)
+	 */
+	public <Q, R> RestDocumentationResultHandler successWithRequestParameters(
+		String identifier,
+		String summary,
+		String description,
+		String tag,
+		Q queryDto,
+		Pageable pageable,
+		ObjectMapper objectMapper,
+		R responseDto
 	) {
-		return switch (method.name()) {
-			case "POST" -> RestDocumentationRequestBuilders.post(url, pathParams)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(content)
-				.accept(MediaType.APPLICATION_JSON);
+		String responseSchemaName = responseDto != null ? responseDto.getClass().getSimpleName() : null;
+		List<ParameterDescriptor> queryParameters = buildParameterDescriptors(queryDto, pageable, objectMapper);
 
-			case "PUT" -> RestDocumentationRequestBuilders.put(url, pathParams)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(content)
-				.accept(MediaType.APPLICATION_JSON);
+		ResourceSnippetParameters resource = ResourceSnippetParameters.builder()
+			.tag(tag)
+			.summary(summary)
+			.description(description)
+			.queryParameters(queryParameters.toArray(new ParameterDescriptor[0]))
+			.responseSchema(responseSchemaName != null ? Schema.schema(responseSchemaName) : null)
+			.responseFields(responseDto != null ? getFields(responseDto) : new FieldDescriptor[] {})
+			.build();
 
-			case "PATCH" -> RestDocumentationRequestBuilders.patch(url, pathParams)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(content)
-				.accept(MediaType.APPLICATION_JSON);
-
-			case "GET" -> RestDocumentationRequestBuilders.get(url, pathParams)
-				.contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON);
-
-			case "DELETE" -> RestDocumentationRequestBuilders.delete(url, pathParams)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(content)
-				.accept(MediaType.APPLICATION_JSON);
-
-			default -> throw new IllegalArgumentException("Invalid HTTP method: " + method);
-		};
+		return MockMvcRestDocumentationWrapper.document(
+			identifier,
+			preprocessResponse(prettyPrint()),
+			resource(resource)
+		);
 	}
 
 	// ========================================================================
@@ -135,13 +121,6 @@ public class RestDocsFactory {
 
 	/**
 	 * 성공 케이스용 공통 문서 생성
-	 *
-	 * @param identifier   스니펫 이름 (ex. "admin-products-create")
-	 * @param summary      swagger summary
-	 * @param description  swagger description
-	 * @param tag          swagger tag
-	 * @param requestDto   요청 DTO (GET 등 body 없으면 null)
-	 * @param responseDto  응답 DTO (응답 body 없으면 null)
 	 */
 	public <T, R> RestDocumentationResultHandler success(
 		String identifier,
@@ -151,11 +130,9 @@ public class RestDocsFactory {
 		T requestDto,
 		R responseDto
 	) {
-
 		String requestSchemaName = requestDto != null ? requestDto.getClass().getSimpleName() : null;
 		String responseSchemaName = responseDto != null ? responseDto.getClass().getSimpleName() : null;
 
-		// 요청 body 없는 경우 (GET 등)
 		if (requestDto == null) {
 			return MockMvcRestDocumentationWrapper.document(
 				identifier,
@@ -172,7 +149,6 @@ public class RestDocsFactory {
 			);
 		}
 
-		// 일반적인 요청/응답 둘 다 있는 경우
 		return MockMvcRestDocumentationWrapper.document(
 			identifier,
 			preprocessRequest(prettyPrint()),
@@ -189,6 +165,55 @@ public class RestDocsFactory {
 					.build()
 			)
 		);
+	}
+
+	private MockHttpServletRequestBuilder buildRequest(
+		String url,
+		String content,
+		HttpMethod method,
+		Object... pathParams
+	) {
+		return switch (method.name()) {
+			case "POST" -> RestDocumentationRequestBuilders.post(url, pathParams)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(content)
+				.accept(MediaType.APPLICATION_JSON);
+			case "PUT" -> RestDocumentationRequestBuilders.put(url, pathParams)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(content)
+				.accept(MediaType.APPLICATION_JSON);
+			case "PATCH" -> RestDocumentationRequestBuilders.patch(url, pathParams)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(content)
+				.accept(MediaType.APPLICATION_JSON);
+			case "GET" -> RestDocumentationRequestBuilders.get(url, pathParams)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON);
+			case "DELETE" -> RestDocumentationRequestBuilders.delete(url, pathParams)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(content)
+				.accept(MediaType.APPLICATION_JSON);
+			default -> throw new IllegalArgumentException("Invalid HTTP method: " + method);
+		};
+	}
+
+	private List<ParameterDescriptor> buildParameterDescriptors(Object queryDto, Pageable pageable, ObjectMapper objectMapper) {
+		List<ParameterDescriptor> parameters = new ArrayList<>();
+
+		if (queryDto != null) {
+			MultiValueMap<String, String> params = MultiValueMapConverter.convert(objectMapper, queryDto);
+			params.forEach((key, value) -> parameters.add(
+				RequestDocumentation.parameterWithName(key).description(key).optional()
+			));
+		}
+
+		if (pageable != null) {
+			parameters.add(RequestDocumentation.parameterWithName("page").description("page").optional());
+			parameters.add(RequestDocumentation.parameterWithName("size").description("size").optional());
+			parameters.add(RequestDocumentation.parameterWithName("sort").description("sort").optional());
+		}
+
+		return parameters;
 	}
 
 	// ========================================================================
@@ -221,39 +246,30 @@ public class RestDocsFactory {
 			Object fieldValue = getFieldValue(dto, field);
 			Class<?> fieldTypeClass = field.getType();
 
-			// Map 타입(nodesById 등)은 동적 키를 가지므로 subsection으로만 문서화
 			if (fieldValue instanceof Map<?, ?> || Map.class.isAssignableFrom(fieldTypeClass)) {
 				FieldDescriptor descriptor = PayloadDocumentation
 					.subsectionWithPath(fieldPath)
 					.type(JsonFieldType.OBJECT)
 					.description(field.getName())
 					.optional();
-
 				fields.add(descriptor);
 				continue;
 			}
 
 			JsonFieldType fieldType = determineFieldType(fieldTypeClass, fieldValue);
-
 			FieldDescriptor descriptor = PayloadDocumentation.fieldWithPath(fieldPath)
 				.type(fieldType)
 				.description(field.getName())
-				.optional(); // page, slice 같은 필드가 JSON에 없어도 허용
-
+				.optional();
 			fields.add(descriptor);
 
-			// 리스트 타입 처리
 			if (fieldType == JsonFieldType.ARRAY && fieldValue instanceof List<?> list && !list.isEmpty()) {
 				Object firstElement = list.get(0);
 				generateFieldDescriptors(firstElement, fieldPath + "[].", fields);
 			}
 
-			// 오브젝트 타입 처리 (Map은 위에서 처리했으니 제외)
-			if (fieldType == JsonFieldType.OBJECT && fieldValue != null) {
-				// java.* 타입(예: LocalDate, List, Map 등)은 isSimpleType에서 filter
-				if (!isSimpleType(fieldValue)) {
-					generateFieldDescriptors(fieldValue, fieldPath + ".", fields);
-				}
+			if (fieldType == JsonFieldType.OBJECT && fieldValue != null && !isSimpleType(fieldValue)) {
+				generateFieldDescriptors(fieldValue, fieldPath + ".", fields);
 			}
 		}
 	}
@@ -268,9 +284,6 @@ public class RestDocsFactory {
 
 	/**
 	 * 더 이상 필드를 파고들지 않을 단순 타입 여부 판단
-	 * - 원시 타입, enum
-	 * - java.* 패키지 타입들 (List, Map, LocalDate 등)
-	 * - String, Number, Boolean
 	 */
 	private boolean isSimpleType(Object dto) {
 		if (dto == null) {
@@ -278,27 +291,18 @@ public class RestDocsFactory {
 		}
 
 		Class<?> type = dto.getClass();
-
-		// 원시 타입, enum
 		if (type.isPrimitive() || type.isEnum()) {
 			return true;
 		}
 
-		// JDK 타입들(java.*)은 더 이상 안 파고 든다 (Class, Module, Map, List, LocalDate 등)
 		Package pkg = type.getPackage();
 		if (pkg != null && pkg.getName().startsWith("java.")) {
 			return true;
 		}
 
-		// 기본 wrapper / 문자열
-		return dto instanceof String
-			|| dto instanceof Number
-			|| dto instanceof Boolean;
+		return dto instanceof String || dto instanceof Number || dto instanceof Boolean;
 	}
 
-	/**
-	 * 필드 타입을 JsonFieldType으로 매핑
-	 */
 	private JsonFieldType determineFieldType(Class<?> fieldType, Object fieldValue) {
 		if (fieldValue instanceof List<?>) {
 			return JsonFieldType.ARRAY;
@@ -318,9 +322,7 @@ public class RestDocsFactory {
 		if (List.class.isAssignableFrom(fieldType)) {
 			return JsonFieldType.ARRAY;
 		}
-		if (fieldType == LocalDate.class
-			|| fieldType == LocalDateTime.class
-			|| fieldType == LocalTime.class) {
+		if (fieldType == LocalDate.class || fieldType == LocalDateTime.class || fieldType == LocalTime.class) {
 			return JsonFieldType.STRING;
 		}
 		return JsonFieldType.OBJECT;

@@ -12,6 +12,7 @@ import com.kt.dto.review.ReviewResponse;
 import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
 import com.kt.repository.order.OrderRepository;
+import com.kt.repository.pet.PetRepository;
 import com.kt.repository.review.ReviewRepository;
 import com.kt.repository.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -52,6 +53,8 @@ public class UserControllerTest extends AbstractRestDocsTest {
     private ReviewRepository reviewRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private PetRepository petRepository;
 
     private Long currentUserId;
     private String orderNumber1;
@@ -59,6 +62,7 @@ public class UserControllerTest extends AbstractRestDocsTest {
 
     @BeforeEach
     void setUpUser() {
+        petRepository.deleteAll();
         userRepository.deleteAll();
         orderRepository.deleteAll();
 

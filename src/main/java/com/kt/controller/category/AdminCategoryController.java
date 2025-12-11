@@ -4,9 +4,12 @@ import com.kt.common.api.ApiResponseEntity;
 import com.kt.domain.pet.PetType;
 import com.kt.dto.category.CategoryRequest;
 import com.kt.dto.category.CategoryResponse;
+import com.kt.security.AuthUser;
 import com.kt.service.category.AdminCategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,8 +43,11 @@ public class AdminCategoryController {
 	}
 
 	@DeleteMapping("/{id}")
-	public ApiResponseEntity<Void> delete(@PathVariable Long id) {
-		adminCategoryService.delete(id);
+	public ApiResponseEntity<Void> delete(
+		@PathVariable Long id,
+		@AuthenticationPrincipal AuthUser authUser
+	) {
+		adminCategoryService.delete(id, authUser);
 		return ApiResponseEntity.empty();
 	}
 

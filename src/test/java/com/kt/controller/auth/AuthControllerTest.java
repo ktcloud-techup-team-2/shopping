@@ -6,6 +6,7 @@ import com.kt.domain.user.Gender;
 import com.kt.domain.user.User;
 import com.kt.dto.auth.LoginRequest;
 import com.kt.dto.auth.LoginResponse;
+import com.kt.repository.pet.PetRepository;
 import com.kt.repository.user.UserRepository;
 import com.kt.security.dto.TokenReissueRequestDto;
 import com.kt.security.dto.TokenResponseDto;
@@ -49,6 +50,8 @@ public class AuthControllerTest extends AbstractRestDocsTest {
     private StringRedisTemplate stringRedisTemplate;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private PetRepository petRepository;
 
     private Long userId;
     private Long adminId;
@@ -56,6 +59,7 @@ public class AuthControllerTest extends AbstractRestDocsTest {
     @BeforeEach
     void setUp() {
         SecurityContextHolder.clearContext();
+        petRepository.deleteAll();
         userRepository.deleteAll();
         stringRedisTemplate.getConnectionFactory()
                 .getConnection()

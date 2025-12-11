@@ -1,5 +1,6 @@
 package com.kt.repository.product;
 
+import com.kt.domain.pet.PetType;
 import com.kt.domain.product.Product;
 import com.kt.domain.product.ProductStatus;
 import java.util.Collection;
@@ -15,4 +16,6 @@ public interface ProductRepositoryCustom {
 	Optional<Product> findNonDeletedByIdAndStatuses(Long id, Collection<ProductStatus> statuses);
 
 	long bulkMarkSoldOut(Collection<Long> ids, Long userId);
+
+	List<Product> findNonDeletedByStatusesAndPetType(Collection<ProductStatus> statuses, PetType petType);
 }

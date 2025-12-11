@@ -7,11 +7,18 @@ import com.kt.common.RestDocsFactory;
 import com.kt.common.api.ApiResponse;
 import com.kt.domain.category.Category;
 import com.kt.domain.category.CategoryStatus;
+import com.kt.domain.category.ProductCategory;
+import com.kt.domain.inventory.Inventory;
 import com.kt.domain.pet.PetType;
+import com.kt.domain.product.Product;
 import com.kt.dto.category.CategoryRequest;
 import com.kt.dto.category.CategoryResponse;
 import com.kt.dto.tree.TreeMapper;
 import com.kt.repository.category.CategoryRepository;
+import com.kt.repository.category.ProductCategoryRepository;
+import com.kt.repository.inventory.InventoryRepository;
+import com.kt.repository.product.ProductRepository;
+
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +35,15 @@ class AdminCategoryControllerTest extends AbstractRestDocsTest {
 
 	@Autowired
 	private CategoryRepository categoryRepository;
+
+	@Autowired
+	private ProductRepository productRepository;
+
+	@Autowired
+	private InventoryRepository inventoryRepository;
+
+	@Autowired
+	private ProductCategoryRepository productCategoryRepository;
 
 	@Nested
 	class 카테고리_생성_API {
@@ -182,6 +198,35 @@ class AdminCategoryControllerTest extends AbstractRestDocsTest {
 						null
 					)
 				);
+		}
+
+		@Test
+		void 하위_상품이_있으면_실패() throws Exception {
+			Category root = categoryRepository.save(
+				Category.createRoot("삭제 불가 루트", 1, CategoryStatus.ACTIVE, PetType.DOG)
+			);
+			Category child = categoryRepository.save(
+				Category.createChild(root, "자식", 1, CategoryStatus.ACTIVE, PetType.DOG)
+			);
+
+			Product product = productRepository.save(Product.create("상품", "설명", 1_000, PetType.DOG));
+			Inventory inventory = inventoryRepository.save(Inventory.initialize(product));
+			inventory.applyWmsInbound(1);
+			inventoryRepository.save(inventory);
+			product.activate();
+			productRepository.save(product);
+			productCategoryRepository.save(ProductCategory.create(product, child));
+
+			mockMvc.perform(
+					restDocsFactory.createRequest(
+						DEFAULT_URL + "/{id}",
+						null,
+						HttpMethod.DELETE,
+						objectMapper,
+						root.getId()
+					).with(jwtAdmin())
+				)
+				.andExpect(status().isConflict());
 		}
 	}
 
