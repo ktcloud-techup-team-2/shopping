@@ -1,0 +1,99 @@
+package com.kt.service.user;
+
+import com.kt.common.Preconditions;
+import com.kt.common.api.CustomException;
+import com.kt.common.api.ErrorCode;
+import com.kt.domain.user.Role;
+import com.kt.domain.user.User;
+import com.kt.dto.user.UserRequest;
+import com.kt.dto.user.UserResponse;
+import com.kt.repository.user.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class AdminService {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public void signup(UserRequest.Create request) {
+        Preconditions.validate(request.password().equals(request.passwordConfirm()), ErrorCode.INVALID_PASSWORD_CHECK);
+        Preconditions.validate(!userRepository.existsByloginId(request.loginId()), ErrorCode.INVALID_USER_ID);
+
+        var user = User.admin(
+                request.loginId(),
+                passwordEncoder.encode(request.password()),
+                request.name(),
+                request.email(),
+                request.phone(),
+                request.birthday(),
+                request.gender(),
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> getAdminList()
+    {
+        List<UserResponse> users = userRepository.findAllByRoleAndDeletedAtIsNull(Role.ADMIN)
+                .stream()
+                .map(UserResponse::from)
+                .toList();
+
+        return users;
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponse getAdminById(Long id) {
+        User admin = userRepository.findByIdAndRoleAndDeletedAtIsNull(id, Role.ADMIN)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return UserResponse.from(admin);
+    }
+
+    public UserResponse updateAdmin(Long id, UserRequest.Update request) {
+        User admin = userRepository.findByIdAndRoleAndDeletedAtIsNull(id, Role.ADMIN)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        admin.updateInfo(
+                request.name(),
+                request.email(),
+                request.phone(),
+                request.birthday()
+        );
+        userRepository.save(admin);
+
+        return UserResponse.from(admin);
+    }
+
+    public void deleteAdmin (Long id) {
+        User admin = userRepository.findByIdAndRoleAndDeletedAtIsNull(id, Role.ADMIN)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if(admin.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        admin.softDelete();
+    }
+
+    public void initAdminPassword(Long id) {
+        User admin = userRepository.findByIdAndRoleAndDeletedAtIsNull(id, Role.ADMIN)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        String tempPassword = "AdminPassword123!";
+
+        admin.updatePassword(passwordEncoder.encode(tempPassword));
+    }
+}

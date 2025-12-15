@@ -1,0 +1,58 @@
+package com.kt.controller.user;
+
+import com.kt.common.api.ApiResponseEntity;
+import com.kt.dto.user.UserRequest;
+import com.kt.dto.user.UserResponse;
+import com.kt.service.user.AdminService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/admins")
+@RequiredArgsConstructor
+public class AdminController {
+
+    private final AdminService adminService;
+
+    @PostMapping("/signup")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponseEntity<Void> signUp (@RequestBody @Valid UserRequest.Create request){
+        adminService.signup(request);
+        return ApiResponseEntity.created((Void) null);
+    }
+
+    @GetMapping
+    public ApiResponseEntity<List<UserResponse>> getAllAdmins(){
+        List<UserResponse> responses = adminService.getAdminList();
+        return ApiResponseEntity.success(responses);
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponseEntity<UserResponse> getAdmin(@PathVariable Long id){
+        UserResponse response = adminService.getAdminById(id);
+        return ApiResponseEntity.success(response);
+    }
+
+    @PatchMapping("/{id}")
+    public ApiResponseEntity<UserResponse> updateAdmin(@PathVariable Long id,
+                                                       @RequestBody @Valid UserRequest.Update request) {
+        UserResponse response = adminService.updateAdmin(id, request);
+        return ApiResponseEntity.success(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
+        adminService.deleteAdmin(id);
+        return ApiResponseEntity.empty();
+    }
+
+    @PatchMapping("/{id}/init-password")
+    public ApiResponseEntity<Void> initAdminPassword(@PathVariable Long id) {
+        adminService.initAdminPassword(id);
+        return ApiResponseEntity.empty();
+    }
+}
