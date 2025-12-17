@@ -1,8 +1,7 @@
 package com.kt.controller.auth;
 
 import com.kt.common.api.ApiResponseEntity;
-import com.kt.dto.auth.LoginRequest;
-import com.kt.dto.auth.LoginResponse;
+import com.kt.dto.auth.*;
 import com.kt.dto.email.EmailRequest;
 import com.kt.dto.email.EmailResponse;
 import com.kt.security.AuthUser;
@@ -43,8 +42,26 @@ public class AuthController {
     }
 
     @PostMapping("/find-id")
-    public ApiResponseEntity<EmailResponse.FindIdResponse> findId (@RequestBody @Valid EmailRequest.FindIdRequest request) {
-        EmailResponse.FindIdResponse response = authService.findLoginId(request);
+    public ApiResponseEntity<FindIdResponse> findId (@RequestBody @Valid FindIdRequest request) {
+        FindIdResponse response = authService.findLoginId(request);
         return ApiResponseEntity.success(response);
+    }
+
+    @PostMapping("/reset-password/request")
+    public ApiResponseEntity<EmailResponse.AuthenticationResponse> requestResetPassword(@RequestBody @Valid FindPasswordRequest request) {
+        EmailResponse.AuthenticationResponse response = authService.requestPasswordReset(request);
+        return ApiResponseEntity.success(response);
+    }
+
+    @PostMapping("/reset-password/verify")
+    public ApiResponseEntity<PasswordResetTokenResponse> verifyResetCode(@RequestBody @Valid EmailRequest.VerificationConfirmRequest request) {
+        PasswordResetTokenResponse response = authService.verifyPasswordResetCode(request.email(), request.code());
+        return ApiResponseEntity.success(response);
+    }
+
+    @PostMapping("/update-password")
+    public ApiResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        authService.updatePassword(request);
+        return ApiResponseEntity.empty();
     }
 }
