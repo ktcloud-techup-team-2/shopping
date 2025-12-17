@@ -6,10 +6,13 @@ import com.kt.common.api.ErrorCode;
 import com.kt.domain.user.User;
 import com.kt.dto.auth.LoginRequest;
 import com.kt.dto.auth.LoginResponse;
+import com.kt.dto.email.EmailRequest;
+import com.kt.dto.email.EmailResponse;
 import com.kt.repository.user.UserRepository;
 import com.kt.security.TokenProvider;
 import com.kt.security.dto.TokenRequestDto;
 import com.kt.security.dto.TokenResponseDto;
+import com.kt.service.email.EmailService;
 import io.jsonwebtoken.JwtException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +37,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RedisTemplate<String, String> redisTemplate;
+    private final EmailService emailService;
 
     public LoginResponse login(LoginRequest loginRequest) {
         User user = userRepository.findByLoginIdAndDeletedAtIsNull(loginRequest.loginId())
@@ -109,5 +113,14 @@ public class AuthService {
                     TimeUnit.MILLISECONDS
             );
         }
+    }
+
+    public EmailResponse.FindIdResponse findLoginId (EmailRequest.FindIdRequest request) {
+        User user = userRepository.findByEmailAndNameAndDeletedAtIsNull(request.email(), request.name())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        emailService.sendLoginIdEmail(user.getEmail(), user.getName(), user.getLoginId());
+
+        return EmailResponse.FindIdResponse.ok();
     }
 }
