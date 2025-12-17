@@ -110,4 +110,20 @@ public class CartService {
 		cartProductRepository.delete(cartProduct);
 
 	}
+
+	//장바구니 상품 수량 변경
+	public CartResponse.CountUpdate countUpdate(Long id, CartRequest.CountUpdate request, Long cartProductId){
+
+		CartProduct cartProduct = cartProductRepository.findByCartIdAndCart_UserId(cartProductId, id)
+			.orElseThrow(() -> new CustomException(ErrorCode.CART_PRODUCT_NOT_FOUND));
+
+		 cartProduct.countUpdate(request.count());
+
+		return new CartResponse.CountUpdate(
+			cartProduct.getProduct().getId(),
+			cartProduct.getProduct().getName(),
+			cartProduct.getCount(),
+			cartProduct.getUpdatedAt()
+		);
+	}
 }

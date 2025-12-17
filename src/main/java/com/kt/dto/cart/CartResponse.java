@@ -41,4 +41,13 @@ public class CartResponse {
 	){
 
 	}
+
+	public record CountUpdate(
+
+		Long productId,
+		String name,
+		int count,
+		LocalDateTime updatedAt
+	){
+	}
 }
