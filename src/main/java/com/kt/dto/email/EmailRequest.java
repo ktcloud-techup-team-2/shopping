@@ -20,13 +20,4 @@ public class EmailRequest {
             @NotBlank(message = "인증번호를 입력해주세요.")
             String code
     ) {}
-
-    public record FindIdRequest(
-            @Email
-            @NotBlank
-            String email,
-            @NotBlank
-            String name
-    ) {}
-
 }
