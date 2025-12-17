@@ -1,21 +1,22 @@
 package com.kt.service.cart;
 
-import static com.kt.domain.user.QUser.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.kt.common.Preconditions;
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.domain.cart.Cart;
 import com.kt.domain.cartproduct.CartProduct;
-import com.kt.domain.user.User;
 import com.kt.dto.cart.CartRequest;
 import com.kt.dto.cart.CartResponse;
 import com.kt.repository.cart.CartProductRepository;
+import com.kt.repository.cart.CartProductRepositoryImpl;
 import com.kt.repository.cart.CartRepository;
 import com.kt.repository.product.ProductRepository;
 import com.kt.repository.user.UserRepository;
-import com.kt.security.AuthUser;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class CartService {
 	private final CartProductRepository cartProductRepository;
 	private final ProductRepository productRepository;
 	private final UserRepository userRepository;
+	private final CartProductRepositoryImpl cartProductRepositoryImpl;
 
 	//장바구니에 상품을 담는 로직
 	public CartResponse.Create create(CartRequest.Add request, Long id){
@@ -72,5 +74,26 @@ public class CartService {
 
 		return CartResponse.Create.from(finalCartProduct);
 
+	}
+
+	//장바구니 조회(장바구니에 담긴 상품 리스트 조회)
+	public List<CartResponse.Detail> detail(Long id){
+
+		List<CartResponse.Detail> cartDetailList = new ArrayList<>();
+
+		//회원
+		var user = userRepository.findById(id)
+			.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+		var cart = cartRepository.findByUserId(user.getId()).orElse(null);
+
+		if(cart == null){
+			return cartDetailList; //장바구니에 아무것도 없으면 빈 리스트 반환
+		}
+
+		//카트에 담긴 상품들을 찾아서 저장
+		cartDetailList = cartProductRepositoryImpl.findCartDetailList(cart.getId());
+
+		return cartDetailList;
 	}
 }

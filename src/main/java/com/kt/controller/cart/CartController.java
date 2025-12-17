@@ -1,10 +1,9 @@
 package com.kt.controller.cart;
 
+import java.util.List;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.kt.common.api.ApiResponseEntity;
 import com.kt.dto.cart.CartRequest;
@@ -30,5 +29,14 @@ public class CartController {
 		var response = cartService.create(request, authUser.id());
 
 		return ApiResponseEntity.created(response);
+	}
+
+	@GetMapping
+	public ApiResponseEntity<List<CartResponse.Detail>> detail(
+		@AuthenticationPrincipal AuthUser authUser
+	){
+		var response = cartService.detail(authUser.id());
+
+		return ApiResponseEntity.success(response);
 	}
 }
