@@ -30,7 +30,7 @@ public class EmailService {
     private static final String EMAIL_AUTH_PREFIX = "emailAuth:";
     private static final Duration CODE_TTL = Duration.ofMinutes(5);
 
-    public EmailResponse.AuthenticationResponse sendEmail(String email) {
+    public EmailResponse.AuthenticationResponse sendAuthenticationEmail(String email) {
 
         String code = createCode();
 

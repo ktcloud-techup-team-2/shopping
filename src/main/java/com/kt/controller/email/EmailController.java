@@ -11,19 +11,4 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/mail")
-public class EmailController {
-
-    private final EmailService emailService;
-
-    @PostMapping("/auth-email")
-    public ApiResponseEntity<EmailResponse.AuthenticationResponse> sendAuthEmail(@RequestBody @Valid EmailRequest.VerificationRequest request) {
-        EmailResponse.AuthenticationResponse response = emailService.sendEmail(request.email());
-        return ApiResponseEntity.success(response);
-    }
-
-    @PostMapping
-    public ApiResponseEntity<Boolean> verifyCode(@RequestBody @Valid EmailRequest.VerificationConfirmRequest request) {
-        boolean result = emailService.verifyCode(request.email(), request.code());
-        return ApiResponseEntity.success(result);
-    }
-}
+public class EmailController {}
