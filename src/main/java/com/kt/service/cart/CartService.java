@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.kt.common.Preconditions;
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.domain.cart.Cart;
@@ -32,12 +31,15 @@ public class CartService {
 	private final UserRepository userRepository;
 	private final CartProductRepositoryImpl cartProductRepositoryImpl;
 
-	//장바구니에 상품을 담는 로직
+	//TODO : 반복되는 로직있으면 따로 메서드로 빼기
+
+	//장바구니 상품 추가/생성
 	public CartResponse.Create create(CartRequest.Add request, Long id){
 
 		//상품
 		var product = productRepository.findById(request.productId())
 			.orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
 		//회원
 		var user = userRepository.findById(id)
 			.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -81,11 +83,13 @@ public class CartService {
 
 		List<CartResponse.Detail> cartDetailList = new ArrayList<>();
 
+		/*
 		//회원
 		var user = userRepository.findById(id)
 			.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+		 */
 
-		var cart = cartRepository.findByUserId(user.getId()).orElse(null);
+		var cart = cartRepository.findByUserId(id).orElse(null);
 
 		if(cart == null){
 			return cartDetailList; //장바구니에 아무것도 없으면 빈 리스트 반환
@@ -95,5 +99,15 @@ public class CartService {
 		cartDetailList = cartProductRepositoryImpl.findCartDetailList(cart.getId());
 
 		return cartDetailList;
+	}
+
+	//장바구니 상품 삭제
+	public void delete(Long cartProductId, Long userId){
+
+		CartProduct cartProduct = cartProductRepository.findByCartIdAndCart_UserId(cartProductId, userId)
+			.orElseThrow(() -> new CustomException(ErrorCode.CART_PRODUCT_NOT_FOUND));
+
+		cartProductRepository.delete(cartProduct);
+
 	}
 }

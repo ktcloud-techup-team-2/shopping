@@ -31,12 +31,22 @@ public class CartController {
 		return ApiResponseEntity.created(response);
 	}
 
-	@GetMapping
+	@GetMapping//사용자 1명당 장바구니 오직 1개 , cartId 전달 받을 필요x
 	public ApiResponseEntity<List<CartResponse.Detail>> detail(
 		@AuthenticationPrincipal AuthUser authUser
 	){
 		var response = cartService.detail(authUser.id());
 
 		return ApiResponseEntity.success(response);
+	}
+
+	@DeleteMapping("/{cartProductId}")
+	public ApiResponseEntity<Void> delete(
+		@AuthenticationPrincipal AuthUser authUser,
+		@PathVariable Long cartProductId
+	){
+		cartService.delete(cartProductId,authUser.id());
+
+		return ApiResponseEntity.success();
 	}
 }
