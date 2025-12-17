@@ -21,7 +21,7 @@ public class CartController {
 
 	private final CartService cartService;
 
-	@PostMapping("/addProduct")
+	@PostMapping
 	public ApiResponseEntity<CartResponse.Create> create(
 		@AuthenticationPrincipal AuthUser authUser,
 		@RequestBody @Valid CartRequest.Add request
@@ -31,7 +31,7 @@ public class CartController {
 		return ApiResponseEntity.created(response);
 	}
 
-	@GetMapping//사용자 1명당 장바구니 오직 1개 , cartId 전달 받을 필요x
+	@GetMapping//사용자 1명당 장바구니 오직 1개, cartId 전달 받을 필요x
 	public ApiResponseEntity<List<CartResponse.Detail>> detail(
 		@AuthenticationPrincipal AuthUser authUser
 	){
@@ -48,5 +48,16 @@ public class CartController {
 		cartService.delete(cartProductId,authUser.id());
 
 		return ApiResponseEntity.success();
+	}
+
+	//상품 수량 변경
+	@PutMapping("{cartProductId}")
+	public ApiResponseEntity<CartResponse.CountUpdate> countUpdate(
+		@AuthenticationPrincipal AuthUser authUser,
+		@RequestBody @Valid CartRequest.CountUpdate request,
+		@PathVariable Long cartProductId
+	){
+		var response = cartService.countUpdate(authUser.id(), request, cartProductId);
+		return ApiResponseEntity.success(response);
 	}
 }

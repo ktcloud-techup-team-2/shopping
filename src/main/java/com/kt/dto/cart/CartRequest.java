@@ -1,5 +1,6 @@
 package com.kt.dto.cart;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
@@ -13,6 +14,14 @@ public class CartRequest {
 		@Min(value = 1)
 		int count //추가한 수량
 
+	){
+
+	}
+
+	public record CountUpdate(
+
+		@Min(value = 1)
+		int count
 	){
 
 	}
