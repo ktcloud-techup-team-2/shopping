@@ -9,7 +9,7 @@ import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "cart-product")
+@Table(name = "cart_product")
 @Entity
 @Getter
 @NoArgsConstructor
