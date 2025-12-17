@@ -22,15 +22,15 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
+    public ApiResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         LoginResponse response = authService.login(request);
-        return ResponseEntity.ok(response);
+        return ApiResponseEntity.success(response);
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<TokenResponseDto> reissue (@RequestBody TokenReissueRequestDto request) {
+    public ApiResponseEntity<TokenResponseDto> reissue (@RequestBody TokenReissueRequestDto request) {
         TokenResponseDto response = authService.reissue(request.refreshToken());
-        return ResponseEntity.ok(response);
+        return ApiResponseEntity.success(response);
     }
 
     @PostMapping("/logout")
