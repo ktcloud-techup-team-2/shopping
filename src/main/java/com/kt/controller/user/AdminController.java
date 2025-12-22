@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admins")
+@RequestMapping("/super-admin")
 @RequiredArgsConstructor
 public class AdminController {
 
