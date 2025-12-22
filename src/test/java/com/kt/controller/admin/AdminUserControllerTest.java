@@ -1,4 +1,4 @@
-package com.kt.controller.user;
+package com.kt.controller.admin;
 
 import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpMethod;
@@ -34,10 +33,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 public class AdminUserControllerTest extends AbstractRestDocsTest {
 
-    private static final String ADMIN_USERS_URL = "/admin/users";
+    private static final String ADMIN_USERS_URL = "/super-admin/users";
 
-    private static final String ADMIN_LOGIN_ID  = "adminUser123";
-    private static final String ADMIN_PASSWORD  = "AdminTest123!";
+    private static final String ADMIN_LOGIN_ID  = "superadmin123";
+    private static final String ADMIN_PASSWORD  = "SuperAdminTest123!";
 
     @MockitoBean
     private StringRedisTemplate stringRedisTemplate;
@@ -94,7 +93,7 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
                                     HttpMethod.GET,
                                     objectMapper,
                                     userId
-                            ).with(jwtAdmin())
+                            ).with(jwtSuperAdmin())
                     )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.id").value(userId))
@@ -126,7 +125,7 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
                                     null,
                                     HttpMethod.GET,
                                     objectMapper
-                            ).with(jwtAdmin())
+                            ).with(jwtSuperAdmin())
                     )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data").isArray())
@@ -164,7 +163,7 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
                                     HttpMethod.PATCH,
                                     objectMapper,
                                     userId
-                            ).with(jwtAdmin())
+                            ).with(jwtSuperAdmin())
                     )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.id").value(userId))
@@ -197,7 +196,7 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
                                     HttpMethod.DELETE,
                                     objectMapper,
                                     userId
-                            ).with(jwtAdmin())
+                            ).with(jwtSuperAdmin())
                     )
                     .andExpect(status().isNoContent())
                     .andDo(
@@ -230,7 +229,7 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
                                     HttpMethod.PATCH,
                                     objectMapper,
                                     userId
-                            ).with(jwtAdmin())
+                            ).with(jwtSuperAdmin())
                     )
                     .andExpect(status().isNoContent())
                     .andDo(
@@ -262,7 +261,7 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
                                     HttpMethod.PATCH,
                                     objectMapper,
                                     userId
-                            ).with(jwtAdmin())
+                            ).with(jwtSuperAdmin())
                     )
                     .andExpect(status().isNoContent())
                     .andDo(
@@ -296,7 +295,7 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
                             HttpMethod.PATCH,
                             objectMapper,
                             userId
-                    ).with(jwtAdmin())
+                    ).with(jwtSuperAdmin())
             )
                     .andExpect(status().isNoContent())
                     .andDo(
