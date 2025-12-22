@@ -133,6 +133,27 @@ public class DeliveryService {
 		return DeliveryResponse.Detail.from(delivery, address);
 	}
 
+	public void updateStatusByWebhook(String trackingNumber, DeliveryStatus status) {
+		var delivery = deliveryRepository.findByTrackingNumber(trackingNumber)
+			.orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUND));
+
+		switch (status) {
+			case SHIPPING -> delivery.ship();
+			case DELIVERED -> delivery.complete();
+			default -> throw new CustomException(ErrorCode.COMMON_INVALID_ARGUMENT);
+		}
+
+		saveHistory(delivery.getId(), status);
+
+		eventPublisher.publishEvent(DeliveryStatusEvent.of(
+			delivery.getId(),
+			delivery.getOrderId(),
+			delivery.getStatus(),
+			delivery.getTrackingNumber(),
+			delivery.getCourierCode()
+		));
+	}
+
 	public DeliveryResponse.Detail registerTrackingNumber(Long deliveryId, DeliveryRequest.RegisterTracking request){
 		var delivery = deliveryRepository.findById(deliveryId)
 			.orElseThrow(() -> new CustomException(ErrorCode.DELIVERY_NOT_FOUND));

@@ -57,7 +57,7 @@ paths:
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/orders486549215'}
+              schema: {$ref: '#/components/schemas/admin-orders-id486549215'}
               examples:
                 admin-order-search:
                   value: |-
@@ -68,7 +68,7 @@ paths:
                         "orderNumber" : "ORD-20251202-TESTA",
                         "orderStatus" : "PENDING",
                         "orderAmount" : 20000,
-                        "createdAt" : "2025-12-11T17:09:09.568851"
+                        "createdAt" : "2025-12-15T14:46:15.49706"
                       } ]
                     }
       security:
@@ -208,8 +208,8 @@ paths:
                         "rating" : 5,
                         "content" : "최고의 상품",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-11T17:09:10",
-                        "updatedAt" : "2025-12-11T17:09:10"
+                        "createdAt" : "2025-12-15T14:46:16",
+                        "updatedAt" : "2025-12-15T14:46:16"
                       }, {
                         "reviewId" : 3,
                         "userId" : 32,
@@ -217,8 +217,8 @@ paths:
                         "rating" : 4,
                         "content" : "좋아요",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-11T17:09:10",
-                        "updatedAt" : "2025-12-11T17:09:10"
+                        "createdAt" : "2025-12-15T14:46:16",
+                        "updatedAt" : "2025-12-15T14:46:16"
                       } ],
                       "page" : {
                         "number" : 0,
@@ -503,70 +503,70 @@ paths:
                         "trackingNumber" : null,
                         "courierCode" : null,
                         "status" : "PENDING",
-                        "createdAt" : "2025-12-11T17:09:09.336162"
+                        "createdAt" : "2025-12-15T14:46:15.267728"
                       }, {
                         "deliveryId" : 5,
                         "orderId" : 2,
                         "trackingNumber" : null,
                         "courierCode" : null,
                         "status" : "PENDING",
-                        "createdAt" : "2025-12-11T17:09:09.336746"
+                        "createdAt" : "2025-12-15T14:46:15.268524"
                       }, {
                         "deliveryId" : 6,
                         "orderId" : 3,
                         "trackingNumber" : null,
                         "courierCode" : null,
                         "status" : "PENDING",
-                        "createdAt" : "2025-12-11T17:09:09.337235"
+                        "createdAt" : "2025-12-15T14:46:15.269226"
                       }, {
                         "deliveryId" : 7,
                         "orderId" : 4,
                         "trackingNumber" : null,
                         "courierCode" : null,
                         "status" : "PENDING",
-                        "createdAt" : "2025-12-11T17:09:09.337732"
+                        "createdAt" : "2025-12-15T14:46:15.269712"
                       }, {
                         "deliveryId" : 8,
                         "orderId" : 5,
                         "trackingNumber" : null,
                         "courierCode" : null,
                         "status" : "PENDING",
-                        "createdAt" : "2025-12-11T17:09:09.338209"
+                        "createdAt" : "2025-12-15T14:46:15.270153"
                       }, {
                         "deliveryId" : 9,
                         "orderId" : 6,
                         "trackingNumber" : null,
                         "courierCode" : null,
                         "status" : "PENDING",
-                        "createdAt" : "2025-12-11T17:09:09.338673"
+                        "createdAt" : "2025-12-15T14:46:15.270774"
                       }, {
                         "deliveryId" : 10,
                         "orderId" : 7,
                         "trackingNumber" : null,
                         "courierCode" : null,
                         "status" : "PENDING",
-                        "createdAt" : "2025-12-11T17:09:09.33915"
+                        "createdAt" : "2025-12-15T14:46:15.271314"
                       }, {
                         "deliveryId" : 11,
                         "orderId" : 8,
                         "trackingNumber" : null,
                         "courierCode" : null,
                         "status" : "PENDING",
-                        "createdAt" : "2025-12-11T17:09:09.339632"
+                        "createdAt" : "2025-12-15T14:46:15.271799"
                       }, {
                         "deliveryId" : 12,
                         "orderId" : 9,
                         "trackingNumber" : null,
                         "courierCode" : null,
                         "status" : "PENDING",
-                        "createdAt" : "2025-12-11T17:09:09.340125"
+                        "createdAt" : "2025-12-15T14:46:15.272331"
                       }, {
                         "deliveryId" : 13,
                         "orderId" : 10,
                         "trackingNumber" : null,
                         "courierCode" : null,
                         "status" : "PENDING",
-                        "createdAt" : "2025-12-11T17:09:09.340627"
+                        "createdAt" : "2025-12-15T14:46:15.272866"
                       } ],
                       "page" : {
                         "number" : 0,
@@ -597,7 +597,7 @@ paths:
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/orders486549215'}
+              schema: {$ref: '#/components/schemas/admin-orders-id486549215'}
               examples:
                 admin-order-detail:
                   value: |-
@@ -614,7 +614,7 @@ paths:
                           "mobile" : "010-0000-0000"
                         },
                         "orderProducts" : [ ],
-                        "createdAt" : "2025-12-11T17:09:09.558965"
+                        "createdAt" : "2025-12-15T14:46:15.486619"
                       }
                     }
       security:
@@ -640,7 +640,7 @@ paths:
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/orders486549215'}
+              schema: {$ref: '#/components/schemas/admin-orders-id486549215'}
               examples:
                 admin-products-bulk-soldout: {value: '{ }'}
       security:
@@ -941,7 +941,7 @@ paths:
                         "status" : "PENDING",
                         "courierCode" : null,
                         "trackingNumber" : null,
-                        "createdAt" : "2025-12-11T17:09:09.321159"
+                        "createdAt" : "2025-12-15T14:46:15.252923"
                       }
                     }
       security:
@@ -963,7 +963,7 @@ paths:
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/orders486549215'}
+              schema: {$ref: '#/components/schemas/admin-orders-id486549215'}
               examples:
                 admin-order-cancel:
                   value: |-
@@ -980,7 +980,7 @@ paths:
                           "mobile" : "010-0000-0000"
                         },
                         "orderProducts" : [ ],
-                        "createdAt" : "2025-12-11T17:09:09.548652"
+                        "createdAt" : "2025-12-15T14:46:15.476744"
                       }
                     }
       security:
@@ -1012,7 +1012,7 @@ paths:
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/orders486549215'}
+              schema: {$ref: '#/components/schemas/admin-orders-id486549215'}
               examples:
                 admin-order-change:
                   value: |-
@@ -1029,7 +1029,7 @@ paths:
                           "mobile" : "010-0000-0000"
                         },
                         "orderProducts" : [ ],
-                        "createdAt" : "2025-12-11T17:09:09.523045"
+                        "createdAt" : "2025-12-15T14:46:15.444929"
                       }
                     }
       security:
@@ -1223,7 +1223,7 @@ paths:
                         "status" : "SHIPPING",
                         "courierCode" : "CJ",
                         "trackingNumber" : "TRACK999",
-                        "createdAt" : "2025-12-11T17:09:09.301824"
+                        "createdAt" : "2025-12-15T14:46:15.233944"
                       }
                     }
       security:
@@ -1273,7 +1273,7 @@ paths:
                         "status" : "SHIPPING",
                         "courierCode" : "CJ",
                         "trackingNumber" : "TRACK123456",
-                        "createdAt" : "2025-12-11T17:09:09.26271"
+                        "createdAt" : "2025-12-15T14:46:15.198197"
                       }
                     }
       security:
@@ -1334,7 +1334,7 @@ paths:
           description: '201'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/orders486549215'}
+              schema: {$ref: '#/components/schemas/admin-orders-id486549215'}
               examples:
                 admin-signup: {value: '{ }'}
       security:
@@ -1483,7 +1483,7 @@ paths:
                 auth-login:
                   value: |-
                     {
-                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxNiIsImlhdCI6MTc2NTQ0MDU0OCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTc2NTQ0MDg0OH0.4Z7Jou3Hmxg4vgqMieP_1l1TOd7FY3SPL71K4vltuKA",
+                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxNiIsImlhdCI6MTc2NTc3NzU3NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTc2NTc3Nzg3NH0.ZNWg39HMEz3tNZ_TN_FP3oHY5wDzByRvsKDXh04TUZo",
                       "tokenType" : "Bearer",
                       "userId" : 16,
                       "loginId" : "loginUser123"
@@ -1491,7 +1491,7 @@ paths:
                 auth-login-admin:
                   value: |-
                     {
-                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyMyIsImlhdCI6MTc2NTQ0MDU0OCwiYXV0aCI6IlJPTEVfQURNSU4iLCJleHAiOjE3NjU0NDA4NDh9.eapY5Z-QZkVUbGOyjikgnhjP0rcnXtfZ_a0d7ggkos4",
+                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyMyIsImlhdCI6MTc2NTc3NzU3NCwiYXV0aCI6IlJPTEVfQURNSU4iLCJleHAiOjE3NjU3Nzc4NzR9.MYbWno_tYpMxQI775H4YogmUYgn9RtAVIE0hf0UARKo",
                       "tokenType" : "Bearer",
                       "userId" : 23,
                       "loginId" : "adminUser123"
@@ -1520,7 +1520,7 @@ paths:
               auth-reissue:
                 value: |-
                   {
-                    "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMiIsImlhdCI6MTc2NTQ0MDU0OCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTc2NTQ0MDg0OH0.lEVexEDqJw_HldqY8gx4mw3K5SyyVvWPwGSBQtam42Y"
+                    "refreshToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMiIsImlhdCI6MTc2NTc3NzU3MywiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTc2NTc3Nzg3M30.t_WDVGPNpxinfA0A2ERIlfvUbFkWHQxNyxAwYepBltM"
                   }
       responses:
         '200':
@@ -1532,7 +1532,7 @@ paths:
                 auth-reissue:
                   value: |-
                     {
-                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMiIsImlhdCI6MTc2NTQ0MDU0OCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTc2NTQ0MDg0OH0.lEVexEDqJw_HldqY8gx4mw3K5SyyVvWPwGSBQtam42Y",
+                      "accessToken" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMiIsImlhdCI6MTc2NTc3NzU3MywiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTc2NTc3Nzg3M30.t_WDVGPNpxinfA0A2ERIlfvUbFkWHQxNyxAwYepBltM",
                       "grantType" : "Bearer",
                       "userId" : 12
                     }
@@ -1695,7 +1695,7 @@ paths:
                         "status" : "PENDING",
                         "courierCode" : null,
                         "trackingNumber" : null,
-                        "createdAt" : "2025-12-11T17:09:09.498987"
+                        "createdAt" : "2025-12-15T14:46:15.417975"
                       }
                     }
       security:
@@ -1726,8 +1726,8 @@ paths:
                         "detailAddress" : "101호",
                         "isDefault" : true,
                         "isActive" : true,
-                        "createdAt" : "2025-12-11T17:09:09.423615",
-                        "updatedAt" : "2025-12-11T17:09:09.423615"
+                        "createdAt" : "2025-12-15T14:46:15.353029",
+                        "updatedAt" : "2025-12-15T14:46:15.353029"
                       }, {
                         "id" : 21,
                         "addressName" : "회사",
@@ -1738,8 +1738,8 @@ paths:
                         "detailAddress" : "101호",
                         "isDefault" : false,
                         "isActive" : true,
-                        "createdAt" : "2025-12-11T17:09:09.424203",
-                        "updatedAt" : "2025-12-11T17:09:09.424203"
+                        "createdAt" : "2025-12-15T14:46:15.353594",
+                        "updatedAt" : "2025-12-15T14:46:15.353594"
                       } ]
                     }
       security:
@@ -1785,8 +1785,8 @@ paths:
                         "detailAddress" : "101호",
                         "isDefault" : true,
                         "isActive" : true,
-                        "createdAt" : "2025-12-11T17:09:09.44446",
-                        "updatedAt" : "2025-12-11T17:09:09.44446"
+                        "createdAt" : "2025-12-15T14:46:15.373698",
+                        "updatedAt" : "2025-12-15T14:46:15.373698"
                       }
                     }
       security:
@@ -1823,8 +1823,8 @@ paths:
                         "detailAddress" : "101호",
                         "isDefault" : false,
                         "isActive" : true,
-                        "createdAt" : "2025-12-11T17:09:09.410789",
-                        "updatedAt" : "2025-12-11T17:09:09.410789"
+                        "createdAt" : "2025-12-15T14:46:15.341084",
+                        "updatedAt" : "2025-12-15T14:46:15.341084"
                       }
                     }
       security:
@@ -1875,8 +1875,8 @@ paths:
                         "detailAddress" : "사옥 1층",
                         "isDefault" : true,
                         "isActive" : true,
-                        "createdAt" : "2025-12-11T17:09:09.391616",
-                        "updatedAt" : "2025-12-11T17:09:09.391616"
+                        "createdAt" : "2025-12-15T14:46:15.322514",
+                        "updatedAt" : "2025-12-15T14:46:15.322514"
                       }
                     }
       security:
@@ -1923,7 +1923,7 @@ paths:
                         "courierCode" : "CJ",
                         "trackingNumber" : "TRACK123456",
                         "status" : "SHIPPING",
-                        "shippedAt" : "2025-12-11T17:09:09.462497",
+                        "shippedAt" : "2025-12-15T14:46:15.389496",
                         "deliveredAt" : null
                       }
                     }
@@ -1979,7 +1979,7 @@ paths:
                         "status" : "PENDING",
                         "courierCode" : null,
                         "trackingNumber" : null,
-                        "createdAt" : "2025-12-11T17:09:09.483072"
+                        "createdAt" : "2025-12-15T14:46:15.403762"
                       }
                     }
       security:
@@ -1995,7 +1995,7 @@ paths:
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/orders486549215'}
+              schema: {$ref: '#/components/schemas/admin-orders-id486549215'}
               examples:
                 order-search-all:
                   value: |-
@@ -2004,7 +2004,7 @@ paths:
                         "orderNumber" : "ORD-20251202-TESTA",
                         "orderStatus" : "PENDING",
                         "orderAmount" : 20000,
-                        "createdAt" : "2025-12-11T17:09:09.635684"
+                        "createdAt" : "2025-12-15T14:46:15.567044"
                       } ]
                     }
       security:
@@ -2035,16 +2035,16 @@ paths:
           description: '201'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/orders486549215'}
+              schema: {$ref: '#/components/schemas/admin-orders-id486549215'}
               examples:
                 order-create:
                   value: |-
                     {
                       "data" : {
-                        "orderNumber" : "ORD-20251211S6EBM",
+                        "orderNumber" : "ORD-20251215Y50X7",
                         "orderStatus" : "PENDING",
                         "orderAmount" : 20000,
-                        "createdAt" : "2025-12-11T17:09:09.611347"
+                        "createdAt" : "2025-12-15T14:46:15.543108"
                       }
                     }
       security:
@@ -2066,7 +2066,7 @@ paths:
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/orders486549215'}
+              schema: {$ref: '#/components/schemas/admin-orders-id486549215'}
               examples:
                 order-detail:
                   value: |-
@@ -2081,7 +2081,7 @@ paths:
                           "mobile" : "010-0000-0000"
                         },
                         "orderProducts" : [ ],
-                        "createdAt" : "2025-12-11T17:09:09.623023"
+                        "createdAt" : "2025-12-15T14:46:15.556066"
                       }
                     }
       security:
@@ -2103,7 +2103,7 @@ paths:
           description: '200'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/orders486549215'}
+              schema: {$ref: '#/components/schemas/admin-orders-id486549215'}
               examples:
                 order-cancel:
                   value: |-
@@ -2118,7 +2118,7 @@ paths:
                           "mobile" : "010-0000-0000"
                         },
                         "orderProducts" : [ ],
-                        "createdAt" : "2025-12-11T17:09:09.586416"
+                        "createdAt" : "2025-12-15T14:46:15.514426"
                       }
                     }
       security:
@@ -2257,8 +2257,8 @@ paths:
                         "rating" : 5,
                         "content" : "최고",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-11T17:09:10",
-                        "updatedAt" : "2025-12-11T17:09:10"
+                        "createdAt" : "2025-12-15T14:46:16",
+                        "updatedAt" : "2025-12-15T14:46:16"
                       }, {
                         "reviewId" : 7,
                         "userId" : 35,
@@ -2266,8 +2266,8 @@ paths:
                         "rating" : 4,
                         "content" : "좋아요",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-11T17:09:10",
-                        "updatedAt" : "2025-12-11T17:09:10"
+                        "createdAt" : "2025-12-15T14:46:16",
+                        "updatedAt" : "2025-12-15T14:46:16"
                       } ],
                       "page" : {
                         "number" : 0,
@@ -2316,8 +2316,8 @@ paths:
                         "rating" : 5,
                         "content" : "좋아요",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-11T17:09:10",
-                        "updatedAt" : "2025-12-11T17:09:10"
+                        "createdAt" : "2025-12-15T14:46:16",
+                        "updatedAt" : "2025-12-15T14:46:16"
                       }
                     }
       security:
@@ -2363,8 +2363,8 @@ paths:
                         "rating" : 4,
                         "content" : "수정함",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-11T17:09:10",
-                        "updatedAt" : "2025-12-11T17:09:10"
+                        "createdAt" : "2025-12-15T14:46:16",
+                        "updatedAt" : "2025-12-15T14:46:16"
                       }
                     }
       security:
@@ -2502,7 +2502,7 @@ paths:
           description: '201'
           content:
             application/json;charset=UTF-8:
-              schema: {$ref: '#/components/schemas/orders486549215'}
+              schema: {$ref: '#/components/schemas/admin-orders-id486549215'}
               examples:
                 user-signup: {value: '{ }'}
   /users/withdrawal:
@@ -2535,12 +2535,12 @@ paths:
                         "orderNumber" : "ORD-TEST-001",
                         "orderStatus" : "PENDING",
                         "orderAmount" : 10000,
-                        "createdAt" : "2025-12-11T17:09:11.347118"
+                        "createdAt" : "2025-12-15T14:46:17.281464"
                       }, {
                         "orderNumber" : "ORD-TEST-002",
                         "orderStatus" : "PENDING",
                         "orderAmount" : 20000,
-                        "createdAt" : "2025-12-11T17:09:11.347427"
+                        "createdAt" : "2025-12-15T14:46:17.281811"
                       } ]
                     }
       security:
@@ -2568,8 +2568,8 @@ paths:
                         "rating" : 4,
                         "content" : "무난하게 쓸만해요.",
                         "reviewImageUrl" : null,
-                        "createdAt" : "2025-12-11T17:09:11",
-                        "updatedAt" : "2025-12-11T17:09:11"
+                        "createdAt" : "2025-12-15T14:46:17",
+                        "updatedAt" : "2025-12-15T14:46:17"
                       }, {
                         "reviewId" : 9,
                         "userId" : 43,
@@ -2577,8 +2577,8 @@ paths:
                         "rating" : 5,
                         "content" : "아주 만족스러운 상품입니다.",
                         "reviewImageUrl" : "http://image-server/review1.png",
-                        "createdAt" : "2025-12-11T17:09:11",
-                        "updatedAt" : "2025-12-11T17:09:11"
+                        "createdAt" : "2025-12-15T14:46:17",
+                        "updatedAt" : "2025-12-15T14:46:17"
                       } ],
                       "page" : {
                         "number" : 0,
@@ -2621,9 +2621,37 @@ paths:
                           "mobile" : "010-1111-2222"
                         },
                         "orderProducts" : [ ],
-                        "createdAt" : "2025-12-11T17:09:11.279484"
+                        "createdAt" : "2025-12-15T14:46:17.214279"
                       }
                     }
+      security:
+      - bearerAuthJWT: []
+  /webhook/delivery/status:
+    post:
+      tags: [Delivery]
+      summary: 배송 상태 업데이트 (웹훅)
+      description: 택배사로부터 배송 상태 변경 알림을 받아 시스템에 반영합니다.
+      operationId: delivery-webhook-status
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema: {$ref: '#/components/schemas/DeliveryStatusWebhookRequest'}
+            examples:
+              delivery-webhook-status:
+                value: |-
+                  {
+                    "trackingNumber" : "WEBHOOK-TRACK-001",
+                    "status" : "DELIVERED",
+                    "eventTime" : "2025-12-17T17:39:20.872817"
+                  }
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json;charset=UTF-8:
+              schema: {$ref: '#/components/schemas/ApiResponse'}
+              examples:
+                delivery-webhook-status: {value: '{ }'}
       security:
       - bearerAuthJWT: []
 components:
@@ -2708,7 +2736,14 @@ components:
       properties:
         trackingNumber: {type: string, description: trackingNumber, nullable: true}
         courierCode: {type: string, description: courierCode, nullable: true}
-    orders486549215: {type: object}
+    admin-orders-id486549215: {type: object}
+    DeliveryStatusWebhookRequest:
+      title: DeliveryStatusWebhookRequest
+      type: object
+      properties:
+        eventTime: {type: string, description: eventTime, nullable: true}
+        trackingNumber: {type: string, description: trackingNumber, nullable: true}
+        status: {type: string, description: status, nullable: true}
     TokenReissueRequestDto:
       title: TokenReissueRequestDto
       type: object
