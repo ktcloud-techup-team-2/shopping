@@ -26,6 +26,8 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final JwtExceptionHandler jwtExceptionHandler;
     private final RedisTemplate<String, String> redisTemplate;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -41,8 +43,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
+                .anonymous(AbstractHttpConfigurer::disable)
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler)
+                )
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/users/signup", "/", "/auth/login","/auth/reissue","/swagger-ui.html",
                                 "/swagger-ui/**","/api-docs/**", "/v3/api-docs/**").permitAll()
