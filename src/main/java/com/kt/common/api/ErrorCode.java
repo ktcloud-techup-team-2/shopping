@@ -20,6 +20,7 @@ public enum ErrorCode {
 	MISSING_AUTHORITY(HttpStatus.UNAUTHORIZED, "토큰에 권한 정보가 없습니다."),
 	PERMISSION_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다"),
 	INTERNAL_SERVER_ERROR_JWT_RESPONSE(HttpStatus.INTERNAL_SERVER_ERROR, "JWT 예외 응답 처리 중 오류가 발생했습니다."),
+    PASSWORD_RESET_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "비밀번호 리셋 토큰이 유효하지 않습니다."),
 	// ---------------- USER -------------------
 	INVALID_USER_ID(HttpStatus.CONFLICT,"이미 사용 중인 아이디입니다."),
 	INVALID_PASSWORD_CHECK(HttpStatus.BAD_REQUEST, "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
@@ -77,6 +78,9 @@ public enum ErrorCode {
 	INVENTORY_NEGATIVE_AVAILABLE(HttpStatus.CONFLICT, "가용 재고가 0 미만이 될 수 없습니다."),
 	INVENTORY_RESERVATION_NOT_FOUND(HttpStatus.CONFLICT, "예약된 재고가 부족합니다."),
 	INVENTORY_OUTBOUND_NOT_RESERVED(HttpStatus.CONFLICT, "출고 처리할 예약 재고가 없습니다."),
+
+	// ---------------- CART -------------------
+	CART_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품이 이미 삭제되어 있습니다"),
 
 	// ---------------- ORDER -------------------
 	ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),

@@ -1,5 +1,6 @@
 package com.kt.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,22 +10,22 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ses.SesClient;
 
 @Configuration
+@RequiredArgsConstructor
 public class SesConfig {
 
-    @Value("${aws.ses.access-key}")
-    private String accessKey;
-    @Value("${aws.ses.secret-key}")
-    private String secretKey;
-    @Value("${aws.region}")
-    private String region;
+    private final AwsProperties awsProperties;
 
     @Bean
     public SesClient amazonSimpleEmailService() {
-        AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create(accessKey, secretKey);
+        AwsBasicCredentials credentials =
+                AwsBasicCredentials.create(
+                        awsProperties.getSes().getAccessKey(),
+                        awsProperties.getSes().getSecretKey()
+                );
 
         return SesClient.builder()
-                .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(awsBasicCredentials))
+                .region(Region.of(awsProperties.getRegion()))
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build();
     }
 }
