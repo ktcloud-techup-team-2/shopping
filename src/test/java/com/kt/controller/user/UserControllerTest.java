@@ -19,14 +19,11 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,7 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
-@ActiveProfiles("test")
 public class UserControllerTest extends AbstractRestDocsTest {
 
     private static final String SIGNUP_URL = "/users/signup";
@@ -48,11 +44,9 @@ public class UserControllerTest extends AbstractRestDocsTest {
     private static final String LOGIN_ID = "loginUser123";
     private static final String PASSWORD = "PasswordTest123!";
 
-    @MockitoBean
+    @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    @MockitoBean
-    private RedissonClient redissonClient;
 
     @Autowired
     private RestDocsFactory restDocsFactory;
@@ -422,4 +416,3 @@ public class UserControllerTest extends AbstractRestDocsTest {
     }
 
 }
-

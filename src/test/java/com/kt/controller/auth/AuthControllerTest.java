@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -29,7 +28,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MvcResult;
 import org.thymeleaf.context.Context;
@@ -52,7 +50,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
-@ActiveProfiles("test")
 public class AuthControllerTest extends AbstractRestDocsTest {
 
     private static final String LOGIN_URL = "/auth/login";
@@ -69,11 +66,8 @@ public class AuthControllerTest extends AbstractRestDocsTest {
     private static final String ADMIN_LOGIN_ID  = "adminUser123";
     private static final String ADMIN_PASSWORD  = "AdminTest123!";
 
-    @MockitoBean
+    @Autowired
     private StringRedisTemplate stringRedisTemplate;
-
-    @MockitoBean
-    private RedissonClient redissonClient;
 
     @Mock
     private ValueOperations<String, String> valueOperations;
