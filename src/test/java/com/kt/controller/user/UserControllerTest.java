@@ -261,7 +261,7 @@ public class UserControllerTest extends AbstractRestDocsTest {
                                     objectMapper
                             )
                     )
-                    .andExpect(status().isForbidden());
+                    .andExpect(status().isUnauthorized());
         }
     }
 
