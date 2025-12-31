@@ -12,15 +12,11 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,7 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
-@ActiveProfiles("test")
 public class AdminUserControllerTest extends AbstractRestDocsTest {
 
     private static final String ADMIN_USERS_URL = "/admin/users";
@@ -39,11 +34,8 @@ public class AdminUserControllerTest extends AbstractRestDocsTest {
     private static final String ADMIN_LOGIN_ID  = "adminUser123";
     private static final String ADMIN_PASSWORD  = "AdminTest123!";
 
-    @MockitoBean
+    @Autowired
     private StringRedisTemplate stringRedisTemplate;
-
-    @MockitoBean
-    private RedissonClient redissonClient;
 
     @Autowired
     private RestDocsFactory restDocsFactory;
