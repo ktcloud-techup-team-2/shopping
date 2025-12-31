@@ -26,9 +26,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class AdminControllerTest extends AbstractRestDocsTest {
 
-    private static final String ADMIN_URL_PREFIX = "/super-admin";
-    private static final String ADMIN_LOGIN_ID  = "superadmin123";
-    private static final String ADMIN_PASSWORD  = "SuperAdmin123!";
+    private static final String ADMIN_URL_PREFIX = "/admins";
+    private static final String ADMIN_LOGIN_ID  = "PasswordTest123";
+    private static final String ADMIN_PASSWORD  = "PasswordTest123!";
 
     @Autowired
     private RestDocsFactory restDocsFactory;
@@ -89,7 +89,7 @@ public class AdminControllerTest extends AbstractRestDocsTest {
                                     request,
                                     HttpMethod.POST,
                                     objectMapper
-                            ).with(jwtSuperAdmin())
+                            ).with(jwtAdmin())
                     )
                     .andExpect(status().isCreated())
                     .andDo(
@@ -115,7 +115,7 @@ public class AdminControllerTest extends AbstractRestDocsTest {
                             null,
                             HttpMethod.GET,
                             objectMapper
-                    ).with(jwtSuperAdmin())
+                    ).with(jwtAdmin())
             )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data").isArray())
@@ -149,7 +149,7 @@ public class AdminControllerTest extends AbstractRestDocsTest {
                                     HttpMethod.GET,
                                     objectMapper,
                                     adminId
-                            ).with(jwtSuperAdmin())
+                            ).with(jwtAdmin())
                     )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.id").value(adminId))
@@ -190,7 +190,7 @@ public class AdminControllerTest extends AbstractRestDocsTest {
                                     HttpMethod.PATCH,
                                     objectMapper,
                                     adminId
-                            ).with(jwtSuperAdmin())
+                            ).with(jwtAdmin())
                     )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.data.id").value(adminId))
@@ -223,7 +223,7 @@ public class AdminControllerTest extends AbstractRestDocsTest {
                                     HttpMethod.DELETE,
                                     objectMapper,
                                     adminId
-                            ).with(jwtSuperAdmin())
+                            ).with(jwtAdmin())
                     )
                     .andExpect(status().isNoContent())
                     .andDo(
@@ -250,7 +250,7 @@ public class AdminControllerTest extends AbstractRestDocsTest {
                             HttpMethod.PATCH,
                             objectMapper,
                             adminId
-                    ).with(jwtSuperAdmin())
+                    ).with(jwtAdmin())
             )
                     .andExpect(status().isNoContent())
                     .andDo(
