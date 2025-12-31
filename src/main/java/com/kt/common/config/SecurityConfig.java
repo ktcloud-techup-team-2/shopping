@@ -51,6 +51,9 @@ public class SecurityConfig {
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/users/signup", "/", "/auth/login","/auth/reissue","/swagger-ui.html",
+                                "/swagger-ui/**","/api-docs/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/super-admin/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/users/signup", "/admins/signup", "/", "/auth/login", "/auth/reissue",
                                 "/auth/reset-password/request", "/auth/reset-password/verify", "/auth/update-password", "/auth/find-id",
                                 "/swagger-ui.html", "/swagger-ui/**","/api-docs/**", "/v3/api-docs/**").permitAll()
