@@ -54,8 +54,9 @@ public abstract class AbstractRestDocsTest {
 	// 테스트용 ID
 	protected static final Long DEFAULT_USER_ID = 1L;
 	protected static final Long DEFAULT_ADMIN_ID = 10000L;
+    protected static final Long DEFAULT_SUPER_ADMIN_ID = 99999L;
 
-	@BeforeEach
+    @BeforeEach
 	void setUp(RestDocumentationContextProvider restDocumentation) {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
 			.apply(springSecurity())
@@ -106,6 +107,19 @@ public abstract class AbstractRestDocsTest {
 			return request;
 		};
 	}
+
+    /** SUPER_ADMIN 토큰 */
+    protected RequestPostProcessor jwtSuperAdmin() {
+        return request -> {
+            String token = createAccessToken(
+                    DEFAULT_SUPER_ADMIN_ID,
+                    Role.SUPER_ADMIN.getKey()
+            );
+            request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+            return request;
+        };
+    }
+
 
     @PostConstruct
     public void setUpObjectMapper() {
