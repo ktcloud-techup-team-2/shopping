@@ -19,14 +19,11 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,7 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
-@ActiveProfiles("test")
 public class UserControllerTest extends AbstractRestDocsTest {
 
     private static final String SIGNUP_URL = "/users/signup";
@@ -48,11 +44,9 @@ public class UserControllerTest extends AbstractRestDocsTest {
     private static final String LOGIN_ID = "loginUser123";
     private static final String PASSWORD = "PasswordTest123!";
 
-    @MockitoBean
+    @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    @MockitoBean
-    private RedissonClient redissonClient;
 
     @Autowired
     private RestDocsFactory restDocsFactory;
@@ -267,7 +261,7 @@ public class UserControllerTest extends AbstractRestDocsTest {
                                     objectMapper
                             )
                     )
-                    .andExpect(status().isForbidden());
+                    .andExpect(status().isUnauthorized());
         }
     }
 
@@ -337,27 +331,27 @@ public class UserControllerTest extends AbstractRestDocsTest {
         @Test
         void 성공() throws Exception {
             mockMvc.perform(
-                            restDocsFactory.createRequest(
-                                    "/users/my/orders",
-                                    null,
-                                    HttpMethod.GET,
-                                    objectMapper
-                            ).with(jwtUser(currentUserId))
-                    )
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data").isArray())
-                    .andExpect(jsonPath("$.data.length()").value(2))
-                    .andExpect(jsonPath("$.data[0].orderNumber").value(orderNumber1))
-                    .andDo(
-                            restDocsFactory.success(
-                                    "users-my-orders",
-                                    "내 주문 목록 조회",
-                                    "현재 로그인한 사용자의 주문 목록을 조회하는 API",
-                                    "User-Order",
-                                    null,
-                                    OrderResponse.OrderList[].class
-                            )
-                    );
+                        restDocsFactory.createRequest(
+                                "/users/my/orders",
+                                null,
+                                HttpMethod.GET,
+                                objectMapper
+                        ).with(jwtUser(currentUserId))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data.length()").value(2))
+                .andExpect(jsonPath("$.data[0].orderNumber").value(orderNumber1))
+                .andDo(
+                        restDocsFactory.success(
+                                "users-my-orders",
+                                "내 주문 목록 조회",
+                                "현재 로그인한 사용자의 주문 목록을 조회하는 API",
+                                "User-Order",
+                                null,
+                                OrderResponse.OrderList[].class
+                        )
+                );
         }
     }
 
@@ -422,4 +416,3 @@ public class UserControllerTest extends AbstractRestDocsTest {
     }
 
 }
-
