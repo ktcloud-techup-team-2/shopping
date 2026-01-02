@@ -331,27 +331,27 @@ public class UserControllerTest extends AbstractRestDocsTest {
         @Test
         void 성공() throws Exception {
             mockMvc.perform(
-                            restDocsFactory.createRequest(
-                                    "/users/my/orders",
-                                    null,
-                                    HttpMethod.GET,
-                                    objectMapper
-                            ).with(jwtUser(currentUserId))
-                    )
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data").isArray())
-                    .andExpect(jsonPath("$.data.length()").value(2))
-                    .andExpect(jsonPath("$.data[0].orderNumber").value(orderNumber1))
-                    .andDo(
-                            restDocsFactory.success(
-                                    "users-my-orders",
-                                    "내 주문 목록 조회",
-                                    "현재 로그인한 사용자의 주문 목록을 조회하는 API",
-                                    "User-Order",
-                                    null,
-                                    OrderResponse.OrderList[].class
-                            )
-                    );
+                        restDocsFactory.createRequest(
+                                "/users/my/orders",
+                                null,
+                                HttpMethod.GET,
+                                objectMapper
+                        ).with(jwtUser(currentUserId))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data.length()").value(2))
+                .andExpect(jsonPath("$.data[0].orderNumber").value(orderNumber1))
+                .andDo(
+                        restDocsFactory.success(
+                                "users-my-orders",
+                                "내 주문 목록 조회",
+                                "현재 로그인한 사용자의 주문 목록을 조회하는 API",
+                                "User-Order",
+                                null,
+                                OrderResponse.OrderList[].class
+                        )
+                );
         }
     }
 
