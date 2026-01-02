@@ -57,6 +57,12 @@ public class Order extends BaseTimeEntity {
 
 	public void cancel() {
 
+		//이미 취소되어 있으면
+		if(alreadyCanceled()){
+			throw new CustomException(ErrorCode.ORDER_ALREADY_CANCELLED);
+		}
+
+		//취소할 수 없으면
 		if (!canCancelUser()) {
 			throw new CustomException(ErrorCode.ORDER_CANCEL_NOT_ALLOWED);
 		}
@@ -64,7 +70,8 @@ public class Order extends BaseTimeEntity {
 	}
 
 	public void cancelAdmin(){
-		if (this.orderStatus == OrderStatus.CANCELLED) {
+
+		if(alreadyCanceled()){
 			throw new CustomException(ErrorCode.ORDER_ALREADY_CANCELLED);
 		}
 		this.orderStatus = OrderStatus.CANCELLED;
@@ -72,6 +79,10 @@ public class Order extends BaseTimeEntity {
 
 	private boolean canCancelUser(){
 		return this.orderStatus == OrderStatus.PENDING || this.orderStatus == OrderStatus.COMPLETED;
+	}
+	//이미 취소한 주문인지 확인
+	private boolean alreadyCanceled(){
+		return this.orderStatus == OrderStatus.CANCELLED;
 	}
 
 	//주문 수정 = 배송 정보 수정
