@@ -40,7 +40,7 @@ public class RedisConfig {
     }
 
     @Bean
-    @Profile({"local", "test"})
+    @Profile({"default", "local", "test"})
     public RedisConnectionFactory standaloneRedisConnectionFactory(RedisProperties redisProperties) {
         RedisStandaloneConfiguration standaloneConfig = new RedisStandaloneConfiguration(
                 redisProperties.getHost(),
