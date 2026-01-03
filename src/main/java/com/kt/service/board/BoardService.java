@@ -70,7 +70,6 @@ public class BoardService {
 		);
 	}
 
-	@Transactional
 	public void deleteBoard(Long userId, Long boardId) {
 		Board board = boardRepository.findById(boardId)
 			.orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
@@ -78,5 +77,12 @@ public class BoardService {
 		Preconditions.validate(board.getUser().getId().equals(userId), ErrorCode.BOARD_NOT_WRITER);
 
 		board.delete(userId);
+	}
+
+	public void deleteBoardByAdmin(Long adminId, Long boardId) {
+		Board board = boardRepository.findById(boardId)
+			.orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
+		board.delete(adminId);
 	}
 }
