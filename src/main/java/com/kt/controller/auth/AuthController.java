@@ -64,4 +64,10 @@ public class AuthController {
         authService.updatePassword(request);
         return ApiResponseEntity.empty();
     }
+
+    @GetMapping("/login/kakao")
+    public ApiResponseEntity<LoginResponse> kakaoLogin(@RequestParam("code") String code) {
+        LoginResponse response = authService.kakaoLogin(code);
+        return ApiResponseEntity.success(response);
+    }
 }
