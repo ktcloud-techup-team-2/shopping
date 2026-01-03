@@ -1,11 +1,16 @@
 package com.kt.service.auth;
 
+import com.kt.common.oauth.KakaoUtil;
 import com.kt.common.Preconditions;
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
+import com.kt.domain.auth.OAuthAccount;
+import com.kt.domain.auth.OAuthProvider;
 import com.kt.domain.user.User;
 import com.kt.dto.auth.*;
+import com.kt.dto.auth.oauth.KakaoLoginResponse;
 import com.kt.dto.email.EmailResponse;
+import com.kt.repository.auth.OAuthAccountRepository;
 import com.kt.repository.user.UserRepository;
 import com.kt.security.TokenProvider;
 import com.kt.security.dto.TokenRequestDto;
@@ -23,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -34,9 +40,12 @@ public class AuthService {
 
     private final TokenProvider tokenProvider;
     private final UserRepository userRepository;
+    private final OAuthAccountRepository oAuthAccountRepository;
     private final PasswordEncoder passwordEncoder;
     private final RedisTemplate<String, String> redisTemplate;
     private final EmailService emailService;
+    private final KakaoUtil kakaoUtil;
+
     private static final String PW_RESET_PRIFIX = "pwReset:";
     private static final Duration PW_RESET_TTL = Duration.ofMinutes(10);
 
@@ -161,5 +170,75 @@ public class AuthService {
         user.updatePassword(passwordEncoder.encode(request.newPassword()));
 
         redisTemplate.delete(key);
+    }
+
+    public LoginResponse kakaoLogin(String code) {
+        KakaoLoginResponse.OAuthToken kakaoToken = kakaoUtil.requestToken(code);
+
+        KakaoLoginResponse.KakaoUserInfo kakaoUserInfo = kakaoUtil.requestUserInfo(kakaoToken.accessToken());
+
+        String providerUserId = String.valueOf(kakaoUserInfo.id());
+        String email = kakaoUserInfo.emailOrNull();
+        String nickname = kakaoUserInfo.nicknameOrNull();
+
+        OAuthAccount oauthAccount = oAuthAccountRepository
+                .findByProviderAndProviderUserId(OAuthProvider.KAKAO, providerUserId)
+                .orElse(null);
+
+        User user;
+
+        if(oauthAccount == null) {  // 회원가입
+            User newUser = createUserForKakao(email, nickname, providerUserId);
+            user = userRepository.save(newUser);
+
+            OAuthAccount linked = OAuthAccount.link(
+                    OAuthProvider.KAKAO,
+                    providerUserId,
+                    email,
+                    nickname,
+                    user
+            );
+            oAuthAccountRepository.save(linked);
+        } else {    // 기존 유저
+            User linkedUser = oauthAccount.getUser();
+            boolean withDrawn = oauthAccount.isDeleted() || (linkedUser.getDeletedAt() != null);
+
+            if(withDrawn) {     // 기존 유저가 탈퇴한경우
+                User newUser = createUserForKakao(email, nickname, providerUserId);
+                user = userRepository.save(newUser);
+                oauthAccount.restoreAndRelink(user, email, nickname);
+            } else {
+                user = linkedUser;
+            }
+        }
+
+        List<GrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority("ROLE_"+user.getRole().name()));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getId(), null, authorities);
+
+        TokenRequestDto tokenDto = tokenProvider.generateToken(authentication, user.getId());
+
+        String redisKey = "refreshToken:" + user.getId();
+        redisTemplate.opsForValue().set(redisKey, tokenDto.refreshToken(), Duration.ofDays(7));
+        return LoginResponse.of(tokenDto.accessToken(), user.getId(), user.getLoginId());
+
+    }
+
+    private User createUserForKakao(String email, String nickname, String providerUserId) {
+        String loginId = "kakao_" + providerUserId;
+        String randomPw = UUID.randomUUID().toString();
+        String encodedPw = passwordEncoder.encode(randomPw);
+
+        return User.user(
+                loginId,
+                encodedPw,
+                nickname,
+                email,
+                null,
+                null,
+                null,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
     }
 }
