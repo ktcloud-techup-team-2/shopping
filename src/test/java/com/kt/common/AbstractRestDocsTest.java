@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.kt.config.TestRedisConfig;
 import com.kt.domain.user.Role;
 import com.kt.security.AuthUser;
 import com.kt.security.TokenProvider;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
@@ -38,6 +40,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 @AutoConfigureRestDocs
 @ExtendWith(RestDocumentationExtension.class)
 @ActiveProfiles("test")
+@Import(TestRedisConfig.class)
 public abstract class AbstractRestDocsTest {
 
 	@Autowired
@@ -54,8 +57,9 @@ public abstract class AbstractRestDocsTest {
 	// 테스트용 ID
 	protected static final Long DEFAULT_USER_ID = 1L;
 	protected static final Long DEFAULT_ADMIN_ID = 10000L;
+    protected static final Long DEFAULT_SUPER_ADMIN_ID = 99999L;
 
-	@BeforeEach
+    @BeforeEach
 	void setUp(RestDocumentationContextProvider restDocumentation) {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
 			.apply(springSecurity())
@@ -106,6 +110,19 @@ public abstract class AbstractRestDocsTest {
 			return request;
 		};
 	}
+
+    /** SUPER_ADMIN 토큰 */
+    protected RequestPostProcessor jwtSuperAdmin() {
+        return request -> {
+            String token = createAccessToken(
+                    DEFAULT_SUPER_ADMIN_ID,
+                    Role.SUPER_ADMIN.getKey()
+            );
+            request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+            return request;
+        };
+    }
+
 
     @PostConstruct
     public void setUpObjectMapper() {

@@ -23,25 +23,16 @@ import com.kt.repository.product.ProductRepository;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 class AdminProductControllerTest extends AbstractRestDocsTest {
 
 	private static final String DEFAULT_URL = "/admin/products";
-
-	@MockitoBean
-	private StringRedisTemplate stringRedisTemplate;
-
-	@MockitoBean
-	private RedissonClient redissonClient;
 
 	@Autowired
 	private RestDocsFactory restDocsFactory;

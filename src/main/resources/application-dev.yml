@@ -1,0 +1,10 @@
+spring:
+  data:
+    redis:
+      cluster:
+        nodes: ${redis.cluster.nodes:?redis.cluster.nodes is required in dev profile}
+        max-redirects: 3
+      password: ${redis.password:}
+      ssl:
+        enabled: ${redis.ssl.enabled:false}
+      timeout: 5000
