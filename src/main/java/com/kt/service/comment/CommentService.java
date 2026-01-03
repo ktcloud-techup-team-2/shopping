@@ -65,6 +65,13 @@ public class CommentService {
 		comment.delete(userId);
 	}
 
+	public void deleteCommentByAdmin(Long adminId, Long commentId) {
+		Comment comment = commentRepository.findById(commentId)
+			.orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+		comment.delete(adminId);
+	}
+
 	private Comment findCommentById(Long commentId) {
 		return commentRepository.findById(commentId)
 			.orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
