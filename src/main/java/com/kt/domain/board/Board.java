@@ -1,6 +1,5 @@
 package com.kt.domain.board;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.kt.common.jpa.BaseSoftDeleteEntity;
@@ -70,5 +69,9 @@ public class Board extends BaseSoftDeleteEntity {
 
 	public void increaseViewCount() {
 		this.viewCount++;
+	}
+
+	public void delete(Long deleterId) {
+		this.markDeleted(deleterId);
 	}
 }
