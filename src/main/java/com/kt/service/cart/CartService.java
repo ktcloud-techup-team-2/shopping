@@ -9,11 +9,13 @@ import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.domain.cart.Cart;
 import com.kt.domain.cartproduct.CartProduct;
+import com.kt.domain.inventory.Inventory;
 import com.kt.dto.cart.CartRequest;
 import com.kt.dto.cart.CartResponse;
 import com.kt.repository.cart.CartProductRepository;
 import com.kt.repository.cart.CartProductRepositoryImpl;
 import com.kt.repository.cart.CartRepository;
+import com.kt.repository.inventory.InventoryRepository;
 import com.kt.repository.product.ProductRepository;
 import com.kt.repository.user.UserRepository;
 
@@ -30,6 +32,7 @@ public class CartService {
 	private final ProductRepository productRepository;
 	private final UserRepository userRepository;
 	private final CartProductRepositoryImpl cartProductRepositoryImpl;
+	private final InventoryRepository inventoryRepository;
 
 	//장바구니 상품 추가/생성
 	public CartResponse.Create create(CartRequest.Add request, Long id){
@@ -54,6 +57,15 @@ public class CartService {
 		//카트에 상품이 담겨 있는지 확인하고 없으면 null
 		var existCartProduct = cartProductRepository.findByCartIdAndProductId(cart.getId(),product.getId())
 			.orElse(null);
+
+		// 장바구니에 담으려는 총 수량 계산
+		int totalQuantity = request.count();
+		if (existCartProduct != null) {
+			totalQuantity += existCartProduct.getCount();
+		}
+
+		// 실제 재고 검증
+		validateStock(product.getId(), totalQuantity);
 
 		CartProduct finalCartProduct;
 
@@ -80,12 +92,6 @@ public class CartService {
 	public List<CartResponse.Detail> detail(Long id){
 
 		List<CartResponse.Detail> cartDetailList = new ArrayList<>();
-
-		/*
-		//회원
-		var user = userRepository.findById(id)
-			.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-		 */
 
 		var cart = cartRepository.findByUserId(id).orElse(null);
 
@@ -115,7 +121,10 @@ public class CartService {
 		CartProduct cartProduct = cartProductRepository.findByCartIdAndCart_UserId(cartProductId, id)
 			.orElseThrow(() -> new CustomException(ErrorCode.CART_PRODUCT_NOT_FOUND));
 
-		 cartProduct.countUpdate(request.count());
+		// 변경하려는 수량에 대해 실제 재고 검증
+		validateStock(cartProduct.getProduct().getId(), request.count());
+
+		cartProduct.countUpdate(request.count());
 
 		return new CartResponse.CountUpdate(
 			cartProduct.getProduct().getId(),
@@ -123,5 +132,21 @@ public class CartService {
 			cartProduct.getCount(),
 			cartProduct.getUpdatedAt()
 		);
+	}
+
+	// 실제 재고 검증
+	private void validateStock(Long productId, int requestedQuantity) {
+		Inventory inventory = inventoryRepository.findByProductId(productId)
+			.orElseThrow(() -> new CustomException(ErrorCode.INVENTORY_NOT_FOUND));
+
+		// 실제 재고가 1 미만이면 장바구니에 담을 수 없음
+		if (inventory.getPhysicalStockTotal() < 1) {
+			throw new CustomException(ErrorCode.PRODUCT_STOCK_NOT_ENOUGH);
+		}
+
+		// 요청 수량이 실제 재고보다 많으면 장바구니에 담을 수 없음
+		if (requestedQuantity > inventory.getPhysicalStockTotal()) {
+			throw new CustomException(ErrorCode.PRODUCT_STOCK_NOT_ENOUGH);
+		}
 	}
 }
