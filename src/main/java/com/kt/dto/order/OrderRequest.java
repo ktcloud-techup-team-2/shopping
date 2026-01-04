@@ -2,17 +2,14 @@ package com.kt.dto.order;
 
 import com.kt.domain.order.OrderStatus;
 
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public class OrderRequest {
 
-	public record Create(
-
-		@NotNull
-		Long productId,
+	// 장바구니 주문 요청
+	public record CartOrder(
 
 		@NotNull
 		String receiverName,
@@ -24,17 +21,38 @@ public class OrderRequest {
 		@Pattern(regexp = "^(0\\d{1,2})-(\\d{3,4})-(\\d{4})$")
 		String receiverMobile,
 
-		@Min(value=1)
-		@Max(value=999)
+		@NotNull
+		Long deliveryAddressId,
+
+		@NotNull
+		Integer deliveryFee
+	) {
+	}
+
+	// 바로 주문 요청
+	public record DirectOrder(
+		@NotNull
+		Long productId,
+
+		@Min(value = 1)
 		int quantity,
 
 		@NotNull
+		String receiverName,
+
+		@NotNull
+		String receiverAddress,
+
+		@NotNull
+		@Pattern(regexp = "^(0\\d{1,2})-(\\d{3,4})-(\\d{4})$")
+		String receiverMobile,
+
+		@NotNull
 		Long deliveryAddressId,
+
 		@NotNull
 		Integer deliveryFee
-
-	){
-
+	) {
 	}
 
 	public record Update(

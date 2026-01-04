@@ -39,20 +39,27 @@ public class Order extends BaseTimeEntity {
 	@OneToMany(mappedBy = "order")
 	private final List<OrderProduct> orderProducts = new ArrayList<>();
 
-	private Order(Long userId, Receiver receiver, Long orderAmount, String orderNumber) {
+	private Order(Long userId, Receiver receiver, String orderNumber) {
 		this.userId = userId;
 		this.receiver = receiver;
-		this.orderAmount = orderAmount;
+		this.orderAmount = 0L;
 		this.orderStatus = OrderStatus.PENDING;
 		this.orderNumber = orderNumber;
 	}
 
-	public static Order create(Long userId, Receiver receiver, Long orderAmount, String orderNumber) {
-		return new Order(userId, receiver, orderAmount, orderNumber);
+	public static Order create(Long userId, Receiver receiver, String orderNumber) {
+		return new Order(userId, receiver, orderNumber);
 	}
 
 	public void mapToOrder(OrderProduct orderProduct) {
 		orderProducts.add(orderProduct);
+	}
+
+	// 모든 주문 상품 추가 후 한 번만 호출
+	public void calculateTotalAmount() {
+		this.orderAmount = orderProducts.stream()
+			.mapToLong(op -> (long) op.getProductPrice() * op.getQuantity())
+			.sum();
 	}
 
 	public void cancel() {

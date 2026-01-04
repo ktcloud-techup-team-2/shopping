@@ -81,6 +81,8 @@ public enum ErrorCode {
 
 	// ---------------- CART -------------------
 	CART_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품이 이미 삭제되어 있습니다"),
+	CART_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니를 찾을 수 없습니다."),
+	CART_EMPTY(HttpStatus.BAD_REQUEST, "장바구니가 비어 있습니다."),
 
 	// ---------------- ORDER -------------------
 	ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),
