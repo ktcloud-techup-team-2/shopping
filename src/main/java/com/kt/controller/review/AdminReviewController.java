@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kt.common.api.ApiResponseEntity;
 import com.kt.dto.review.ReviewResponse;
+import com.kt.security.AuthUser;
 import com.kt.service.review.ReviewService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,9 +33,10 @@ public class AdminReviewController {
 
 	@DeleteMapping("/{reviewId}")
 	public ApiResponseEntity<Void> deleteReviewByAdmin(
+		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long reviewId
 	) {
-		reviewService.deleteReviewByAdmin(reviewId);
+		reviewService.deleteReviewByAdmin(authUser.id() ,reviewId);
 		return ApiResponseEntity.empty();
 	}
 }
