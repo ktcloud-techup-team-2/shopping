@@ -1,11 +1,14 @@
 package com.kt.service.user;
 
+import com.kt.common.oauth.KakaoUtil;
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.common.Preconditions;
+import com.kt.domain.auth.OAuthProvider;
 import com.kt.domain.user.User;
 import com.kt.dto.user.UserRequest;
 import com.kt.dto.user.UserResponse;
+import com.kt.repository.auth.OAuthAccountRepository;
 import com.kt.repository.user.UserRepository;
 import com.kt.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final OAuthAccountRepository oauthAccountRepository;
+    private final KakaoUtil kakaoUtil;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
@@ -83,6 +88,13 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Preconditions.validate(!user.isDeleted(), ErrorCode.USER_NOT_FOUND);
+
+        oauthAccountRepository.findByUserIdAndDeletedFalse(userId).ifPresent(oauth -> {
+            if(oauth.getProvider() == OAuthProvider.KAKAO) {
+                kakaoUtil.unlinkByAdminKey(oauth.getProviderUserId());
+            }
+            oauth.softDelete(userId);
+        });
 
         user.softDelete();
 
