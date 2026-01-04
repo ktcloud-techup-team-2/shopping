@@ -179,8 +179,9 @@ public class OrderService {
 		return order;
 	}
 
-	//수정
+	//수정 = 배송정보 수정
 	public Order updateOrder(Long userId, String orderNumber, OrderRequest.Update request) {
+
 		Order order = orderRepository.findByOrderNumberAndUserId(orderNumber, userId)
 			.orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
 

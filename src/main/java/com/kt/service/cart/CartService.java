@@ -31,8 +31,6 @@ public class CartService {
 	private final UserRepository userRepository;
 	private final CartProductRepositoryImpl cartProductRepositoryImpl;
 
-	//TODO : 반복되는 로직있으면 따로 메서드로 빼기
-
 	//장바구니 상품 추가/생성
 	public CartResponse.Create create(CartRequest.Add request, Long id){
 

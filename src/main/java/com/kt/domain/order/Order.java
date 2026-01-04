@@ -94,6 +94,11 @@ public class Order extends BaseTimeEntity {
 
 	//주문 수정 = 배송 정보 수정
 	public void updateReceiver(Receiver receiver){
+
+		//결제 대기 상태일때만 수정 가능
+		if(this.orderStatus != OrderStatus.PENDING){
+			throw new CustomException(ErrorCode.ORDER_NOT_MODIFIABLE);
+		}
 		this.receiver = receiver;
 	}
 
