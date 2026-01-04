@@ -12,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/tags")
@@ -25,14 +27,15 @@ public class TagController {
     }
 
     @GetMapping("/{tagId}")
-    public ApiResponseEntity<TagResponse.Detail> get(@PathVariable Long tagId) {
+    public ApiResponseEntity<TagResponse.Detail> getTag(@PathVariable Long tagId) {
         var response = tagService.getTag(tagId);
         return ApiResponseEntity.success(response);
     }
 
     @GetMapping
-    public ApiResponseEntity<Page<TagResponse.Detail>> list(@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ApiResponseEntity.success(tagService.getTags(pageable));
+    public ApiResponseEntity<List<TagResponse.Detail>> getTags(Pageable pageable) {
+        var response = tagService.getTags(pageable);
+        return ApiResponseEntity.pageOf(response);
     }
 
     @PatchMapping("/{tagId}")
