@@ -6,10 +6,7 @@ import com.kt.dto.tag.TagResponse;
 import com.kt.service.tag.TagService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,7 +24,7 @@ public class TagController {
     }
 
     @GetMapping("/{tagId}")
-    public ApiResponseEntity<TagResponse.Detail> getTag(@PathVariable Long tagId) {
+    public ApiResponseEntity<TagResponse.Detail> get(@PathVariable Long tagId) {
         var response = tagService.getTag(tagId);
         return ApiResponseEntity.success(response);
     }

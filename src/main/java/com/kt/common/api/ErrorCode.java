@@ -117,7 +117,7 @@ public enum ErrorCode {
 	BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
 	BOARD_NOT_WRITER(HttpStatus.FORBIDDEN, "게시글 작성자만 수정/삭제할 수 있습니다."),
 
-	// ---------------- COMMENT -------------------
+    // ---------------- COMMENT -------------------
 	COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
 	COMMENT_NOT_WRITER(HttpStatus.FORBIDDEN, "댓글 작성자만 수정/삭제할 수 있습니다."),
 
@@ -132,6 +132,6 @@ public enum ErrorCode {
     TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 태그를 찾을 수 없습니다."),
     TAG_INACTIVE(HttpStatus.BAD_REQUEST, "비활성화된 태그는 사용할 수 없습니다.");
 
-    private final HttpStatus status;
+	private final HttpStatus status;
 	private final String message;
 }
