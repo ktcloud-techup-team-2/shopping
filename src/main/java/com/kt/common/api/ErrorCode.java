@@ -125,7 +125,8 @@ public enum ErrorCode {
     TAG_NAME_TOO_LONG(HttpStatus.BAD_REQUEST, "태그 이름은 100자를 초과할 수 없습니다."),
     TAG_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 삭제된 태그입니다."),
     TAG_KEY_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 태그 키입니다."),
-    TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 태그를 찾을 수 없습니다.");
+    TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 태그를 찾을 수 없습니다."),
+    TAG_INACTIVE(HttpStatus.BAD_REQUEST, "비활성화된 태그는 사용할 수 없습니다.");
 
 	private final HttpStatus status;
 	private final String message;
