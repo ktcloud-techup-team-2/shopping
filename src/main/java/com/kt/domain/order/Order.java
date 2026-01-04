@@ -62,36 +62,31 @@ public class Order extends BaseTimeEntity {
 			.sum();
 	}
 
-	public void cancel() {
+	//결제 취소
+	public void cancel(){
 
-		//이미 취소되어 있으면
-		if(alreadyCanceled()){
-			throw new CustomException(ErrorCode.ORDER_ALREADY_CANCELLED);
-		}
+		//이미 취소되었는지
+		validateAlreadyCanceled();
 
-		//취소할 수 없으면
-		if (!canCancelUser()) {
+		//사용자는 결제 대기(PENDING) 상태일 때만 취소 가능
+		if (this.orderStatus != OrderStatus.PENDING) {
 			throw new CustomException(ErrorCode.ORDER_CANCEL_NOT_ALLOWED);
 		}
+
+		this.orderStatus = OrderStatus.CANCELLED;
+
+	}
+	public void cancelAdmin() {
+		//이미 취소되었는지
+		validateAlreadyCanceled();
+
 		this.orderStatus = OrderStatus.CANCELLED;
 	}
-
-	public void cancelAdmin(){
-
-		if(alreadyCanceled()){
+	private void validateAlreadyCanceled() {
+		if (this.orderStatus == OrderStatus.CANCELLED) {
 			throw new CustomException(ErrorCode.ORDER_ALREADY_CANCELLED);
 		}
-		this.orderStatus = OrderStatus.CANCELLED;
 	}
-
-	private boolean canCancelUser(){
-		return this.orderStatus == OrderStatus.PENDING || this.orderStatus == OrderStatus.COMPLETED;
-	}
-	//이미 취소한 주문인지 확인
-	private boolean alreadyCanceled(){
-		return this.orderStatus == OrderStatus.CANCELLED;
-	}
-
 	//주문 수정 = 배송 정보 수정
 	public void updateReceiver(Receiver receiver){
 

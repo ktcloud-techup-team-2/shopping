@@ -12,7 +12,6 @@ import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.domain.cart.Cart;
 import com.kt.domain.cartproduct.CartProduct;
-import com.kt.domain.inventory.Inventory;
 import com.kt.domain.order.Order;
 import com.kt.domain.order.Receiver;
 import com.kt.domain.orderproduct.OrderProduct;
@@ -21,7 +20,6 @@ import com.kt.dto.delivery.DeliveryRequest;
 import com.kt.dto.order.OrderRequest;
 import com.kt.repository.cart.CartProductRepository;
 import com.kt.repository.cart.CartRepository;
-import com.kt.repository.inventory.InventoryRepository;
 import com.kt.repository.order.OrderRepository;
 import com.kt.repository.orderproduct.OrderProductRepository;
 import com.kt.repository.product.ProductRepository;
@@ -149,7 +147,7 @@ public class OrderService {
 			.orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
 	}
 
-	//내 주문 취소('주문완료(결제완료)' 시점에서의 취소)
+	//내 주문 취소(결제승인 전 주문 취소)
 	public Order cancelOrder(Long userId, String orderNumber) {
 		Order order = orderRepository.findByOrderNumberAndUserId(orderNumber, userId)
 			.orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
