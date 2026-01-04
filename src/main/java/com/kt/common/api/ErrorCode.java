@@ -79,6 +79,13 @@ public enum ErrorCode {
 	INVENTORY_RESERVATION_NOT_FOUND(HttpStatus.CONFLICT, "예약된 재고가 부족합니다."),
 	INVENTORY_OUTBOUND_NOT_RESERVED(HttpStatus.CONFLICT, "출고 처리할 예약 재고가 없습니다."),
 
+	// ---------------- WMS INBOUND -------------------
+	WMS_INBOUND_EVENT_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "입고 수량은 0보다 커야 합니다."),
+	WMS_INBOUND_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "입고 대상 상품을 찾을 수 없습니다."),
+	WMS_INBOUND_EVENT_ALREADY_PROCESSED(HttpStatus.CONFLICT, "이미 처리된 입고 이벤트입니다."),
+	WMS_INBOUND_INVENTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "입고 대상 재고 정보가 존재하지 않습니다."),
+	WMS_INBOUND_LOCK_ACQUIRE_FAILED(HttpStatus.CONFLICT, "재고 잠금 획득에 실패했습니다."),
+
 	// ---------------- CART -------------------
 	CART_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품이 이미 삭제되어 있습니다"),
 
