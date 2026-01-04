@@ -12,7 +12,10 @@ import org.apache.logging.log4j.util.Strings;
 
 @Getter
 @Entity
-@Table(name = "tags")
+@Table(name = "tags",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_tag_key", columnNames = {"tag_key"})
+        })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Tag extends BaseSoftDeleteEntity {
 
