@@ -22,6 +22,13 @@ spring:
       ssl:
         enabled: ${redis.ssl.enabled:false}
       timeout: 5000
+  kakao:
+    auth:
+      redirect: http://localhost:8080/auth/login/kakao
+      client: ${KAKAO_AUTH_CLIENT}
+      secret: ${KAKAO_AUTH_SECRET}
+      admin-key: ${KAKAO_AUTH_ADMIN_KEY}
+
 
 jwt:
   secret: ${kt.jwt.secret:1234567890123456789012345678901234}
@@ -39,7 +46,7 @@ delivery:
 
 aws:
   ses:
-    access-key: dummy-main-access-key
-    secret-key: dummy-main-secret-key
-    send-mail-from: dummy-main-email@example.com
+    access-key: ${AWS_SES_ACCESS_KEY}
+    secret-key: ${AWS_SES_SECRET_KEY}
+    send-mail-from: whtndus0809@gmail.com
   region: ap-northeast-2
