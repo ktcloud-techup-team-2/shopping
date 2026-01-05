@@ -89,6 +89,8 @@ public enum ErrorCode {
 	ORDER_NOT_MODIFIABLE(HttpStatus.CONFLICT, "현재 상태에서는 주문을 수정할 수 없습니다."),
 	ORDER_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT, "현재 상태에서는 주문을 취소할 수 없습니다."),
 	ORDER_ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소된 주문입니다."),
+	ORDER_NOT_PENDING(HttpStatus.CONFLICT, "결제 대기 상태의 주문만 결제 할 수 있습니다."),
+	ORDER_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "결제 금액과 주문 금액이 일치하지 않습니다."),
 	// ---------------- ORDER_PRODUCT -------------------
 	ORDER_PRODUCT_QUANTITY_MINIMUM(HttpStatus.BAD_REQUEST, "주문 상품 수량은 1 이상이어야 합니다."),
 	// ---------------- PAYMENT -------------------
@@ -96,6 +98,8 @@ public enum ErrorCode {
 	PAYMENT_APPROVE_NOT_ALLOWED(HttpStatus.CONFLICT, "결제 승인이 불가능한 상태입니다."),
 	PAYMENT_ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소된 결제입니다."),
 	PAYMENT_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT, "결제 취소가 불가능한 상태입니다."),
+	PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "결제 금액이 일치하지 않습니다."),
+	PAYMENT_CONFIRM_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "결제 승인에 실패했습니다."),
     // ---------------- MAIL -------------------
     MAIL_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 전송 중 오류가 발생했습니다."),
     MAIL_CONTENT_BUILD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 내용을 생성하는 중 오류가 발생했습니다."),

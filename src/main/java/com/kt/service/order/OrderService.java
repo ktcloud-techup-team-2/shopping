@@ -15,13 +15,17 @@ import com.kt.domain.cartproduct.CartProduct;
 import com.kt.domain.order.Order;
 import com.kt.domain.order.Receiver;
 import com.kt.domain.orderproduct.OrderProduct;
+import com.kt.domain.payment.Payment;
+import com.kt.domain.payment.PaymentType;
 import com.kt.domain.product.Product;
 import com.kt.dto.delivery.DeliveryRequest;
 import com.kt.dto.order.OrderRequest;
+import com.kt.dto.order.OrderResponse;
 import com.kt.repository.cart.CartProductRepository;
 import com.kt.repository.cart.CartRepository;
 import com.kt.repository.order.OrderRepository;
 import com.kt.repository.orderproduct.OrderProductRepository;
+import com.kt.repository.payment.PaymentRepository;
 import com.kt.repository.product.ProductRepository;
 import com.kt.service.delivery.DeliveryService;
 
@@ -38,6 +42,7 @@ public class OrderService {
 	private final DeliveryService deliveryService;
 	private final CartRepository cartRepository;
 	private final CartProductRepository cartProductRepository;
+	private final PaymentRepository paymentRepository;
 	private final OrderValidator orderValidator;
 
 	// 주문번호 생성
@@ -93,11 +98,10 @@ public class OrderService {
 		//총 금액 계산
 		order.calculateTotalAmount();
 
-		//TODO: 주문생성 시점이 아닌 '주문완료(결제 완료)' 시점에 장바구니를 비우도록 변경하기
-		cartProductRepository.deleteAllByCartId(cart.getId());
-
 		// 배송 정보 생성
 		createDeliveryForOrder(order.getId(), request.deliveryAddressId(), request.deliveryFee());
+
+		//이벤트 구현
 
 		return order;
 	}
@@ -136,6 +140,43 @@ public class OrderService {
 		return order;
 	}
 
+	//결제 처리 (결제하기 버튼 클릭 시)
+	public OrderResponse.PaymentConfirm processPayment(Long userId, OrderRequest.StartPayment request) {
+		// 1. 주문 조회
+		Order order = orderRepository.findByOrderNumber(request.orderNumber())
+			.orElseThrow(() -> new CustomException(ErrorCode.ORDER_NOT_FOUND));
+
+		// 2. 주문 상태 확인 (PENDING 상태만 결제 가능)
+		if (!order.isOrderPending()) {
+			throw new CustomException(ErrorCode.ORDER_NOT_PENDING);
+		}
+
+		// 3. 결제 금액 검증
+		if (!order.getOrderAmount().equals(request.amount())) {
+			throw new CustomException(ErrorCode.ORDER_AMOUNT_MISMATCH);
+		}
+
+		// 4. 재고 재검증
+		orderValidator.validateOrderProducts(order.getOrderProducts());
+
+		// 5. Payment 생성 및 결제 완료 처리
+		PaymentType paymentType = PaymentType.valueOf(request.paymentType());
+		Payment payment = Payment.create(userId, order, 0L, paymentType);
+		payment.approve();  // 바로 결제 완료 처리
+		paymentRepository.save(payment);
+
+		// 6. 주문 상태 변경 (COMPLETED)
+		order.complete();
+
+		// TODO: 결제 완료 후 처리
+		// - 재고 차감
+		// - 장바구니 비우기
+		//cartProductRepository.deleteAllByCartId(cart.getId());
+
+
+		return OrderResponse.PaymentConfirm.from(payment);
+	}
+
 	//내 주문 목록 조회
 	public List<Order> myOrderList(Long userId) {
 		return orderRepository.findByUserId(userId);
@@ -154,7 +195,6 @@ public class OrderService {
 
 		order.cancel();
 
-		//주문 취소시 환불 요청
 		//재고 복구
 
 		return order;

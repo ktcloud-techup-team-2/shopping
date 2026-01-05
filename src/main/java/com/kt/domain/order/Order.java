@@ -101,4 +101,17 @@ public class Order extends BaseTimeEntity {
 		this.orderStatus = status;
 	}
 
+	// 결제 대기 상태인지 확인
+	public boolean isOrderPending() {
+		return this.orderStatus == OrderStatus.PENDING;
+	}
+
+	// 주문 완료 처리 (결제 승인 후)
+	public void complete() {
+		if (this.orderStatus != OrderStatus.PENDING) {
+			throw new CustomException(ErrorCode.ORDER_NOT_PENDING);
+		}
+		this.orderStatus = OrderStatus.COMPLETED;
+	}
+
 }

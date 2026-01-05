@@ -48,6 +48,17 @@ public class OrderController {
 		return ApiResponseEntity.created(OrderResponse.Create.from(order));
 	}
 
+	// 주문 결제 요청 (결제하기 버튼 클릭)
+	/*
+	@PostMapping("/payment/start")
+	public ApiResponseEntity<OrderResponse.PaymentReady> startPayment(
+		@AuthenticationPrincipal AuthUser authUser,
+		@RequestBody @Valid OrderRequest.StartPayment request
+	) {
+		OrderResponse.PaymentReady response = orderService.startPayment(authUser.id(), request);
+		return ApiResponseEntity.success(response);
+	}*/
+
 	// 사용자 1명이 주문한 목록들
 	@GetMapping
 	public ApiResponseEntity<List<OrderResponse.OrderList>> myOrderList(

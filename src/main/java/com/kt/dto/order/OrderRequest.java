@@ -71,6 +71,43 @@ public class OrderRequest {
 
 	}
 
+	// 결제 요청 시작 (결제하기 버튼 클릭 시)
+	public record StartPayment(
+		@NotNull
+		String orderNumber,
+
+		@NotNull
+		Long amount,
+
+		@NotNull
+		String paymentType
+	) {
+	}
+
+	// 결제 승인 요청 (토스 콜백 successUrl로 리다이렉트 후)
+	public record ConfirmPayment(
+		@NotNull
+		String paymentKey,     // 토스에서 발급한 결제 키
+
+		@NotNull
+		String orderNumber,    // 주문 번호
+
+		@NotNull
+		Long amount            // 결제 금액
+	) {
+	}
+
+	// 결제 실패 처리 (토스 콜백 failUrl로 리다이렉트 후)
+	public record FailPayment(
+		@NotNull
+		String orderNumber,    // 주문 번호
+
+		String errorCode,      // 토스 에러 코드
+
+		String errorMessage    // 토스 에러 메시지
+	) {
+	}
+
 	// 관리자 주문 상태 변경
 	public record ChangeStatus(
 		@NotNull
