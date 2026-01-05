@@ -17,6 +17,7 @@ import com.kt.domain.order.OrderType;
 import com.kt.domain.order.Receiver;
 import com.kt.domain.orderproduct.OrderProduct;
 import com.kt.domain.payment.Payment;
+import com.kt.domain.payment.PaymentType;
 import com.kt.domain.product.Product;
 import com.kt.dto.delivery.DeliveryRequest;
 import com.kt.dto.order.OrderRequest;
@@ -103,6 +104,18 @@ public class OrderService {
 
 		//이벤트 구현
 
+		//DTO에서 받은 결제 수단을 Enum으로 변환
+		PaymentType type = PaymentType.valueOf(request.paymentType());
+
+		//결제 정보 생성
+		Payment payment = Payment.create(
+			userId,
+			order,
+			request.deliveryFee().longValue(),
+			type
+		);
+		paymentRepository.save(payment);
+
 		return order;
 	}
 
@@ -137,13 +150,25 @@ public class OrderService {
 		// 배송 정보 생성
 		createDeliveryForOrder(order.getId(), request.deliveryAddressId(), request.deliveryFee());
 
+		//DTO에서 받은 결제 수단을 Enum으로 변환
+		PaymentType type = PaymentType.valueOf(request.paymentType());
+
+		//결제 정보 생성
+		Payment payment = Payment.create(
+			userId,
+			order,
+			request.deliveryFee().longValue(),
+			type
+		);
+		paymentRepository.save(payment);
+
 		return order;
 	}
 
 	/**
 	 * 주문 완료 처리
 	 * 1) 결제가 완료된 후 호출
-	 * 2) 결제 상태(DONE) 확인 후 주문을 완료 처리
+	 * 2) 결제 상태(DONE) 확인 후 -> 주문 상태 변경 + 재고 차감
 	 */
 	public Order completeOrder(Long userId, String orderNumber) {
 		// 1. 주문 조회
@@ -168,17 +193,6 @@ public class OrderService {
 		clearCartIfCartOrder(userId, order);
 
 		return order;
-	}
-
-	//장바구니 주문이면 장바구니 비우기
-	private void clearCartIfCartOrder(Long userId, Order order) {
-		if (!order.isCartOrder()) {
-			return;
-		}
-
-		cartRepository.findByUserId(userId).ifPresent(cart -> {
-			cartProductRepository.deleteAllByCartId(cart.getId());
-		});
 	}
 
 	//내 주문 목록 조회
@@ -232,5 +246,16 @@ public class OrderService {
 		);
 
 		deliveryService.createDelivery(deliveryRequest);
+	}
+
+	//장바구니 주문이면 장바구니 비우기
+	private void clearCartIfCartOrder(Long userId, Order order) {
+		if (!order.isCartOrder()) {
+			return;
+		}
+
+		cartRepository.findByUserId(userId).ifPresent(cart -> {
+			cartProductRepository.deleteAllByCartId(cart.getId());
+		});
 	}
 }
