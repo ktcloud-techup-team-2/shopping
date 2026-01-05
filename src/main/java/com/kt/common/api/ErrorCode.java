@@ -99,6 +99,8 @@ public enum ErrorCode {
 	ORDER_ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소된 주문입니다."),
 	ORDER_NOT_PENDING(HttpStatus.CONFLICT, "결제 대기 상태의 주문만 결제 할 수 있습니다."),
 	ORDER_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "결제 금액과 주문 금액이 일치하지 않습니다."),
+	ORDER_ALREADY_COMPLETED(HttpStatus.CONFLICT, "이미 완료된 주문입니다."),
+	PAYMENT_NOT_COMPLETED(HttpStatus.CONFLICT, "결제가 완료되지 않았습니다."),
 	// ---------------- ORDER_PRODUCT -------------------
 	ORDER_PRODUCT_QUANTITY_MINIMUM(HttpStatus.BAD_REQUEST, "주문 상품 수량은 1 이상이어야 합니다."),
 	// ---------------- PAYMENT -------------------

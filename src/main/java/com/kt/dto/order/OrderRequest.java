@@ -97,17 +97,6 @@ public class OrderRequest {
 	) {
 	}
 
-	// 결제 실패 처리 (토스 콜백 failUrl로 리다이렉트 후)
-	public record FailPayment(
-		@NotNull
-		String orderNumber,    // 주문 번호
-
-		String errorCode,      // 토스 에러 코드
-
-		String errorMessage    // 토스 에러 메시지
-	) {
-	}
-
 	// 관리자 주문 상태 변경
 	public record ChangeStatus(
 		@NotNull

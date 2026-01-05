@@ -36,19 +36,29 @@ public class Order extends BaseTimeEntity {
 	@Column(nullable = false)
 	private Long orderAmount;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private OrderType orderType;
+
 	@OneToMany(mappedBy = "order")
 	private final List<OrderProduct> orderProducts = new ArrayList<>();
 
-	private Order(Long userId, Receiver receiver, String orderNumber) {
+	private Order(Long userId, Receiver receiver, String orderNumber, OrderType orderType) {
 		this.userId = userId;
 		this.receiver = receiver;
 		this.orderAmount = 0L;
 		this.orderStatus = OrderStatus.PENDING;
 		this.orderNumber = orderNumber;
+		this.orderType = orderType;
 	}
 
-	public static Order create(Long userId, Receiver receiver, String orderNumber) {
-		return new Order(userId, receiver, orderNumber);
+	public static Order create(Long userId, Receiver receiver, String orderNumber, OrderType orderType) {
+		return new Order(userId, receiver, orderNumber, orderType);
+	}
+
+	//장바구니 주문인지 확인
+	public boolean isCartOrder() {
+		return this.orderType == OrderType.CART;
 	}
 
 	public void mapToOrder(OrderProduct orderProduct) {
@@ -62,7 +72,7 @@ public class Order extends BaseTimeEntity {
 			.sum();
 	}
 
-	//결제 취소
+	//주문 취소
 	public void cancel(){
 
 		//이미 취소되었는지

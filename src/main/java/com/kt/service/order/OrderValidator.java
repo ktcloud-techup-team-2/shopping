@@ -8,7 +8,11 @@ import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.domain.cartproduct.CartProduct;
 import com.kt.domain.inventory.Inventory;
+import com.kt.domain.order.Order;
+import com.kt.domain.order.OrderStatus;
 import com.kt.domain.orderproduct.OrderProduct;
+import com.kt.domain.payment.Payment;
+import com.kt.domain.payment.PaymentStatus;
 import com.kt.repository.inventory.InventoryRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -59,6 +63,31 @@ public class OrderValidator {
 	public void validateOrderProducts(List<OrderProduct> orderProducts) {
 		for (OrderProduct orderProduct : orderProducts) {
 			validateStock(orderProduct.getProductId(), orderProduct.getQuantity());
+		}
+	}
+
+	//주문 완료를 위한 상태 검증
+	public void validateForCompletion(Order order) {
+		// 이미 취소된 주문인지 확인
+		if (order.getOrderStatus() == OrderStatus.CANCELLED) {
+			throw new CustomException(ErrorCode.ORDER_ALREADY_CANCELLED);
+		}
+
+		// 이미 완료된 주문인지 확인
+		if (order.getOrderStatus() == OrderStatus.COMPLETED) {
+			throw new CustomException(ErrorCode.ORDER_ALREADY_COMPLETED);
+		}
+
+		// PENDING 상태가 아닌 경우 (배송중, 배송완료 등)
+		if (order.getOrderStatus() != OrderStatus.PENDING) {
+			throw new CustomException(ErrorCode.ORDER_NOT_PENDING);
+		}
+	}
+
+	//결제가 완료됐는지 확인
+	public void validatePaymentCompleted(Payment payment) {
+		if (payment.getStatus() != PaymentStatus.DONE) {
+			throw new CustomException(ErrorCode.PAYMENT_NOT_COMPLETED);
 		}
 	}
 
