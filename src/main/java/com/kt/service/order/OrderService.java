@@ -170,20 +170,14 @@ public class OrderService {
 		return order;
 	}
 
-	//장바구니 주문이면 장바구니 상품 삭제
+	//장바구니 주문이면 장바구니 비우기
 	private void clearCartIfCartOrder(Long userId, Order order) {
-		// 장바구니 주문이 아니면 건너뜀
 		if (!order.isCartOrder()) {
 			return;
 		}
 
 		cartRepository.findByUserId(userId).ifPresent(cart -> {
-			List<Long> orderedProductIds = order.getOrderProducts().stream()
-				.map(OrderProduct::getProductId)
-				.toList();
-
-			// 장바구니에서 주문한 상품들만 삭제
-			cartProductRepository.deleteByCartIdAndProductIdIn(cart.getId(), orderedProductIds);
+			cartProductRepository.deleteAllByCartId(cart.getId());
 		});
 	}
 
