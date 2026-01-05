@@ -6,6 +6,7 @@ import com.kt.common.api.ErrorCode;
 import com.kt.domain.board.Board;
 import com.kt.dto.board.BoardRequest;
 import com.kt.dto.board.BoardResponse;
+import com.kt.dto.board.BoardSearchCondition;
 import com.kt.repository.board.BoardRepository;
 import com.kt.domain.user.User;
 import com.kt.repository.user.UserRepository;
@@ -40,8 +41,8 @@ public class BoardService {
 		return boardRepository.save(board).getId();
 	}
 
-	public Page<BoardResponse.Simple> getBoardList(Pageable pageable) {
-		return boardRepository.findAllByDeletedFalse(pageable)
+	public Page<BoardResponse.Simple> getBoardList(BoardSearchCondition condition, Pageable pageable) {
+		return boardRepository.search(condition, pageable)
 			.map(BoardResponse.Simple::from);
 	}
 
