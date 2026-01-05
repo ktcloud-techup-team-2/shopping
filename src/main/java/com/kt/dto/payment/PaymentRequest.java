@@ -1,24 +1,18 @@
 package com.kt.dto.payment;
 
 import com.kt.domain.payment.PaymentStatus;
-import com.kt.domain.payment.PaymentType;
-
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 public class PaymentRequest {
 
-	public record Create(
-		@NotNull
-		String orderNumber,
+	//결제 승인
+	public record Confirm(
+		@NotNull String paymentKey,
+		@NotNull String orderNumber,
+		@NotNull Long amount
+	) {
 
-		@NotNull
-		@Min(0)
-		Long deliveryFee,
-
-		@NotNull
-		PaymentType type
-	) {}
+	}
 
 	public record ChangeStatus(
 		@NotNull

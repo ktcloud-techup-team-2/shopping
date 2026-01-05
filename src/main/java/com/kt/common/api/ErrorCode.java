@@ -104,7 +104,10 @@ public enum ErrorCode {
 	// ---------------- ORDER_PRODUCT -------------------
 	ORDER_PRODUCT_QUANTITY_MINIMUM(HttpStatus.BAD_REQUEST, "주문 상품 수량은 1 이상이어야 합니다."),
 	// ---------------- PAYMENT -------------------
+	PAYMENT_CONFIRM_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "결제 처리 중 오류가 발생했습니다."),
+	PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "결제 요청 금액이 주문 정보와 다릅니다."),
 	PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "결제 정보를 찾을 수 없습니다."),
+	PAYMENT_ALREADY_PROCESSED(HttpStatus.CONFLICT, "이미 처리된 결제입니다."),
 	PAYMENT_APPROVE_NOT_ALLOWED(HttpStatus.CONFLICT, "결제 승인이 불가능한 상태입니다."),
 	PAYMENT_ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소된 결제입니다."),
 	PAYMENT_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT, "결제 취소가 불가능한 상태입니다."),

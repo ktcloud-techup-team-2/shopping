@@ -8,18 +8,19 @@ import com.kt.domain.payment.PaymentType;
 
 public interface PaymentResponse {
 
-	record Create(
-		Long paymentId,
-		PaymentStatus status,
-		Long paymentAmount,
-		LocalDateTime createdAt
-	){
-		public static Create from(Payment payment){
-			return new Create(
-				payment.getId(),
-				payment.getStatus(),
+	//결제 승인
+	public record ConfirmResult(
+		String orderNumber,
+		String paymentKey,
+		Long amount,
+		String status
+	) {
+		public static ConfirmResult from(Payment payment) {
+			return new ConfirmResult(
+				payment.getOrderNumber(),
+				payment.getPaymentKey(),
 				payment.getPaymentAmount(),
-				payment.getCreatedAt()
+				payment.getStatus().name()
 			);
 		}
 	}

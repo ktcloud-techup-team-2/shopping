@@ -67,6 +67,18 @@ public class Payment extends BaseTimeEntity {
 		this.status = PaymentStatus.DONE;
 	}
 
+	//결제 승인 확정
+	//외부 PG사(토스)로부터 받은 결제 키를 저장하고 상태를 DONE으로 변경
+	public void confirmPayment(String paymentKey) {
+		this.paymentKey = paymentKey;
+		this.status = PaymentStatus.DONE; // 상태를 '결제 완료'로 변경
+	}
+
+	//결제 실패
+	public void failPayment() {
+		this.status = PaymentStatus.FAILED;
+	}
+
 	public void cancel() {
 		if (this.status == PaymentStatus.CANCELED) {
 			throw new CustomException(ErrorCode.PAYMENT_ALREADY_CANCELLED);
@@ -83,6 +95,10 @@ public class Payment extends BaseTimeEntity {
 
 	private boolean canCancel() {
 		return this.status == PaymentStatus.READY || this.status == PaymentStatus.DONE;
+	}
+
+	public boolean isReady() {
+		return this.status == PaymentStatus.READY;
 	}
 
 	public void changeStatus(PaymentStatus status) {

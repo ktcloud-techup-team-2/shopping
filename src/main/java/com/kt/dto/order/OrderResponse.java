@@ -135,25 +135,6 @@ public interface OrderResponse {
 		}
 	}
 
-	// 결제 요청 시작 응답 (프론트가 PG사 호출할때 사용함)
-	record PaymentReady(
-		String orderNumber,       // PG사 orderId로 사용
-		Long amount,
-		String paymentType,
-		PaymentStatus status,
-		LocalDateTime createdAt
-	) {
-		public static PaymentReady from(Payment payment) {
-			return new PaymentReady(
-				payment.getOrderNumber(),
-				payment.getPaymentAmount(),
-				payment.getType().name(),
-				payment.getStatus(),
-				payment.getCreatedAt()
-			);
-		}
-	}
-
 	// 결제 승인 성공 응답
 	record PaymentConfirm(
 		String orderNumber,

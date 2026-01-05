@@ -250,10 +250,10 @@ public class OrderService {
 
 	//장바구니 주문이면 장바구니 비우기
 	private void clearCartIfCartOrder(Long userId, Order order) {
+		//장바구니 주문이 아니면 건너뛰기
 		if (!order.isCartOrder()) {
 			return;
 		}
-
 		cartRepository.findByUserId(userId).ifPresent(cart -> {
 			cartProductRepository.deleteAllByCartId(cart.getId());
 		});
