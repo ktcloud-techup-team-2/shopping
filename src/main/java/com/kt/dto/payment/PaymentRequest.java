@@ -7,9 +7,13 @@ public class PaymentRequest {
 
 	//결제 승인
 	public record Confirm(
-		@NotNull String paymentKey,
-		@NotNull String orderNumber,
-		@NotNull Long amount
+
+		@NotNull(message = "결제 키는 필수입니다.")
+		String paymentKey,
+		@NotNull(message = "주문 번호는 필수입니다.")
+		String orderNumber,
+		@NotNull(message = "결제 금액은 필수입니다.")
+		Long amount
 	) {
 
 	}

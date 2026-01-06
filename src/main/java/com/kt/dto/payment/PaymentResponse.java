@@ -6,7 +6,7 @@ import com.kt.domain.payment.Payment;
 import com.kt.domain.payment.PaymentStatus;
 import com.kt.domain.payment.PaymentType;
 
-public interface PaymentResponse {
+public class PaymentResponse {
 
 	//결제 승인
 	public record ConfirmResult(
@@ -25,7 +25,7 @@ public interface PaymentResponse {
 		}
 	}
 
-	record Check(
+	public record Check(
 		Long paymentId,
 		String orderNumber,
 		Long orderAmount,
@@ -49,7 +49,7 @@ public interface PaymentResponse {
 		}
 	}
 
-	record AdminList(
+	public record AdminList(
 		Long paymentId,
 		Long userId,
 		String orderNumber,
@@ -71,7 +71,7 @@ public interface PaymentResponse {
 		}
 	}
 
-	record AdminDetail(
+	public record AdminDetail(
 		Long paymentId,
 		Long userId,
 		String orderNumber,

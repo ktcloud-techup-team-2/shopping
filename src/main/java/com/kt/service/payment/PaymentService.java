@@ -6,7 +6,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
+import com.kt.domain.order.Order;
 import com.kt.domain.payment.Payment;
+import com.kt.domain.payment.PaymentType;
 import com.kt.domain.payment.event.PaymentConfirmedEvent;
 import com.kt.dto.payment.PaymentRequest;
 import com.kt.repository.payment.PaymentRepository;
@@ -21,6 +23,21 @@ public class PaymentService {
 	private final PaymentRepository paymentRepository;
 	private final ApplicationEventPublisher eventPublisher;
 	// 실제 연동 시 RestTemplate 등이 필요
+
+	public void createReadyPayment(Long userId, Order order, Long amount, String paymentTypeStr) {
+
+		PaymentType type = PaymentType.valueOf(paymentTypeStr);
+
+		Payment payment = Payment.create(
+			userId,
+			order,
+			amount,
+			type
+		);
+
+		paymentRepository.save(payment);
+
+	}
 
 	public Payment confirmPayment(Long userId, PaymentRequest.Confirm request) {
 
@@ -61,8 +78,8 @@ public class PaymentService {
 			return payment;
 
 		} catch (Exception e) {
-			//결제 실패 처리
-			fail(payment);
+			//결제 실패
+			payment.failPayment();
 			throw new CustomException(ErrorCode.PAYMENT_CONFIRM_FAILED);
 		}
 	}
@@ -80,12 +97,6 @@ public class PaymentService {
 			.orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
 		payment.cancel();
 		return payment;
-	}
-
-	private void fail(Payment payment) {
-
-		payment.failPayment(); // Payment 상태를 FAILED로 변경
-
 	}
 
 }

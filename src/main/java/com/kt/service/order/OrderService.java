@@ -29,6 +29,7 @@ import com.kt.repository.orderproduct.OrderProductRepository;
 import com.kt.repository.payment.PaymentRepository;
 import com.kt.repository.product.ProductRepository;
 import com.kt.service.delivery.DeliveryService;
+import com.kt.service.payment.PaymentService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +42,7 @@ public class OrderService {
 	private final ProductRepository productRepository;
 	private final OrderProductRepository orderProductRepository;
 	private final DeliveryService deliveryService;
+	private final PaymentService paymentService;
 	private final CartRepository cartRepository;
 	private final CartProductRepository cartProductRepository;
 	private final PaymentRepository paymentRepository;
@@ -122,13 +124,12 @@ public class OrderService {
 		PaymentType type = PaymentType.valueOf(request.paymentType());
 
 		//결제 정보 생성
-		Payment payment = Payment.create(
+		paymentService.createReadyPayment(
 			userId,
 			order,
 			request.deliveryFee().longValue(),
-			type
+			request.paymentType()
 		);
-		paymentRepository.save(payment);
 
 		return order;
 	}
@@ -179,13 +180,12 @@ public class OrderService {
 		PaymentType type = PaymentType.valueOf(request.paymentType());
 
 		//결제 정보 생성
-		Payment payment = Payment.create(
+		paymentService.createReadyPayment(
 			userId,
 			order,
 			request.deliveryFee().longValue(),
-			type
+			request.paymentType()
 		);
-		paymentRepository.save(payment);
 
 		return order;
 	}
@@ -208,11 +208,11 @@ public class OrderService {
 			.orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
 		orderValidator.validatePaymentCompleted(payment);
 
-		// 4. 주문 완료 처리
-		order.complete();
-
-		// 5. 재고 차감
+		// 4. 재고 차감
 		orderStockService.deductStock(order.getOrderProducts());
+
+		// 5. 주문 완료 처리
+		order.complete();
 
 		// 6. 장바구니 비우기 (장바구니 주문의 경우)
 		clearCartIfCartOrder(userId, order);
