@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Random;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,10 +83,23 @@ public class OrderService {
 			request.receiverMobile()
 		);
 
-		//주문 생성 (장바구니 주문)
+
 		String orderNumber = generateOrderNumber();
+
+		// 중복 조회
+		orderRepository.findByOrderNumber(orderNumber)
+			.ifPresent(o -> { throw new CustomException(ErrorCode.DUPLICATE_ORDER_NUMBER); });
+
+		//주문 생성 (장바구니 주문)
 		Order order = Order.create(userId, receiver, orderNumber, OrderType.CART);
-		orderRepository.save(order);
+
+		//주문 저장 전 동시성 제어(따닥 요청 방지, 동일한 주문번호의 주문이 저장되면 에러)
+		try {
+			orderRepository.save(order);
+		}catch(DataIntegrityViolationException e){
+			throw new CustomException(ErrorCode.DUPLICATE_ORDER_NUMBER);
+		}
+
 
 		// 주문 상품 생성
 		for (CartProduct cartProduct : cartProducts) {
@@ -134,10 +148,21 @@ public class OrderService {
 			request.receiverMobile()
 		);
 
-		// 주문 생성 (바로 주문)
 		String orderNumber = generateOrderNumber();
-		Order order = Order.create(userId, receiver, orderNumber, OrderType.DIRECT);
-		orderRepository.save(order);
+
+		// 중복 조회
+		orderRepository.findByOrderNumber(orderNumber)
+			.ifPresent(o -> { throw new CustomException(ErrorCode.DUPLICATE_ORDER_NUMBER); });
+
+		//주문 생성 (바로 주문)
+		Order order = Order.create(userId, receiver, orderNumber, OrderType.CART);
+
+		//주문 저장 전 동시성 제어(따닥 요청 방지, 동일한 주문번호의 주문이 저장되면 에러)
+		try {
+			orderRepository.save(order);
+		}catch(DataIntegrityViolationException e){
+			throw new CustomException(ErrorCode.DUPLICATE_ORDER_NUMBER);
+		}
 
 		// 주문 상품 생성
 		OrderProduct orderProduct = OrderProduct.create(product, request.quantity(), order);

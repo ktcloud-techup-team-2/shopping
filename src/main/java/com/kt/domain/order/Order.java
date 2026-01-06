@@ -17,14 +17,16 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "orders")
+@Table(uniqueConstraints = {
+	@UniqueConstraint(name = "uk_order_number", columnNames = {"order_number"})
+})
 @NoArgsConstructor
 public class Order extends BaseTimeEntity {
 
 	@Column(nullable = false)
 	private Long userId;
 
-	@Column(unique = true, nullable = false)
+	@Column(nullable = false)
 	private String orderNumber;
 
 	@Embedded

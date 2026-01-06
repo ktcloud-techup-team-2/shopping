@@ -93,6 +93,7 @@ public enum ErrorCode {
 	CART_EMPTY(HttpStatus.BAD_REQUEST, "장바구니가 비어 있습니다."),
 
 	// ---------------- ORDER -------------------
+	DUPLICATE_ORDER_NUMBER(HttpStatus.CONFLICT, "이미 존재하는 주문입니다."),
 	ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),
 	ORDER_NOT_MODIFIABLE(HttpStatus.CONFLICT, "현재 상태에서는 주문을 수정할 수 없습니다."),
 	ORDER_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT, "현재 상태에서는 주문을 취소할 수 없습니다."),
