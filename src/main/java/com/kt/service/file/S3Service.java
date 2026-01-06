@@ -13,8 +13,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
+import javax.imageio.ImageIO;
 
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
@@ -47,14 +50,14 @@ public class S3Service {
 			validateImageFile(file);
 
 			String originalFileName = file.getOriginalFilename();
-			String uuidFileName = UUID.randomUUID().toString() + ".webp";
+			String uuidFileName = UUID.randomUUID().toString() + ".jpg";
 
 			try {
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 
 				Thumbnails.of(file.getInputStream())
 					.size(1000, 1000)
-					.outputFormat("webp")
+					.outputFormat("jpg")
 					.outputQuality(0.8)
 					.toOutputStream(os);
 
@@ -62,7 +65,7 @@ public class S3Service {
 				InputStream is = new ByteArrayInputStream(buffer);
 
 				ObjectMetadata metadata = ObjectMetadata.builder()
-					.contentType("image/webp")
+					.contentType("image/jpeg")
 					.build();
 
 				s3Template.upload(bucket, uuidFileName, is, metadata);
