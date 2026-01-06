@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface PetRepository extends JpaRepository<Pet, Long> {
     Page<Pet> findAllByUser_IdAndDeletedAtIsNull(Long userId, Pageable pageable);
 
-    Optional<Pet> findByIdAndDeletedAtIsNull(Long id);
+    Optional<Pet> findByIdAndDeletedFalse(Long id);
 }
