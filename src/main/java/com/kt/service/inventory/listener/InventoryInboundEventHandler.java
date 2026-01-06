@@ -5,16 +5,11 @@ import java.util.concurrent.TimeUnit;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.context.event.EventListener;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
-import com.kt.domain.inventory.ProcessedInboundEvent;
 import com.kt.domain.inventory.event.InboundConfirmedEvent;
 import com.kt.repository.inventory.InventoryRepository;
 import com.kt.repository.inventory.ProcessedInboundEventRepository;
@@ -30,7 +25,6 @@ public class InventoryInboundEventHandler {
 	private final ProcessedInboundEventRepository processedInboundEventRepository;
 	private final InventoryRepository inventoryRepository;
 	private final RedissonClient redissonClient;
-	private final PlatformTransactionManager transactionManager;
 
 	@EventListener
 	@Transactional
@@ -70,19 +64,6 @@ public class InventoryInboundEventHandler {
 	}
 
 	private boolean tryInsertEvent(String eventId) {
-		TransactionTemplate template = new TransactionTemplate(transactionManager);
-		template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-
-		Boolean result = template.execute(status -> {
-			try {
-				processedInboundEventRepository.saveAndFlush(ProcessedInboundEvent.create(eventId));
-				return true;
-			} catch (DataIntegrityViolationException e) {
-				status.setRollbackOnly();
-				return false;
-			}
-		});
-
-		return Boolean.TRUE.equals(result);
+		return processedInboundEventRepository.insertIfAbsent(eventId) > 0;
 	}
 }
