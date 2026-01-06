@@ -143,8 +143,14 @@ public enum ErrorCode {
     TAG_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 삭제된 태그입니다."),
     TAG_KEY_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 태그 키입니다."),
     TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 태그를 찾을 수 없습니다."),
-    TAG_INACTIVE(HttpStatus.BAD_REQUEST, "비활성화된 태그는 사용할 수 없습니다.");
+    TAG_INACTIVE(HttpStatus.BAD_REQUEST, "비활성화된 태그는 사용할 수 없습니다."),
 
-	private final HttpStatus status;
+    // ----------------  FILE ----------------------
+    FILE_EMPTY(HttpStatus.BAD_REQUEST, "파일이 비어있습니다."),
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다."),
+    FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기가 제한을 초과했습니다."),
+    FILE_TYPE_NOT_SUPPORTED(HttpStatus.BAD_REQUEST, "지원하지 않는 파일 형식입니다.");
+
+    private final HttpStatus status;
 	private final String message;
 }
