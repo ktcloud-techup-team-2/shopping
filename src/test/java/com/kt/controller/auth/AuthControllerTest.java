@@ -3,9 +3,11 @@ package com.kt.controller.auth;
 import com.jayway.jsonpath.JsonPath;
 import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
+import com.kt.common.oauth.KakaoUtil;
 import com.kt.domain.user.Gender;
 import com.kt.domain.user.User;
 import com.kt.dto.auth.*;
+import com.kt.dto.auth.oauth.KakaoLoginResponse;
 import com.kt.dto.email.EmailRequest;
 import com.kt.dto.email.EmailResponse;
 import com.kt.repository.pet.PetRepository;
@@ -45,8 +47,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
@@ -59,6 +63,7 @@ public class AuthControllerTest extends AbstractRestDocsTest {
     private static final String RESET_PASSWORD_REQUEST_URL = "/auth/reset-password/request";
     private static final String RESET_PASSWORD_VERIFY_URL = "/auth/reset-password/verify";
     private static final String UPDATE_PASSWORD_URL = "/auth/update-password";
+    private static final String KAKAO_LOGIN_URL = "/auth/login/kakao";
 
     private static final String LOGIN_ID = "loginUser123";
     private static final String PASSWORD = "PasswordTest123!";
@@ -80,6 +85,9 @@ public class AuthControllerTest extends AbstractRestDocsTest {
 
     @MockitoBean
     private SpringTemplateEngine templateEngine;
+
+    @MockitoBean
+    private KakaoUtil kakaoUtil;
 
     @Autowired
     private TokenProvider tokenProvider;
@@ -336,14 +344,12 @@ public class AuthControllerTest extends AbstractRestDocsTest {
                     "$.data.accessToken"
             );
 
-            // 방어(토큰이 비면 지금처럼 Bearer null 되어 401 남)
             assertThat(accessToken).isNotBlank();
 
-            // 2) logout 호출 (Authorization 헤더에 실제 토큰 넣기)
             mockMvc.perform(
                             restDocsFactory.createRequest(
                                     LOGOUT_URL,
-                                    null,               // 바디 없음
+                                    null,
                                     HttpMethod.POST,
                                     objectMapper
                             ).header("Authorization", "Bearer " + accessToken)
@@ -433,7 +439,6 @@ public class AuthControllerTest extends AbstractRestDocsTest {
                     "로그인유저"
             );
 
-            // sendAuthenticationEmail 내부에서 redisTemplate.opsForValue().set(...) 호출됨
             doNothing().when(emailValueOperations).set(anyString(), anyString(), any());
 
             mockMvc.perform(
@@ -459,7 +464,6 @@ public class AuthControllerTest extends AbstractRestDocsTest {
 
         @Test
         void 실패_요청값_검증_필드누락() throws Exception {
-            // loginId 빈 값 -> @NotBlank 위반
             FindPasswordRequest request = new FindPasswordRequest(
                     "",
                     "login@example.com",
@@ -486,7 +490,6 @@ public class AuthControllerTest extends AbstractRestDocsTest {
             String email = "login@example.com";
             String code = "123456";
 
-            // EmailService.verifyCode(email, code)에서 redisTemplate.opsForValue().get(...) 호출
             given(emailValueOperations.get(anyString())).willReturn(code);
             given(stringRedisTemplate.delete(anyString())).willReturn(true);
 
@@ -538,11 +541,9 @@ public class AuthControllerTest extends AbstractRestDocsTest {
         void 성공() throws Exception {
             String resetToken = "test-reset-token";
 
-            // ✅ updatePassword가 조회하는 key 형태와 정확히 맞추기
             String key = "pwReset:" + resetToken;
             given(valueOperations.get(eq(key))).willReturn("login@example.com");
 
-            // ✅ redis delete도 updatePassword에서 수행함 (실제 호출 객체에 맞춰 스텁)
             given(stringRedisTemplate.delete(eq(key))).willReturn(true);
 
             ResetPasswordRequest request = new ResetPasswordRequest(
@@ -592,4 +593,68 @@ public class AuthControllerTest extends AbstractRestDocsTest {
         }
     }
 
+    @Nested
+    class 카카오_로그인_API {
+        @Test
+        void 성공_신규유저_회원가입_및_로그인() throws Exception {
+            String code = "kakao-auth-code";
+            String kakaoAccessToken = "kakao-access-token";
+
+            KakaoLoginResponse.OAuthToken token = stubKakaoToken(code, kakaoAccessToken);
+            stubKakaoUserInfo(token.accessToken(), 1234567890L, "login@example.com", "카카오닉네임");
+
+            mockMvc.perform(get(KAKAO_LOGIN_URL).param("code", code))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
+                    .andExpect(jsonPath("$.data.userId").isNumber());
+        }
+
+        @Test
+        void 성공_기존유저_로그인() throws Exception {
+            Long kakaoId = 1234567890L;
+            String email = "login@example.com";
+            String nickname = "카카오닉네임";
+
+            // 첫 번째 호출로 신규 가입
+            String firstCode = "kakao-auth-code-1";
+            var firstToken = stubKakaoToken(firstCode, "kakao-access-token-1");
+            stubKakaoUserInfo(firstToken.accessToken(), kakaoId, email, nickname);
+
+            mockMvc.perform(get(KAKAO_LOGIN_URL).param("code", firstCode))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.userId").isNumber());
+
+            // 기존유저 로그인
+            String secondCode = "kakao-auth-code-2";
+            var secondToken = stubKakaoToken(secondCode, "kakao-access-token-2");
+            stubKakaoUserInfo(secondToken.accessToken(), kakaoId, email, nickname);
+
+            mockMvc.perform(get(KAKAO_LOGIN_URL).param("code", secondCode))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
+                    .andExpect(jsonPath("$.data.userId").isNumber());
+        }
+
+        private KakaoLoginResponse.OAuthToken stubKakaoToken(String code, String kakaoAccessToken) {
+            KakaoLoginResponse.OAuthToken token = new KakaoLoginResponse.OAuthToken(
+                    "bearer",
+                    kakaoAccessToken,
+                    3600,
+                    "kakao-refresh-token",
+                    1209600,
+                    "account_email profile_nickname"
+            );
+            given(kakaoUtil.requestToken(eq(code))).willReturn(token);
+            return token;
+        }
+
+        private void stubKakaoUserInfo(String kakaoAccessToken, Long kakaoId, String email, String nickname) {
+            KakaoLoginResponse.KakaoUserInfo userInfo = new KakaoLoginResponse.KakaoUserInfo(
+                    kakaoId,
+                    new KakaoLoginResponse.KakaoAccount(email, true),
+                    new KakaoLoginResponse.Properties(nickname)
+            );
+            given(kakaoUtil.requestUserInfo(eq(kakaoAccessToken))).willReturn(userInfo);
+        }
+    }
 }
