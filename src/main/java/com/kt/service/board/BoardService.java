@@ -6,6 +6,7 @@ import com.kt.common.api.ErrorCode;
 import com.kt.domain.board.Board;
 import com.kt.dto.board.BoardRequest;
 import com.kt.dto.board.BoardResponse;
+import com.kt.dto.board.BoardSearchCondition;
 import com.kt.repository.board.BoardRepository;
 import com.kt.domain.user.User;
 import com.kt.repository.user.UserRepository;
@@ -40,8 +41,8 @@ public class BoardService {
 		return boardRepository.save(board).getId();
 	}
 
-	public Page<BoardResponse.Simple> getBoardList(Pageable pageable) {
-		return boardRepository.findAllByDeletedFalse(pageable)
+	public Page<BoardResponse.Simple> getBoardList(BoardSearchCondition condition, Pageable pageable) {
+		return boardRepository.search(condition, pageable)
 			.map(BoardResponse.Simple::from);
 	}
 
@@ -69,7 +70,6 @@ public class BoardService {
 		);
 	}
 
-	@Transactional
 	public void deleteBoard(Long userId, Long boardId) {
 		Board board = boardRepository.findById(boardId)
 			.orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
@@ -77,5 +77,12 @@ public class BoardService {
 		Preconditions.validate(board.getUser().getId().equals(userId), ErrorCode.BOARD_NOT_WRITER);
 
 		board.delete(userId);
+	}
+
+	public void deleteBoardByAdmin(Long adminId, Long boardId) {
+		Board board = boardRepository.findById(boardId)
+			.orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
+		board.delete(adminId);
 	}
 }
