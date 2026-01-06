@@ -20,7 +20,7 @@ public class PetRequest {
             Boolean neutered,
             @NotBlank(message = "품종(breed)은 필수 값입니다.")
             String breed,
-            @NotBlank(message = "생일(birthday)은 필수 값입니다.")
+            @NotNull(message = "생일(birthday)은 필수 값입니다.")
             LocalDate birthday,
             @PositiveOrZero(message = "몸무게는 0 이상이어야 합니다.")
             Double weight,

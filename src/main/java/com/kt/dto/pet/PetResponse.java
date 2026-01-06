@@ -4,13 +4,15 @@ import com.kt.domain.pet.BodyShape;
 import com.kt.domain.pet.Pet;
 import com.kt.domain.user.Gender;
 
+import java.time.LocalDate;
+
 public record PetResponse (
         Long id,
         String name,
         Gender gender,
         Boolean neutered,
         String breed,
-        String birthday,
+        LocalDate birthday,
         Double weight,
         BodyShape bodyShape,
         boolean allergy,
