@@ -50,3 +50,8 @@ aws:
     secret-key: ${AWS_SES_SECRET_KEY}
     send-mail-from: whtndus0809@gmail.com
   region: ap-northeast-2
+
+
+logstash:
+  host: ${LOGSTASH_HOST:localhost}
+  port: ${LOGSTASH_PORT:9601}

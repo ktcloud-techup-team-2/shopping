@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %magenta(%-4relative) --- [ %thread{10} ] %cyan(%logger{20}) : %msg%n"/>
+    <springProperty name="LOGSTASH_HOST" source="logstash.host" defaultValue="localhost"/>
+    <springProperty name="LOGSTASH_PORT" source="logstash.port" defaultValue="9601"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>${LOGSTASH_HOST}:${LOGSTASH_PORT}</destination>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        </encoder>
+    </appender>
+
+    <!--    <springProfile name="local">-->
+    <!--        <root level="INFO">-->
+    <!--            <appender-ref ref="LOGSTASH"/>-->
+    <!--            <appender-ref ref="CONSOLE"/>-->
+    <!--        </root>-->
+    <!--    </springProfile>-->
+
+    <!--    <springProfile name="dev">-->
+    <!--        <root level="INFO">-->
+    <!--            <appender-ref ref="LOGSTASH"/>-->
+    <!--            <appender-ref ref="CONSOLE"/>-->
+    <!--        </root>-->
+    <!--    </springProfile>-->
+
+    <root level="INFO">
+        <appender-ref ref="LOGSTASH"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>
