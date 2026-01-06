@@ -33,8 +33,8 @@ public class PetRecommendationService {
     private final TagRepository tagRepository;
     private final ProductTagRepository productTagRepository;
 
-    public PetRecommendTagResponse.Result recommendTags (Long petId) {
-        Pet pet = petRepository.findByIdAndDeletedFalse(petId)
+    public PetRecommendTagResponse.Result recommendTags (Long userId, Long petId) {
+        Pet pet = petRepository.findByIdAndUser_IdAndDeletedFalse(petId, userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PET_NOT_FOUND));
 
         Set<String> keys = resolveRecommendationTagKeys(pet);

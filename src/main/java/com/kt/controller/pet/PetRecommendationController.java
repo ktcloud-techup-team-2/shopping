@@ -24,8 +24,8 @@ public class PetRecommendationController {
     private final PetRecommendationService petRecommendationService;
 
     @GetMapping("/{petId}/recommend-tags")
-    public ApiResponseEntity<PetRecommendTagResponse.Result> recommendTags(@PathVariable Long petId) {
-        return ApiResponseEntity.success(petRecommendationService.recommendTags(petId));
+    public ApiResponseEntity<PetRecommendTagResponse.Result> recommendTags(@AuthenticationPrincipal AuthUser authUser, @PathVariable Long petId) {
+        return ApiResponseEntity.success(petRecommendationService.recommendTags(authUser.id(), petId));
     }
 
     @GetMapping("/{petId}/recommend-products")
