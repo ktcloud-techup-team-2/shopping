@@ -244,7 +244,6 @@ public class OrderService {
 		return order;
 	}
 
-	//결제 취소 구현
 
 	//수정 = 배송정보 수정
 	public Order updateOrder(Long userId, String orderNumber, OrderRequest.Update request) {

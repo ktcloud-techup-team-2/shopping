@@ -47,6 +47,9 @@ public class Payment extends BaseTimeEntity {
 	@Column(nullable = false)
 	private PaymentStatus status;
 
+	@Column
+	private String cancelReason;
+
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "order_id")
 	private Order order;
@@ -66,12 +69,6 @@ public class Payment extends BaseTimeEntity {
 		return new Payment(userId, order, deliveryFee, type);
 	}
 
-	public void approve() {
-		if (!canApprove()) {
-			throw new CustomException(ErrorCode.PAYMENT_APPROVE_NOT_ALLOWED);
-		}
-		this.status = PaymentStatus.DONE;
-	}
 
 	//결제 승인 확정
 	//외부 PG사(토스)로부터 받은 결제 키를 저장하고 상태를 DONE으로 변경
@@ -85,22 +82,22 @@ public class Payment extends BaseTimeEntity {
 		this.status = PaymentStatus.FAILED;
 	}
 
-	public void cancel() {
+
+	//결제 취소
+	public void cancel(String cancelReason) {
 		if (this.status == PaymentStatus.CANCELED) {
 			throw new CustomException(ErrorCode.PAYMENT_ALREADY_CANCELLED);
 		}
-		if (!canCancel()) {
-			throw new CustomException(ErrorCode.PAYMENT_CANCEL_NOT_ALLOWED);
+		if (!isCancelable()) {
+			throw new CustomException(ErrorCode.PAYMENT_CANNOT_CANCEL);
 		}
 		this.status = PaymentStatus.CANCELED;
+		this.cancelReason = cancelReason;
 	}
 
-	private boolean canApprove() {
-		return this.status == PaymentStatus.READY || this.status == PaymentStatus.IN_PROGRESS;
-	}
-
-	private boolean canCancel() {
-		return this.status == PaymentStatus.READY || this.status == PaymentStatus.DONE;
+	//취소 가능 여부 체크 (DONE 상태만 취소 가능)
+	public boolean isCancelable() {
+		return this.status == PaymentStatus.DONE;
 	}
 
 	public boolean isReady() {

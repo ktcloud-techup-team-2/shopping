@@ -1,6 +1,8 @@
 package com.kt.dto.payment;
 
 import com.kt.domain.payment.PaymentStatus;
+
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class PaymentRequest {
@@ -17,6 +19,12 @@ public class PaymentRequest {
 	) {
 
 	}
+
+	//결제 취소
+	public record Cancel(
+		@NotBlank(message = "취소 사유는 필수입니다")
+		String cancelReason
+	) {}
 
 	public record ChangeStatus(
 		@NotNull

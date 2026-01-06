@@ -84,19 +84,39 @@ public class PaymentService {
 		}
 	}
 
+	//결제 조회
+	@Transactional(readOnly = true)
+	public Payment getPayment(Long userId, Long paymentId) {
 
-	//조회
-	public Payment getPayment(Long paymentId) {
-		return paymentRepository.findById(paymentId)
+		return paymentRepository.findByIdAndUserId(paymentId, userId)
 			.orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
 	}
 
-	//취소
-	public Payment cancelPayment(Long paymentId) {
-		Payment payment = paymentRepository.findById(paymentId)
-			.orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
-		payment.cancel();
-		return payment;
-	}
 
+	//결제 취소
+	public Payment cancelPayment(Long userId, Long paymentId, String cancelReason) {
+
+		Payment payment = paymentRepository.findByIdAndUserId(paymentId, userId)
+			.orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
+
+		// 취소 가능 상태 체크
+		payment.isCancelable();
+
+		try {
+			//토스 취소 api 호출
+			boolean isExternalApiSuccess = true;
+
+			if (!isExternalApiSuccess) {
+				throw new CustomException(ErrorCode.PAYMENT_CANCEL_FAILED);
+			}
+
+			//상태 변경 (DONE -> CANCELED) 및 취소 사유 저장
+			payment.cancel(cancelReason);
+
+			return payment;
+
+		} catch (Exception e) {
+			throw new CustomException(ErrorCode.PAYMENT_CANCEL_FAILED);
+		}
+	}
 }

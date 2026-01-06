@@ -39,21 +39,27 @@ public class PaymentController {
 		return ApiResponseEntity.success(PaymentResponse.ConfirmResult.from(payment));
 	}
 
+	//결제 조회
 	@GetMapping("/{paymentId}")
-	public ApiResponseEntity<PaymentResponse.Check> getPayment(
+	public ApiResponseEntity<PaymentResponse.Detail> getPayment(
 		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long paymentId
 	) {
-		Payment payment = paymentService.getPayment(paymentId);
-		return ApiResponseEntity.success(PaymentResponse.Check.from(payment));
+		Payment payment = paymentService.getPayment(authUser.id(),paymentId);
+
+		return ApiResponseEntity.success(PaymentResponse.Detail.from(payment));
 	}
 
+	//결제 취소
 	@PatchMapping("/{paymentId}/cancel")
-	public ApiResponseEntity<PaymentResponse.Check> cancelPayment(
+	public ApiResponseEntity<PaymentResponse.CancelResult> cancelPayment(
 		@AuthenticationPrincipal AuthUser authUser,
-		@PathVariable Long paymentId
+		@PathVariable Long paymentId,
+		@RequestBody @Valid PaymentRequest.Cancel request
 	) {
-		Payment payment = paymentService.cancelPayment(paymentId);
-		return ApiResponseEntity.success(PaymentResponse.Check.from(payment));
+		Payment payment = paymentService.cancelPayment(authUser.id(), paymentId, request.cancelReason());
+
+		return ApiResponseEntity.success(PaymentResponse.CancelResult.from(payment));
 	}
+
 }
