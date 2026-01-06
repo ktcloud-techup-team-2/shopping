@@ -9,6 +9,7 @@ import com.kt.common.api.CustomException;
 import com.kt.common.api.ErrorCode;
 import com.kt.common.jpa.BaseTimeEntity;
 import com.kt.domain.orderproduct.OrderProduct;
+import com.kt.domain.payment.Payment;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -42,6 +43,9 @@ public class Order extends BaseTimeEntity {
 
 	@OneToMany(mappedBy = "order")
 	private final List<OrderProduct> orderProducts = new ArrayList<>();
+
+	@OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
+	private Payment payment;
 
 	private Order(Long userId, Receiver receiver, String orderNumber, OrderType orderType) {
 		this.userId = userId;

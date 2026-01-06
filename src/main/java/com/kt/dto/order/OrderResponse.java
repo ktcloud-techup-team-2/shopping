@@ -7,15 +7,16 @@ import com.kt.domain.order.Order;
 import com.kt.domain.order.OrderStatus;
 import com.kt.domain.order.Receiver;
 import com.kt.domain.orderproduct.OrderProduct;
-import com.kt.domain.payment.Payment;
-import com.kt.domain.payment.PaymentStatus;
 
 public interface OrderResponse {
 
+	// 주문 생성 응답
 	record Create(
 		String orderNumber,
 		OrderStatus orderStatus,
 		Long orderAmount,
+		Long deliveryFee,
+		Long paymentAmount,
 		LocalDateTime createdAt
 	){
 		public static Create from(Order order){
@@ -23,6 +24,8 @@ public interface OrderResponse {
 				order.getOrderNumber(),
 				order.getOrderStatus(),
 				order.getOrderAmount(),
+				order.getPayment().getDeliveryFee(),
+				order.getPayment().getPaymentAmount(),
 				order.getCreatedAt()
 			);
 		}
@@ -132,37 +135,6 @@ public interface OrderResponse {
 				products,
 				order.getCreatedAt()
 			);
-		}
-	}
-
-	// 결제 승인 성공 응답
-	record PaymentConfirm(
-		String orderNumber,
-		Long amount,
-		String paymentKey,
-		PaymentStatus status,
-		LocalDateTime approvedAt
-	) {
-		public static PaymentConfirm from(Payment payment) {
-			return new PaymentConfirm(
-				payment.getOrderNumber(),
-				payment.getPaymentAmount(),
-				payment.getPaymentKey(),
-				payment.getStatus(),
-				LocalDateTime.now()
-			);
-		}
-	}
-
-	// 결제 실패 응답
-	record PaymentFail(
-		String orderNumber,
-		PaymentStatus status,
-		String errorCode,
-		String errorMessage
-	) {
-		public static PaymentFail of(String orderNumber, PaymentStatus status, String errorCode, String errorMessage) {
-			return new PaymentFail(orderNumber, status, errorCode, errorMessage);
 		}
 	}
 }
