@@ -7,6 +7,8 @@ import com.kt.domain.order.Order;
 import com.kt.domain.order.OrderStatus;
 import com.kt.domain.order.Receiver;
 import com.kt.domain.orderproduct.OrderProduct;
+import com.kt.domain.payment.Payment;
+import com.kt.domain.payment.PaymentStatus;
 
 public interface OrderResponse {
 
@@ -130,6 +132,56 @@ public interface OrderResponse {
 				products,
 				order.getCreatedAt()
 			);
+		}
+	}
+
+	// 결제 요청 시작 응답 (프론트가 PG사 호출할때 사용함)
+	record PaymentReady(
+		String orderNumber,       // PG사 orderId로 사용
+		Long amount,
+		String paymentType,
+		PaymentStatus status,
+		LocalDateTime createdAt
+	) {
+		public static PaymentReady from(Payment payment) {
+			return new PaymentReady(
+				payment.getOrderNumber(),
+				payment.getPaymentAmount(),
+				payment.getType().name(),
+				payment.getStatus(),
+				payment.getCreatedAt()
+			);
+		}
+	}
+
+	// 결제 승인 성공 응답
+	record PaymentConfirm(
+		String orderNumber,
+		Long amount,
+		String paymentKey,
+		PaymentStatus status,
+		LocalDateTime approvedAt
+	) {
+		public static PaymentConfirm from(Payment payment) {
+			return new PaymentConfirm(
+				payment.getOrderNumber(),
+				payment.getPaymentAmount(),
+				payment.getPaymentKey(),
+				payment.getStatus(),
+				LocalDateTime.now()
+			);
+		}
+	}
+
+	// 결제 실패 응답
+	record PaymentFail(
+		String orderNumber,
+		PaymentStatus status,
+		String errorCode,
+		String errorMessage
+	) {
+		public static PaymentFail of(String orderNumber, PaymentStatus status, String errorCode, String errorMessage) {
+			return new PaymentFail(orderNumber, status, errorCode, errorMessage);
 		}
 	}
 }
