@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(uniqueConstraints = {
+@Table(name = "orders", uniqueConstraints = {
 	@UniqueConstraint(name = "uk_order_number", columnNames = {"order_number"})
 })
 @NoArgsConstructor
@@ -46,8 +46,8 @@ public class Order extends BaseTimeEntity {
 	@OneToMany(mappedBy = "order")
 	private final List<OrderProduct> orderProducts = new ArrayList<>();
 
-	@OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
-	private Payment payment;
+	@OneToMany(mappedBy = "order", cascade = CascadeType.MERGE, orphanRemoval = true)
+	private List<Payment> payments = new ArrayList<>();
 
 	private Order(Long userId, Receiver receiver, String orderNumber, OrderType orderType) {
 		this.userId = userId;
@@ -128,6 +128,19 @@ public class Order extends BaseTimeEntity {
 			throw new CustomException(ErrorCode.ORDER_NOT_PENDING);
 		}
 		this.orderStatus = OrderStatus.COMPLETED;
+	}
+
+	// 결제 추가 (양방향 관계 설정)
+	public void addPayment(Payment payment) {
+		this.payments.add(payment);
+	}
+
+	// 최신 결제 조회 (가장 최근에 추가된 결제)
+	public Payment getLatestPayment() {
+		if (payments.isEmpty()) {
+			return null;
+		}
+		return payments.get(payments.size() - 1);
 	}
 
 }

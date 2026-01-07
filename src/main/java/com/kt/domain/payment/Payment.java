@@ -13,15 +13,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @Table(name = "payments", uniqueConstraints = {
-	// 한 주문당 결제는 하나만 존재해야
-	@UniqueConstraint(name = "uk_payment_order_number", columnNames = {"order_number"}),
 	// 토스에서 받은 결제 키는 유일해야 함 (중복 승인 방지 멱등키)
 	@UniqueConstraint(name = "uk_payment_key", columnNames = {"payment_key"})
 })
+// 주문:결제 = 1:N (결제 실패 후 재시도 가능)
 public class Payment extends BaseTimeEntity {
 
-	//결제키
-	@Column(nullable = false)
+	//결제키 (결제 승인 후 설정됨)
+	@Column
 	private String paymentKey;
 
 	@Column(nullable = false)
@@ -50,7 +49,7 @@ public class Payment extends BaseTimeEntity {
 	@Column
 	private String cancelReason;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "order_id")
 	private Order order;
 
@@ -63,6 +62,8 @@ public class Payment extends BaseTimeEntity {
 		this.paymentAmount = this.orderAmount + deliveryFee;
 		this.type = type;
 		this.status = PaymentStatus.READY;
+		// 양방향 관계 설정
+		order.addPayment(this);
 	}
 
 	public static Payment create(Long userId, Order order, Long deliveryFee, PaymentType type) {
