@@ -49,12 +49,13 @@ public enum ErrorCode {
 	DELIVERY_NOT_IN_READY(HttpStatus.CONFLICT, "출고준비완료 상태에서만 배송을 시작할 수 있습니다."),
 	DELIVERY_NOT_IN_SHIPPING(HttpStatus.CONFLICT, "배송중 상태에서만 배송완료 처리할 수 있습니다."),
 	DELIVERY_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT, "배송중이거나 완료된 주문은 취소할 수 없습니다."),
-	DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 방송 정보를 찾을 수 없습니다."),
+	DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 배송 정보를 찾을 수 없습니다."),
 	COURIER_NOT_FOUND(HttpStatus.NOT_FOUND, "택배사를 찾을 수 없습니다."),
 	COURIER_CODE_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 택배사 코드입니다."),
 
 	// ---------------- REVIEW ----------------
 	REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."),
+	REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 작성한 리뷰가 존재합니다."),
 
 	// ---------------- CATEGORY -------------------
 	CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
@@ -87,17 +88,29 @@ public enum ErrorCode {
 	INVENTORY_RESERVATION_NOT_FOUND(HttpStatus.CONFLICT, "예약된 재고가 부족합니다."),
 	INVENTORY_OUTBOUND_NOT_RESERVED(HttpStatus.CONFLICT, "출고 처리할 예약 재고가 없습니다."),
 
+	// ---------------- WMS INBOUND -------------------
+	WMS_INBOUND_EVENT_QUANTITY_INVALID(HttpStatus.BAD_REQUEST, "입고 수량은 0보다 커야 합니다."),
+	WMS_INBOUND_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "입고 대상 상품을 찾을 수 없습니다."),
+	WMS_INBOUND_EVENT_ALREADY_PROCESSED(HttpStatus.CONFLICT, "이미 처리된 입고 이벤트입니다."),
+	WMS_INBOUND_INVENTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "입고 대상 재고 정보가 존재하지 않습니다."),
+	WMS_INBOUND_LOCK_ACQUIRE_FAILED(HttpStatus.CONFLICT, "재고 잠금 획득에 실패했습니다."),
+
 	// ---------------- CART -------------------
 	CART_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품이 이미 삭제되어 있습니다"),
+	CART_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니를 찾을 수 없습니다."),
+	CART_EMPTY(HttpStatus.BAD_REQUEST, "장바구니가 비어 있습니다."),
 
 	// ---------------- ORDER -------------------
 	ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."),
+	ORDER_NOT_MODIFIABLE(HttpStatus.CONFLICT, "현재 상태에서는 주문을 수정할 수 없습니다."),
 	ORDER_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT, "현재 상태에서는 주문을 취소할 수 없습니다."),
 	ORDER_ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소된 주문입니다."),
-
+	ORDER_NOT_PENDING(HttpStatus.CONFLICT, "결제 대기 상태의 주문만 결제 할 수 있습니다."),
+	ORDER_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "결제 금액과 주문 금액이 일치하지 않습니다."),
+	ORDER_ALREADY_COMPLETED(HttpStatus.CONFLICT, "이미 완료된 주문입니다."),
+	PAYMENT_NOT_COMPLETED(HttpStatus.CONFLICT, "결제가 완료되지 않았습니다."),
 	// ---------------- ORDER_PRODUCT -------------------
 	ORDER_PRODUCT_QUANTITY_MINIMUM(HttpStatus.BAD_REQUEST, "주문 상품 수량은 1 이상이어야 합니다."),
-
 	// ---------------- PAYMENT -------------------
 	PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "결제 정보를 찾을 수 없습니다."),
 	PAYMENT_APPROVE_NOT_ALLOWED(HttpStatus.CONFLICT, "결제 승인이 불가능한 상태입니다."),
@@ -117,9 +130,20 @@ public enum ErrorCode {
 	BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
 	BOARD_NOT_WRITER(HttpStatus.FORBIDDEN, "게시글 작성자만 수정/삭제할 수 있습니다."),
 
-	// ---------------- COMMENT -------------------
+    // ---------------- COMMENT -------------------
 	COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
-	COMMENT_NOT_WRITER(HttpStatus.FORBIDDEN, "댓글 작성자만 수정/삭제할 수 있습니다.");
+	COMMENT_NOT_WRITER(HttpStatus.FORBIDDEN, "댓글 작성자만 수정/삭제할 수 있습니다."),
+
+    // ---------------- TAG -------------------
+    TAG_KEY_REQUIRED(HttpStatus.BAD_REQUEST, "태그 키는 필수입니다."),
+    TAG_KEY_TOO_LONG(HttpStatus.BAD_REQUEST, "태그 키는 80자를 초과할 수 없습니다."),
+    TAG_KEY_INVALID_FORMAT(HttpStatus.BAD_REQUEST, "태그 키 형식이 올바르지 않습니다."),
+    TAG_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "태그 이름은 필수입니다."),
+    TAG_NAME_TOO_LONG(HttpStatus.BAD_REQUEST, "태그 이름은 100자를 초과할 수 없습니다."),
+    TAG_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 삭제된 태그입니다."),
+    TAG_KEY_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 태그 키입니다."),
+    TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 태그를 찾을 수 없습니다."),
+    TAG_INACTIVE(HttpStatus.BAD_REQUEST, "비활성화된 태그는 사용할 수 없습니다.");
 
 	private final HttpStatus status;
 	private final String message;

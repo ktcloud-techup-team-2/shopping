@@ -8,8 +8,12 @@ import com.kt.domain.review.Review;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-	Page<Review> findByProductId(Long productId, Pageable pageable);
+	Page<Review> findByProductIdAndDeletedFalse(Long productId, Pageable pageable);
 
-	Page<Review> findByUserId(Long userId, Pageable pageable);
+	Page<Review> findByUserIdAndDeletedFalse(Long userId, Pageable pageable);
+
+	Page<Review> findAllByDeletedFalse(Pageable pageable);
+
+	boolean existsByUserIdAndProductIdAndDeletedFalse(Long userId, Long productId);
 
 }

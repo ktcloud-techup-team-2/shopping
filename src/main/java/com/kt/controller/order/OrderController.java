@@ -28,12 +28,23 @@ public class OrderController {
 
 	private final OrderService orderService;
 
-	@PostMapping
-	public ApiResponseEntity<OrderResponse.Create> create(
+	// 장바구니 주문
+	@PostMapping("/cart")
+	public ApiResponseEntity<OrderResponse.Create> createCartOrder(
 		@AuthenticationPrincipal AuthUser authUser,
-		@RequestBody @Valid OrderRequest.Create request
+		@RequestBody @Valid OrderRequest.CartOrder request
 	) {
-		Order order = orderService.createOrder(authUser.id(), request);
+		Order order = orderService.createCartOrder(authUser.id(), request);
+		return ApiResponseEntity.created(OrderResponse.Create.from(order));
+	}
+
+	// 바로 주문
+	@PostMapping("/direct")
+	public ApiResponseEntity<OrderResponse.Create> createDirectOrder(
+		@AuthenticationPrincipal AuthUser authUser,
+		@RequestBody @Valid OrderRequest.DirectOrder request
+	) {
+		Order order = orderService.createDirectOrder(authUser.id(), request);
 		return ApiResponseEntity.created(OrderResponse.Create.from(order));
 	}
 

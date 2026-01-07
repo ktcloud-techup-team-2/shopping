@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "payments")
 public class Payment extends BaseTimeEntity {
 
-	//PG사 결제키
-	//PG사 주문 ID
+	// 토스페이먼츠 결제 키 (결제 승인 시 토스에서 발급)
+	private String paymentKey;
 
 	@Column(nullable = false)
 	private Long userId;
@@ -87,5 +87,21 @@ public class Payment extends BaseTimeEntity {
 
 	public void changeStatus(PaymentStatus status) {
 		this.status = status;
+	}
+
+	// 결제 승인 처리 (토스 결제 키 저장 + 상태 변경)
+	public void confirmPayment(String paymentKey) {
+		this.paymentKey = paymentKey;
+		this.status = PaymentStatus.DONE;
+	}
+
+	// 결제 실패 처리
+	public void failPayment() {
+		this.status = PaymentStatus.FAILED;
+	}
+
+	// 결제 진행 중 상태로 변경
+	public void startProgress() {
+		this.status = PaymentStatus.IN_PROGRESS;
 	}
 }
