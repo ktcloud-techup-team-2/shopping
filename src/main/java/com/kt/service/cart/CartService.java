@@ -118,14 +118,12 @@ public class CartService {
 		// 변경하려는 수량에 대해 실제 재고 검증
 		validateStock(cartProduct.getProduct().getId(), request.count());
 
+		// 이전 수량 저장
+		int previousCount = cartProduct.getCount();
+		
 		cartProduct.countUpdate(request.count());
 
-		return new CartResponse.CountUpdate(
-			cartProduct.getProduct().getId(),
-			cartProduct.getProduct().getName(),
-			cartProduct.getCount(),
-			cartProduct.getUpdatedAt()
-		);
+		return CartResponse.CountUpdate.of(cartProduct, previousCount);
 	}
 
 	// 실제 재고 검증
