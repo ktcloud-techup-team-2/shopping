@@ -17,7 +17,6 @@ import com.kt.repository.cart.CartProductRepositoryImpl;
 import com.kt.repository.cart.CartRepository;
 import com.kt.repository.inventory.InventoryRepository;
 import com.kt.repository.product.ProductRepository;
-import com.kt.repository.user.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,27 +29,22 @@ public class CartService {
 	private final CartRepository cartRepository;
 	private final CartProductRepository cartProductRepository;
 	private final ProductRepository productRepository;
-	private final UserRepository userRepository;
 	private final CartProductRepositoryImpl cartProductRepositoryImpl;
 	private final InventoryRepository inventoryRepository;
 
 	//장바구니 상품 추가/생성
-	public CartResponse.Create create(CartRequest.Add request, Long id){
+	public CartResponse.Create create(CartRequest.Add request, Long userId){
 
 		//상품
 		var product = productRepository.findById(request.productId())
 			.orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
-		//회원
-		var user = userRepository.findById(id)
-			.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
 		//유저에게 장바구니가 없으면 null 반환
-		var cart = cartRepository.findByUserId(user.getId()).orElse(null);
+		var cart = cartRepository.findByUserId(userId).orElse(null);
 
 		//null이면 cart 생성
 		if(cart == null){
-			cart = Cart.create(user);
+			cart = Cart.create(userId);
 			cartRepository.save(cart);
 		}
 

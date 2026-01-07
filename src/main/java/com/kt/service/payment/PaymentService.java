@@ -24,7 +24,7 @@ public class PaymentService {
 	private final ApplicationEventPublisher eventPublisher;
 	// 실제 연동 시 RestTemplate 등이 필요
 
-	public void createReadyPayment(Long userId, Order order, Long amount, String paymentTypeStr) {
+	public Payment createReadyPayment(Long userId, Order order, Long amount, String paymentTypeStr) {
 
 		PaymentType type = PaymentType.valueOf(paymentTypeStr);
 
@@ -37,6 +37,7 @@ public class PaymentService {
 
 		paymentRepository.save(payment);
 
+		return payment;
 	}
 
 	public Payment confirmPayment(Long userId, PaymentRequest.Confirm request) {
@@ -99,9 +100,6 @@ public class PaymentService {
 		Payment payment = paymentRepository.findByIdAndUserId(paymentId, userId)
 			.orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
 
-		// 취소 가능 상태 체크
-		payment.isCancelable();
-
 		try {
 			//토스 취소 api 호출
 			boolean isExternalApiSuccess = true;
@@ -111,10 +109,13 @@ public class PaymentService {
 			}
 
 			//상태 변경 (DONE -> CANCELED) 및 취소 사유 저장
+			// cancel() 내부에서 취소 가능 여부 확인
 			payment.cancel(cancelReason);
 
 			return payment;
 
+		} catch (CustomException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new CustomException(ErrorCode.PAYMENT_CANCEL_FAILED);
 		}
