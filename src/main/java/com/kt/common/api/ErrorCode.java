@@ -49,12 +49,13 @@ public enum ErrorCode {
 	DELIVERY_NOT_IN_READY(HttpStatus.CONFLICT, "출고준비완료 상태에서만 배송을 시작할 수 있습니다."),
 	DELIVERY_NOT_IN_SHIPPING(HttpStatus.CONFLICT, "배송중 상태에서만 배송완료 처리할 수 있습니다."),
 	DELIVERY_CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT, "배송중이거나 완료된 주문은 취소할 수 없습니다."),
-	DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 방송 정보를 찾을 수 없습니다."),
+	DELIVERY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 배송 정보를 찾을 수 없습니다."),
 	COURIER_NOT_FOUND(HttpStatus.NOT_FOUND, "택배사를 찾을 수 없습니다."),
 	COURIER_CODE_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 택배사 코드입니다."),
 
 	// ---------------- REVIEW ----------------
 	REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."),
+	REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 작성한 리뷰가 존재합니다."),
 
 	// ---------------- CATEGORY -------------------
 	CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
