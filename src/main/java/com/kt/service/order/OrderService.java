@@ -18,7 +18,6 @@ import com.kt.domain.order.OrderType;
 import com.kt.domain.order.Receiver;
 import com.kt.domain.orderproduct.OrderProduct;
 import com.kt.domain.payment.Payment;
-import com.kt.domain.payment.PaymentType;
 import com.kt.domain.product.Product;
 import com.kt.dto.delivery.DeliveryRequest;
 import com.kt.dto.order.OrderRequest;
@@ -118,11 +117,6 @@ public class OrderService {
 		// 배송 정보 생성
 		createDeliveryForOrder(order.getId(), request.deliveryAddressId(), request.deliveryFee());
 
-		//이벤트 구현
-
-		//DTO에서 받은 결제 수단을 Enum으로 변환
-		PaymentType type = PaymentType.valueOf(request.paymentType());
-
 		//결제 정보 생성
 		paymentService.createReadyPayment(
 			userId,
@@ -156,7 +150,7 @@ public class OrderService {
 			.ifPresent(o -> { throw new CustomException(ErrorCode.DUPLICATE_ORDER_NUMBER); });
 
 		//주문 생성 (바로 주문)
-		Order order = Order.create(userId, receiver, orderNumber, OrderType.CART);
+		Order order = Order.create(userId, receiver, orderNumber, OrderType.DIRECT);
 
 		//주문 저장 전 동시성 제어(따닥 요청 방지, 동일한 주문번호의 주문이 저장되면 에러)
 		try {
@@ -175,9 +169,6 @@ public class OrderService {
 
 		// 배송 정보 생성
 		createDeliveryForOrder(order.getId(), request.deliveryAddressId(), request.deliveryFee());
-
-		//DTO에서 받은 결제 수단을 Enum으로 변환
-		PaymentType type = PaymentType.valueOf(request.paymentType());
 
 		//결제 정보 생성
 		paymentService.createReadyPayment(

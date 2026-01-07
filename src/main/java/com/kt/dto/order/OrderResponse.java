@@ -24,8 +24,8 @@ public interface OrderResponse {
 				order.getOrderNumber(),
 				order.getOrderStatus(),
 				order.getOrderAmount(),
-				order.getPayment().getDeliveryFee(),
-				order.getPayment().getPaymentAmount(),
+				order.getLatestPayment().getDeliveryFee(),
+				order.getLatestPayment().getPaymentAmount(),
 				order.getCreatedAt()
 			);
 		}
