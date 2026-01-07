@@ -44,6 +44,14 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
 
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      faq-vector-store-id: ${OPENAI_FAQ_VECTOR_STORE_ID}
+      chat:
+        options:
+          model: gpt-3.5-turbo
+
 
 jwt:
   secret: ${kt.jwt.secret:1234567890123456789012345678901234}
