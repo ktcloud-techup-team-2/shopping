@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Random;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,7 @@ import com.kt.repository.orderproduct.OrderProductRepository;
 import com.kt.repository.payment.PaymentRepository;
 import com.kt.repository.product.ProductRepository;
 import com.kt.service.delivery.DeliveryService;
+import com.kt.service.payment.PaymentService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,6 +41,7 @@ public class OrderService {
 	private final ProductRepository productRepository;
 	private final OrderProductRepository orderProductRepository;
 	private final DeliveryService deliveryService;
+	private final PaymentService paymentService;
 	private final CartRepository cartRepository;
 	private final CartProductRepository cartProductRepository;
 	private final PaymentRepository paymentRepository;
@@ -81,10 +84,23 @@ public class OrderService {
 			request.receiverMobile()
 		);
 
-		//주문 생성 (장바구니 주문)
+
 		String orderNumber = generateOrderNumber();
+
+		// 중복 조회
+		orderRepository.findByOrderNumber(orderNumber)
+			.ifPresent(o -> { throw new CustomException(ErrorCode.DUPLICATE_ORDER_NUMBER); });
+
+		//주문 생성 (장바구니 주문)
 		Order order = Order.create(userId, receiver, orderNumber, OrderType.CART);
-		orderRepository.save(order);
+
+		//주문 저장 전 동시성 제어(따닥 요청 방지, 동일한 주문번호의 주문이 저장되면 에러)
+		try {
+			orderRepository.save(order);
+		}catch(DataIntegrityViolationException e){
+			throw new CustomException(ErrorCode.DUPLICATE_ORDER_NUMBER);
+		}
+
 
 		// 주문 상품 생성
 		for (CartProduct cartProduct : cartProducts) {
@@ -101,7 +117,13 @@ public class OrderService {
 		// 배송 정보 생성
 		createDeliveryForOrder(order.getId(), request.deliveryAddressId(), request.deliveryFee());
 
-		//이벤트 구현
+		//결제 정보 생성
+		paymentService.createReadyPayment(
+			userId,
+			order,
+			request.deliveryFee().longValue(),
+			request.paymentType()
+		);
 
 		return order;
 	}
@@ -121,10 +143,21 @@ public class OrderService {
 			request.receiverMobile()
 		);
 
-		// 주문 생성 (바로 주문)
 		String orderNumber = generateOrderNumber();
+
+		// 중복 조회
+		orderRepository.findByOrderNumber(orderNumber)
+			.ifPresent(o -> { throw new CustomException(ErrorCode.DUPLICATE_ORDER_NUMBER); });
+
+		//주문 생성 (바로 주문)
 		Order order = Order.create(userId, receiver, orderNumber, OrderType.DIRECT);
-		orderRepository.save(order);
+
+		//주문 저장 전 동시성 제어(따닥 요청 방지, 동일한 주문번호의 주문이 저장되면 에러)
+		try {
+			orderRepository.save(order);
+		}catch(DataIntegrityViolationException e){
+			throw new CustomException(ErrorCode.DUPLICATE_ORDER_NUMBER);
+		}
 
 		// 주문 상품 생성
 		OrderProduct orderProduct = OrderProduct.create(product, request.quantity(), order);
@@ -137,13 +170,21 @@ public class OrderService {
 		// 배송 정보 생성
 		createDeliveryForOrder(order.getId(), request.deliveryAddressId(), request.deliveryFee());
 
+		//결제 정보 생성
+		paymentService.createReadyPayment(
+			userId,
+			order,
+			request.deliveryFee().longValue(),
+			request.paymentType()
+		);
+
 		return order;
 	}
 
 	/**
 	 * 주문 완료 처리
 	 * 1) 결제가 완료된 후 호출
-	 * 2) 결제 상태(DONE) 확인 후 주문을 완료 처리
+	 * 2) 결제 상태(DONE) 확인 후 -> 주문 상태 변경 + 재고 차감
 	 */
 	public Order completeOrder(Long userId, String orderNumber) {
 		// 1. 주문 조회
@@ -158,27 +199,16 @@ public class OrderService {
 			.orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
 		orderValidator.validatePaymentCompleted(payment);
 
-		// 4. 주문 완료 처리
-		order.complete();
-
-		// 5. 재고 차감
+		// 4. 재고 차감
 		orderStockService.deductStock(order.getOrderProducts());
+
+		// 5. 주문 완료 처리
+		order.complete();
 
 		// 6. 장바구니 비우기 (장바구니 주문의 경우)
 		clearCartIfCartOrder(userId, order);
 
 		return order;
-	}
-
-	//장바구니 주문이면 장바구니 비우기
-	private void clearCartIfCartOrder(Long userId, Order order) {
-		if (!order.isCartOrder()) {
-			return;
-		}
-
-		cartRepository.findByUserId(userId).ifPresent(cart -> {
-			cartProductRepository.deleteAllByCartId(cart.getId());
-		});
 	}
 
 	//내 주문 목록 조회
@@ -205,7 +235,6 @@ public class OrderService {
 		return order;
 	}
 
-	//결제 취소 구현
 
 	//수정 = 배송정보 수정
 	public Order updateOrder(Long userId, String orderNumber, OrderRequest.Update request) {
@@ -224,6 +253,8 @@ public class OrderService {
 		return order;
 	}
 
+	//order-product 연관관계
+
 	private void createDeliveryForOrder(Long orderId, Long deliveryAddressId, Integer deliveryFee) {
 		var deliveryRequest = new DeliveryRequest.Create(
 			orderId,
@@ -232,5 +263,16 @@ public class OrderService {
 		);
 
 		deliveryService.createDelivery(deliveryRequest);
+	}
+
+	//장바구니 주문이면 장바구니 비우기
+	private void clearCartIfCartOrder(Long userId, Order order) {
+		//장바구니 주문이 아니면 건너뛰기
+		if (!order.isCartOrder()) {
+			return;
+		}
+		cartRepository.findByUserId(userId).ifPresent(cart -> {
+			cartProductRepository.deleteAllByCartId(cart.getId());
+		});
 	}
 }

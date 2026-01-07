@@ -6,49 +6,68 @@ import com.kt.domain.payment.Payment;
 import com.kt.domain.payment.PaymentStatus;
 import com.kt.domain.payment.PaymentType;
 
-public interface PaymentResponse {
+public class PaymentResponse {
 
-	record Create(
-		Long paymentId,
-		PaymentStatus status,
-		Long paymentAmount,
-		LocalDateTime createdAt
-	){
-		public static Create from(Payment payment){
-			return new Create(
-				payment.getId(),
-				payment.getStatus(),
+	//결제 승인
+	public record ConfirmResult(
+		String orderNumber,
+		String paymentKey,
+		Long amount,
+		String status
+	) {
+		public static ConfirmResult from(Payment payment) {
+			return new ConfirmResult(
+				payment.getOrderNumber(),
+				payment.getPaymentKey(),
 				payment.getPaymentAmount(),
-				payment.getCreatedAt()
+				payment.getStatus().name()
 			);
 		}
 	}
 
-	record Check(
+	//결제 조회
+	public record Detail(
 		Long paymentId,
 		String orderNumber,
+		String paymentKey,
 		Long orderAmount,
 		Long deliveryFee,
 		Long paymentAmount,
-		PaymentType type,
 		PaymentStatus status,
+		String paymentType,
 		LocalDateTime createdAt
-	){
-		public static Check from(Payment payment){
-			return new Check(
+	) {
+		public static Detail from(Payment payment) {
+			return new Detail(
 				payment.getId(),
 				payment.getOrderNumber(),
+				payment.getPaymentKey(),
 				payment.getOrderAmount(),
 				payment.getDeliveryFee(),
 				payment.getPaymentAmount(),
-				payment.getType(),
 				payment.getStatus(),
+				payment.getType().name(),
 				payment.getCreatedAt()
 			);
 		}
 	}
 
-	record AdminList(
+	//결제 취소
+	public record CancelResult(
+		Long paymentId,
+		String orderNumber,
+		PaymentStatus status
+	) {
+		public static CancelResult from(Payment payment) {
+			return new CancelResult(
+				payment.getId(),
+				payment.getOrderNumber(),
+				payment.getStatus()
+			);
+		}
+	}
+
+	public record AdminList(
 		Long paymentId,
 		Long userId,
 		String orderNumber,
@@ -70,7 +89,7 @@ public interface PaymentResponse {
 		}
 	}
 
-	record AdminDetail(
+	public record AdminDetail(
 		Long paymentId,
 		Long userId,
 		String orderNumber,

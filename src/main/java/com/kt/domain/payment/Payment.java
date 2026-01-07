@@ -12,10 +12,15 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "payments")
+@Table(name = "payments", uniqueConstraints = {
+	// 토스에서 받은 결제 키는 유일해야 함 (중복 승인 방지 멱등키)
+	@UniqueConstraint(name = "uk_payment_key", columnNames = {"payment_key"})
+})
+// 주문:결제 = 1:N (결제 실패 후 재시도 가능)
 public class Payment extends BaseTimeEntity {
 
-	// 토스페이먼츠 결제 키 (결제 승인 시 토스에서 발급)
+	//결제키 (결제 승인 후 설정됨)
+	@Column
 	private String paymentKey;
 
 	@Column(nullable = false)
@@ -28,7 +33,7 @@ public class Payment extends BaseTimeEntity {
 	private Long orderAmount;
 
 	@Column(nullable = false)
-	private Long deliveryFee; //배송비 정책 로직 추가 (ex. 금액별 무료배송, 지역별 추가요금)
+	private Long deliveryFee;
 
 	@Column(nullable = false)
 	private Long paymentAmount;
@@ -41,7 +46,10 @@ public class Payment extends BaseTimeEntity {
 	@Column(nullable = false)
 	private PaymentStatus status;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@Column
+	private String cancelReason;
+
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "order_id")
 	private Order order;
 
@@ -54,54 +62,50 @@ public class Payment extends BaseTimeEntity {
 		this.paymentAmount = this.orderAmount + deliveryFee;
 		this.type = type;
 		this.status = PaymentStatus.READY;
+		// 양방향 관계 설정
+		order.addPayment(this);
 	}
 
 	public static Payment create(Long userId, Order order, Long deliveryFee, PaymentType type) {
 		return new Payment(userId, order, deliveryFee, type);
 	}
 
-	public void approve() {
-		if (!canApprove()) {
-			throw new CustomException(ErrorCode.PAYMENT_APPROVE_NOT_ALLOWED);
-		}
-		this.status = PaymentStatus.DONE;
-	}
 
-	public void cancel() {
-		if (this.status == PaymentStatus.CANCELED) {
-			throw new CustomException(ErrorCode.PAYMENT_ALREADY_CANCELLED);
-		}
-		if (!canCancel()) {
-			throw new CustomException(ErrorCode.PAYMENT_CANCEL_NOT_ALLOWED);
-		}
-		this.status = PaymentStatus.CANCELED;
-	}
-
-	private boolean canApprove() {
-		return this.status == PaymentStatus.READY || this.status == PaymentStatus.IN_PROGRESS;
-	}
-
-	private boolean canCancel() {
-		return this.status == PaymentStatus.READY || this.status == PaymentStatus.DONE;
-	}
-
-	public void changeStatus(PaymentStatus status) {
-		this.status = status;
-	}
-
-	// 결제 승인 처리 (토스 결제 키 저장 + 상태 변경)
+	//결제 승인 확정
+	//외부 PG사(토스)로부터 받은 결제 키를 저장하고 상태를 DONE으로 변경
 	public void confirmPayment(String paymentKey) {
 		this.paymentKey = paymentKey;
-		this.status = PaymentStatus.DONE;
+		this.status = PaymentStatus.DONE; // 상태를 '결제 완료'로 변경
 	}
 
-	// 결제 실패 처리
+	//결제 실패
 	public void failPayment() {
 		this.status = PaymentStatus.FAILED;
 	}
 
-	// 결제 진행 중 상태로 변경
-	public void startProgress() {
-		this.status = PaymentStatus.IN_PROGRESS;
+
+	//결제 취소
+	public void cancel(String cancelReason) {
+		if (this.status == PaymentStatus.CANCELED) {
+			throw new CustomException(ErrorCode.PAYMENT_ALREADY_CANCELLED);
+		}
+		if (!isCancelable()) {
+			throw new CustomException(ErrorCode.PAYMENT_CANNOT_CANCEL);
+		}
+		this.status = PaymentStatus.CANCELED;
+		this.cancelReason = cancelReason;
+	}
+
+	//취소 가능 여부 체크 (DONE 상태만 취소 가능)
+	public boolean isCancelable() {
+		return this.status == PaymentStatus.DONE;
+	}
+
+	public boolean isReady() {
+		return this.status == PaymentStatus.READY;
+	}
+
+	public void changeStatus(PaymentStatus status) {
+		this.status = status;
 	}
 }

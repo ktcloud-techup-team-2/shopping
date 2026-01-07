@@ -6,6 +6,7 @@ import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
 import com.kt.domain.order.Order;
 import com.kt.domain.order.OrderStatus;
+import com.kt.domain.order.OrderType;
 import com.kt.domain.order.Receiver;
 import com.kt.dto.order.OrderRequest;
 import com.kt.repository.order.OrderRepository;
@@ -157,7 +158,7 @@ class AdminOrderControllerTest extends AbstractRestDocsTest {
 
 	private Order createTestOrder(Long userId) {
 		Receiver receiver = new Receiver("abc", "서울", "010-0000-0000");
-		Order order = Order.create(userId, receiver, 20000L, "ORD-20251202-TESTA");
+		Order order = Order.create(userId, receiver, "ORD-20251202-TESTA", OrderType.DIRECT);
 		return orderRepository.save(order);
 	}
 }

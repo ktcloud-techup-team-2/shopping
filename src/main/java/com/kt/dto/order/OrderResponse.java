@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.kt.domain.order.Order;
 import com.kt.domain.order.OrderStatus;
+import com.kt.domain.order.OrderType;
 import com.kt.domain.order.Receiver;
 import com.kt.domain.orderproduct.OrderProduct;
 import com.kt.domain.payment.Payment;
@@ -12,19 +13,41 @@ import com.kt.domain.payment.PaymentStatus;
 
 public interface OrderResponse {
 
+	// 주문 생성 응답
 	record Create(
 		String orderNumber,
-		OrderStatus orderStatus,
+		String orderType,
+		String orderStatusDescription,  // 상태 설명 추가
 		Long orderAmount,
-		LocalDateTime createdAt
+		Long deliveryFee,
+		Long paymentAmount,
+		LocalDateTime createdAt,
+		String message// 사용자 친화적 메시지
 	){
 		public static Create from(Order order){
+			String message = order.getOrderType() == OrderType.CART
+				? "장바구니 상품으로 주문이 생성되었습니다."
+				: "바로 주문이 생성되었습니다.";
 			return new Create(
 				order.getOrderNumber(),
-				order.getOrderStatus(),
+				order.getOrderType().name(),
+				getStatusDescription(order.getOrderStatus()),
 				order.getOrderAmount(),
-				order.getCreatedAt()
+				order.getLatestPayment().getDeliveryFee(),
+				order.getLatestPayment().getPaymentAmount(),
+				order.getCreatedAt(),
+				message
 			);
+		}
+		private static String getStatusDescription(OrderStatus status) {
+			return switch (status) {
+				case PENDING -> "결제 대기중";
+				case COMPLETED -> "결제 완료";
+				case SHIPPED -> "배송중";
+				case DELIVERED -> "배송 완료";
+				case CANCELLED -> "주문 취소";
+				default -> status.name();
+			};
 		}
 	}
 

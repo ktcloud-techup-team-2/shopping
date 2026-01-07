@@ -33,18 +33,17 @@ public class CartProductRepositoryImpl implements CartProductRepositoryCustom {
 		 //특정 엔티티를 조회할때, 엔티티의 모든 값이 필요하지 않은 경우 필요한 값들만 조회할 수 있게 하는 기능
 
 		List<CartResponse.Detail> results = queryFactory
-			.select(Projections.fields(CartResponse.Detail.class,
-				cartProduct.id.as("cartId"), //as : 별칭 지정
-				product.id.as("productId"),
+			.select(Projections.constructor(CartResponse.Detail.class,
+				cartProduct.id, // cartId
+				product.id, // productId
 				product.name,
 				product.price,
 				cartProduct.count,
 				cartProduct.createdAt,
 				cartProduct.updatedAt
 			))
-			.join(cartProduct.product, product)
-			//.join(cartProduct.cart, cart) //cart는 cart_id만 필요하므로 조인 필요x
 			.from(cartProduct)
+			.join(cartProduct.product, product)
 			.where(cartProduct.cart.id.eq(cartId)) //전달받은 ID랑 Cart 객체의 ID가 같은 장바구니를 조회
 			.orderBy(
 				cartProduct.updatedAt.desc().nullsLast(), //가장 최근에 수정한 상품을 가장 먼저 보여줌 //null이면 맨 아래로

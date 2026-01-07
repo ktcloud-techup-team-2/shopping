@@ -17,20 +17,27 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Cart extends BaseTimeEntity {
 
-	@OneToOne(fetch = FetchType.LAZY) //지연로딩
-	private User user;
+	@Column(name = "user_id", nullable = false)
+	private Long userId;
 
 	@OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<CartProduct> products = new ArrayList<>();
 
-	//회원 1명당 장바구니 1개
-	private Cart(User user){
-		this.user = user;
+	private Cart(Long userId){
+		this.userId = userId;
 	}
+
+	/**
+	 * User 객체로 Cart 생성
+	 */
 	public static Cart create(User user){
-
-		return new Cart(user);
+		return new Cart(user.getId());
 	}
 
-
+	/**
+	 * userId로 Cart 생성
+	 */
+	public static Cart create(Long userId){
+		return new Cart(userId);
+	}
 }

@@ -26,39 +26,40 @@ public class PaymentController {
 
 	private final PaymentService paymentService;
 
-	@PostMapping
-	public ApiResponseEntity<PaymentResponse.Create> createPayment(
+	//최종 결제 승인 : 프론트엔드가 토스 결제창 인증 후 받은 정보 전달
+	@PostMapping("/confirm")
+	public ApiResponseEntity<PaymentResponse.ConfirmResult> confirmPayment(
 		@AuthenticationPrincipal AuthUser authUser,
-		@RequestBody @Valid PaymentRequest.Create request
+		@RequestBody @Valid PaymentRequest.Confirm request
 	) {
-		Payment payment = paymentService.createPayment(authUser.id(), request);
-		return ApiResponseEntity.created(PaymentResponse.Create.from(payment));
+		// 결제 승인 로직 실행
+		Payment payment = paymentService.confirmPayment(authUser.id(), request);
+
+		// 성공 결과 반환
+		return ApiResponseEntity.success(PaymentResponse.ConfirmResult.from(payment));
 	}
 
+	//결제 조회
 	@GetMapping("/{paymentId}")
-	public ApiResponseEntity<PaymentResponse.Check> getPayment(
+	public ApiResponseEntity<PaymentResponse.Detail> getPayment(
 		@AuthenticationPrincipal AuthUser authUser,
 		@PathVariable Long paymentId
 	) {
-		Payment payment = paymentService.getPayment(paymentId);
-		return ApiResponseEntity.success(PaymentResponse.Check.from(payment));
+		Payment payment = paymentService.getPayment(authUser.id(),paymentId);
+
+		return ApiResponseEntity.success(PaymentResponse.Detail.from(payment));
 	}
 
-	@PatchMapping("/{paymentId}/approve")
-	public ApiResponseEntity<PaymentResponse.Check> approvePayment(
-		@AuthenticationPrincipal AuthUser authUser,
-		@PathVariable Long paymentId
-	) {
-		Payment payment = paymentService.approvePayment(paymentId);
-		return ApiResponseEntity.success(PaymentResponse.Check.from(payment));
-	}
-
+	//결제 취소
 	@PatchMapping("/{paymentId}/cancel")
-	public ApiResponseEntity<PaymentResponse.Check> cancelPayment(
+	public ApiResponseEntity<PaymentResponse.CancelResult> cancelPayment(
 		@AuthenticationPrincipal AuthUser authUser,
-		@PathVariable Long paymentId
+		@PathVariable Long paymentId,
+		@RequestBody @Valid PaymentRequest.Cancel request
 	) {
-		Payment payment = paymentService.cancelPayment(paymentId);
-		return ApiResponseEntity.success(PaymentResponse.Check.from(payment));
+		Payment payment = paymentService.cancelPayment(authUser.id(), paymentId, request.cancelReason());
+
+		return ApiResponseEntity.success(PaymentResponse.CancelResult.from(payment));
 	}
+
 }
