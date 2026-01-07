@@ -3,6 +3,7 @@ package com.kt.controller.user;
 import com.kt.common.AbstractRestDocsTest;
 import com.kt.common.RestDocsFactory;
 import com.kt.domain.order.Order;
+import com.kt.domain.order.OrderType;
 import com.kt.domain.order.Receiver;
 import com.kt.domain.review.Review;
 import com.kt.domain.user.Gender;
@@ -100,14 +101,14 @@ public class UserControllerTest extends AbstractRestDocsTest {
         Order order1 = Order.create(
                 currentUserId,
                 receiver,
-                10000L,
-                "ORD-TEST-001"
+                "ORD-TEST-001",
+                OrderType.DIRECT
         );
         Order order2 = Order.create(
                 currentUserId,
                 receiver,
-                20000L,
-                "ORD-TEST-002"
+                "ORD-TEST-002",
+                OrderType.DIRECT
         );
 
         orderRepository.saveAll(List.of(order1, order2));
