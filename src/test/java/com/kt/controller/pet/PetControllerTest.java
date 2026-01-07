@@ -71,7 +71,7 @@ public class PetControllerTest extends AbstractRestDocsTest {
                 Gender.MALE,
                 true,
                 "스핑크스",
-                "2012-03-01",
+                LocalDate.of(2012, 3, 10),
                 4.5,
                 BodyShape.SKINNY,
                 true,
@@ -91,7 +91,7 @@ public class PetControllerTest extends AbstractRestDocsTest {
                     Gender.MALE,
                     true,
                     "포메라니안",
-                    "2012-03-01",
+                    LocalDate.of(2012, 3, 2),
                     3.9,
                     BodyShape.SKINNY,
                     true,
@@ -175,7 +175,7 @@ public class PetControllerTest extends AbstractRestDocsTest {
                     Gender.FEMALE,
                     false,
                     "코리안숏헤어",
-                    "2020-05-10",
+                    LocalDate.of(2016, 8, 10),
                     4.5,
                     BodyShape.NORMAL,
                     false,
@@ -212,7 +212,7 @@ public class PetControllerTest extends AbstractRestDocsTest {
             )
                     .andExpect(status().isNoContent());
 
-            assertThat(petRepository.findByIdAndDeletedAtIsNull(defaultPetId)).isEmpty();
+            assertThat(petRepository.findByIdAndDeletedFalse(defaultPetId)).isEmpty();
 
             Pet deletedPet = petRepository.findById(defaultPetId).orElseThrow();
             assertThat(deletedPet.isDeleted()).isTrue();

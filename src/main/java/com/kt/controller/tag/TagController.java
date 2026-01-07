@@ -24,7 +24,7 @@ public class TagController {
     }
 
     @GetMapping("/{tagId}")
-    public ApiResponseEntity<TagResponse.Detail> get(@PathVariable Long tagId) {
+    public ApiResponseEntity<TagResponse.Detail> getTag(@PathVariable Long tagId) {
         var response = tagService.getTag(tagId);
         return ApiResponseEntity.success(response);
     }

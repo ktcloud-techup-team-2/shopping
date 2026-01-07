@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -33,7 +35,7 @@ public class Pet extends BaseSoftDeleteEntity {
     private String breed;
 
     @Column(nullable = false)
-    private String birthday;
+    private LocalDate birthday;
 
     private Double weight;
 
@@ -53,7 +55,7 @@ public class Pet extends BaseSoftDeleteEntity {
             Gender gender,
             boolean neutered,
             String breed,
-            String birthday,
+            LocalDate birthday,
             Double weight,
             BodyShape bodyShape,
             boolean allergy,
@@ -79,7 +81,7 @@ public class Pet extends BaseSoftDeleteEntity {
             Gender gender,
             boolean neutered,
             String breed,
-            String birthday,
+            LocalDate birthday,
             Double weight,
             BodyShape bodyShape,
             boolean allergy,

@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
+import java.time.LocalDate;
+
 public class PetRequest {
     public record Create(
             @NotNull(message = "반려동물 종류(type)은 필수 값입니다.")
@@ -18,8 +20,8 @@ public class PetRequest {
             Boolean neutered,
             @NotBlank(message = "품종(breed)은 필수 값입니다.")
             String breed,
-            @NotBlank(message = "생일(birthday)은 필수 값입니다.")
-            String birthday,
+            @NotNull(message = "생일(birthday)은 필수 값입니다.")
+            LocalDate birthday,
             @PositiveOrZero(message = "몸무게는 0 이상이어야 합니다.")
             Double weight,
             BodyShape bodyShape,
