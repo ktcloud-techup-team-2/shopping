@@ -124,10 +124,20 @@ public enum ErrorCode {
 	BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
 	BOARD_NOT_WRITER(HttpStatus.FORBIDDEN, "게시글 작성자만 수정/삭제할 수 있습니다."),
 
-	// ---------------- COMMENT -------------------
+    // ---------------- COMMENT -------------------
 	COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
-	COMMENT_NOT_WRITER(HttpStatus.FORBIDDEN, "댓글 작성자만 수정/삭제할 수 있습니다.");
-	BOARD_NOT_WRITER(HttpStatus.FORBIDDEN, "게시글 작성자만 수정/삭제할 수 있습니다.");
+	COMMENT_NOT_WRITER(HttpStatus.FORBIDDEN, "댓글 작성자만 수정/삭제할 수 있습니다."),
+
+    // ---------------- TAG -------------------
+    TAG_KEY_REQUIRED(HttpStatus.BAD_REQUEST, "태그 키는 필수입니다."),
+    TAG_KEY_TOO_LONG(HttpStatus.BAD_REQUEST, "태그 키는 80자를 초과할 수 없습니다."),
+    TAG_KEY_INVALID_FORMAT(HttpStatus.BAD_REQUEST, "태그 키 형식이 올바르지 않습니다."),
+    TAG_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "태그 이름은 필수입니다."),
+    TAG_NAME_TOO_LONG(HttpStatus.BAD_REQUEST, "태그 이름은 100자를 초과할 수 없습니다."),
+    TAG_ALREADY_DELETED(HttpStatus.CONFLICT, "이미 삭제된 태그입니다."),
+    TAG_KEY_DUPLICATED(HttpStatus.CONFLICT, "이미 존재하는 태그 키입니다."),
+    TAG_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 태그를 찾을 수 없습니다."),
+    TAG_INACTIVE(HttpStatus.BAD_REQUEST, "비활성화된 태그는 사용할 수 없습니다.");
 
 	private final HttpStatus status;
 	private final String message;

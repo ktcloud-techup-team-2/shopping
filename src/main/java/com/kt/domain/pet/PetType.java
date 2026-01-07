@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PetType {
 	DOG("강아지"),
-	CAT("고양이");
+	CAT("고양이"),
+    BOTH("공통");
 	private final String description;
 }
