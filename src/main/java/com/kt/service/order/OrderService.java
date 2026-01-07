@@ -253,6 +253,8 @@ public class OrderService {
 		return order;
 	}
 
+	//order-product 연관관계
+
 	private void createDeliveryForOrder(Long orderId, Long deliveryAddressId, Integer deliveryFee) {
 		var deliveryRequest = new DeliveryRequest.Create(
 			orderId,

@@ -1,6 +1,6 @@
 package com.kt.domain.review;
 
-import com.kt.common.jpa.BaseTimeEntity;
+import com.kt.common.jpa.BaseSoftDeleteEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
-public class Review extends BaseTimeEntity {
+public class Review extends BaseSoftDeleteEntity {
 	@Column(nullable = false)
 	private Long userId;
 
@@ -39,6 +39,10 @@ public class Review extends BaseTimeEntity {
 		this.rating = rating;
 		this.content = content;
 		this.reviewImageUrl = reviewImageUrl;
+	}
+
+	public void delete(Long deleterId) {
+		this.markDeleted(deleterId);
 	}
 
 	public boolean isWriter(Long accessUserId) {

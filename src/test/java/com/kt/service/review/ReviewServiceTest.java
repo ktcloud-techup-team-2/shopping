@@ -144,13 +144,14 @@ class ReviewServiceTest {
 		@DisplayName("성공: 관리자는 작성자가 아니어도 삭제 가능하다")
 		void success() {
 			// given
+			Long adminId = 1L;
 			Long reviewId = 10L;
 			Review review = Review.create(1L, 100L, 5, "원본", null); // 작성자는 1번 유저
 
 			given(reviewRepository.findById(reviewId)).willReturn(Optional.of(review));
 
 			// when
-			reviewService.deleteReviewByAdmin(reviewId); // 관리자 삭제 호출
+			reviewService.deleteReviewByAdmin(adminId ,reviewId); // 관리자 삭제 호출
 
 			// then
 			verify(reviewRepository).delete(review); // 본인 확인 없이 바로 삭제됨
